@@ -67,6 +67,7 @@ namespace Investly.PL
 
             #region Business services registeration
             builder.Services.AddScoped<IInvestorService, InvestorService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             #endregion
 
             var app = builder.Build();
