@@ -10,5 +10,6 @@ namespace Investly.PL.IBL
         public InvestorDtoWithPagination GetPaginatedData(InvestorSearchDto investorSearch);
         public int Update(InvestorDto investor);
         public InvestorTotalActiveIactiveDto GetTotalActiveInactiveInvestors();
+        public int ChangeStatus(int id, int status,int? loggedUser);
     }
 }

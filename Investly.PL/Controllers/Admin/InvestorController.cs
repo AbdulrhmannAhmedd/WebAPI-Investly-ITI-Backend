@@ -48,12 +48,6 @@ namespace Investly.PL.Controllers.Admin
             };
         }
 
-        // GET api/<InvestorController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
 
         [HttpPost]
         public ResponseDto<InvestorDto> Post([FromBody] InvestorDto data)
@@ -85,9 +79,9 @@ namespace Investly.PL.Controllers.Admin
             return response;
         }
 
-        // PUT api/<InvestorController>/5
-        [HttpPut("{id}")]
-        public ResponseDto<InvestorDto> Put(int id, [FromBody] InvestorDto data)
+
+        [HttpPut]
+        public ResponseDto<InvestorDto> Put([FromBody] InvestorDto data)
         {
             var result = _investorService.Update(data);
             ResponseDto<InvestorDto> response;
@@ -97,7 +91,7 @@ namespace Investly.PL.Controllers.Admin
                 {
                     IsSuccess = true,
                     Message = "Investor updated successfully.",
-                    Data = _investorService.GetById(id),
+                    Data = _investorService.GetById(data.Id??0),
                     StatusCode = StatusCodes.Status200OK
                 };
 
@@ -117,10 +111,33 @@ namespace Investly.PL.Controllers.Admin
             return response;
         }
 
-        // DELETE api/<InvestorController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPut("change-status/{id}")]
+        public ResponseDto<object> ChangeStatus(int id, [FromQuery] int status)
         {
+            var result = _investorService.ChangeStatus(id, status, null);
+            ResponseDto<object> response;
+            if (result > 0)
+            {
+                response = new ResponseDto<object>
+                {
+                    IsSuccess = true,
+                    Message = "Investor status changed successfully.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            else
+            {
+                response = new ResponseDto<object>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to change investor status.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+            return response;
         }
+
     }
 }

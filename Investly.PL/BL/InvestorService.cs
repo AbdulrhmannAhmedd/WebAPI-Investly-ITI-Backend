@@ -84,7 +84,9 @@ namespace Investly.PL.BL
                 item.User.LastName.Contains(investorSearch.SearchInput)) &&
                 (investorSearch.GovernmentId == null || investorSearch.GovernmentId == 0 || item.User.GovernmentId == investorSearch.GovernmentId) &&
                 (investorSearch.Gender == null || item.User.Gender == investorSearch.Gender)&&
-                (investorSearch.Status==null || investorSearch.Status==0||item.User.Status==investorSearch.Status)
+                (investorSearch.Status==null || investorSearch.Status==0||item.User.Status==investorSearch.Status)&&
+                (item.User.Status!=(int)UserStatus.Deleted)
+
                 ,includeProperties: "User"
                  ).OrderByDescending(u=>u.User.CreatedAt);
 
@@ -118,7 +120,7 @@ namespace Investly.PL.BL
                 {
                     return 0; // Invalid input
                 }
-                var existingInvestor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.Id == investorDto.Id);
+                var existingInvestor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.Id == investorDto.Id,includeProperties:"User");
                 if (existingInvestor == null)
                 {
                     return -1; // Investor not found
@@ -159,6 +161,32 @@ namespace Investly.PL.BL
             catch (Exception ex)
             {
                 return null;
+
+            }
+        }
+        public int ChangeStatus(int id, int status, int? loggedUser)
+        {
+            try
+            {
+                if (id <= 0 )
+                {
+                    return 0; // Invalid input
+                }
+                var investor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.Id == id, "User");
+                if (investor == null)
+                {
+                    return -1; // Investor not found
+                }
+                investor.User.Status = status;
+                investor.User.UpdatedAt = DateTime.UtcNow;
+                investor.User.UpdatedBy = loggedUser;
+                _unitOfWork.InvestorRepo.Update(investor);
+                return _unitOfWork.Save();
+
+            }
+            catch (Exception ex)
+            {
+                return -1; // Exception occurred
 
             }
         }
