@@ -9,9 +9,9 @@ public partial class City
 
     public int GovId { get; set; }
 
-    public string? NameAr { get; set; }
+    public string NameAr { get; set; } = null!;
 
-    public string? NameEn { get; set; }
+    public string NameEn { get; set; } = null!;
 
     public virtual Government Gov { get; set; } = null!;
 

@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Investly.PL.Attributes
 {
-    public class AuthorizeUserTypeAttribute : AuthorizeAttribute, IAuthorizationFilter
+    public class AuthorizeUserTypeAttribute :Attribute, IAuthorizationFilter
     {
-        private readonly string _userType;
-        public AuthorizeUserTypeAttribute(string userType)
+        private readonly int _userType;
+        public AuthorizeUserTypeAttribute(int userType)
         {
             _userType = userType;
         }
@@ -28,7 +28,7 @@ namespace Investly.PL.Attributes
             else
             {
                 var userTypeClaim = user.Claims.FirstOrDefault(c => c.Type == "UserType");
-                if (userTypeClaim == null || userTypeClaim.Value != _userType)
+                if (userTypeClaim == null || int.Parse(userTypeClaim.Value) != _userType)
                 {
                     context.Result = new JsonResult(new ResponseDto<object>
                     {

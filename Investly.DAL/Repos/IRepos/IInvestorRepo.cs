@@ -9,5 +9,6 @@ namespace Investly.DAL.Repos.IRepos
 {
    public interface IInvestorRepo :IRepo<Investor>
     {
+        public Tuple<int, int> GetTotalActiveInactive(int activeStatus,int InactiveStatus);
     }
 }

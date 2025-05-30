@@ -26,16 +26,16 @@ namespace Investly.PL.BL
                 {
                     return 0; // Invalid input
                 }
-                var existedUser =_unitOfWork.UserRepo.GetAll(u => u.Email == investor.User.Email).FirstOrDefault();
+                var existedUser = _unitOfWork.UserRepo.GetAll(u => u.Email == investor.User.Email).FirstOrDefault();
                 if (existedUser != null)
                 {
                     return -1; //user exist
                 }
                 var newInvestor = _mapper.Map<Investor>(investor);
-                newInvestor.User.HashedPassword = BCrypt.Net.BCrypt.HashPassword(investor.User.Password);
-                newInvestor.User.UserType=(int)UserType.Investor;
-                newInvestor.User.Status =(int)UserStatus.Active;
+                newInvestor.User.UserType = (int)UserType.Investor;
+                newInvestor.User.Status = (int)UserStatus.Active;
                 newInvestor.User.CreatedAt = DateTime.UtcNow;
+                newInvestor.User.HashedPassword = BCrypt.Net.BCrypt.HashPassword("123456");
                 _unitOfWork.InvestorRepo.Insert(newInvestor);
                 res = _unitOfWork.Save();
                 if (res > 0)
@@ -59,7 +59,7 @@ namespace Investly.PL.BL
                 {
                     return null; // Invalid ID
                 }
-                var investor = _unitOfWork.InvestorRepo.FirstOrDefault(u=>u.Id==id,"User");
+                var investor = _unitOfWork.InvestorRepo.FirstOrDefault(u => u.Id == id, "User");
                 if (investor == null)
                 {
                     return null; // Not found
@@ -72,6 +72,95 @@ namespace Investly.PL.BL
 
             }
         }
+        public InvestorDtoWithPagination GetPaginatedData(InvestorSearchDto investorSearch)
+        {
+            try
+            {
+                var investorsQuery = _unitOfWork.InvestorRepo.GetAll(
+                    item =>
+                  (string.IsNullOrEmpty(investorSearch.SearchInput) ||
+                item.User.Email.Contains(investorSearch.SearchInput) ||
+                item.User.FirstName.Contains(investorSearch.SearchInput) ||
+                item.User.LastName.Contains(investorSearch.SearchInput)) &&
+                (investorSearch.GovernmentId == null || investorSearch.GovernmentId == 0 || item.User.GovernmentId == investorSearch.GovernmentId) &&
+                (investorSearch.Gender == null || item.User.Gender == investorSearch.Gender)&&
+                (investorSearch.Status==null || investorSearch.Status==0||item.User.Status==investorSearch.Status)
+                ,includeProperties: "User"
+                 ).OrderByDescending(u=>u.User.CreatedAt);
 
+                int skip= (investorSearch.PageSize * (investorSearch.PageNumber > 0 ? investorSearch.PageNumber - 1 : 1));
+                var paginateData = investorsQuery
+                    .Skip(skip)
+                    .Take(investorSearch.PageSize)
+                    .ToList();
+                return new InvestorDtoWithPagination
+                {
+                    List = _mapper.Map<List<InvestorDto>>(paginateData),
+                    TotalCount = investorsQuery.Count(),
+                    PageSize = investorSearch.PageSize,
+                    CurrentPage = investorSearch.PageNumber
+                };
+            }
+            catch (Exception ex)
+            {
+                return null; // Exception occurred
+            }
+
+        }
+
+        public int Update(InvestorDto investorDto)
+        {
+            int res = 0;
+            try
+            {
+
+                if (investorDto == null || investorDto.Id <= 0)
+                {
+                    return 0; // Invalid input
+                }
+                var existingInvestor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.Id == investorDto.Id);
+                if (existingInvestor == null)
+                {
+                    return -1; // Investor not found
+                }
+                // Update properties
+                existingInvestor.User.Email = investorDto.User.Email;
+                existingInvestor.User.FirstName = investorDto.User.FirstName;
+                existingInvestor.InvestingType = investorDto.InvestingType ?? 0;
+                existingInvestor.User.LastName = investorDto.User.LastName;
+                existingInvestor.User.Address = investorDto.User.Address;
+                existingInvestor.User.PhoneNumber = investorDto.User.PhoneNumber;
+                existingInvestor.User.NationalId = investorDto.User.NationalId;
+                existingInvestor.User.GovernmentId = investorDto.User.GovernmentId;
+                existingInvestor.User.CityId = investorDto.User.CityId;
+                existingInvestor.User.DateOfBirth = investorDto.User.DateOfBirth;
+                existingInvestor.User.UpdatedAt = DateTime.UtcNow;
+                _unitOfWork.InvestorRepo.Update(existingInvestor);
+                res = _unitOfWork.Save();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return -1; // Exception occurred    
+            }
+        }
+        public InvestorTotalActiveIactiveDto GetTotalActiveInactiveInvestors()
+        {
+            try
+            {
+                var result = _unitOfWork.InvestorRepo.GetTotalActiveInactive((int)UserStatus.Active,(int)UserStatus.Inactive);
+                return new InvestorTotalActiveIactiveDto
+                {
+                    TotalActive = result.Item1,
+                    TotalInactive = result.Item2
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+
+            }
+        }
     }
 }
