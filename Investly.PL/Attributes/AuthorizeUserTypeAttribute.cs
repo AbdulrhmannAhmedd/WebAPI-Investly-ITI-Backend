@@ -23,11 +23,14 @@ namespace Investly.PL.Attributes
                     IsSuccess = false,
                     Message = "Unauthorized:user is not authenticated",
                     StatusCode = StatusCodes.Status403Forbidden
-                });
+                })
+                {
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
             }
             else
             {
-                var userTypeClaim = user.Claims.FirstOrDefault(c => c.Type == "UserType");
+                var userTypeClaim = user.Claims.FirstOrDefault(c => c.Type == "userType");
                 if (userTypeClaim == null || int.Parse(userTypeClaim.Value) != _userType)
                 {
                     context.Result = new JsonResult(new ResponseDto<object>
@@ -36,7 +39,10 @@ namespace Investly.PL.Attributes
                         IsSuccess = false,
                         Message = "Unauthorized: user type does not match",
                         StatusCode = StatusCodes.Status401Unauthorized
-                    });
+                    })
+                    {
+                        StatusCode = StatusCodes.Status401Unauthorized
+                    };
                 }
             }
 
