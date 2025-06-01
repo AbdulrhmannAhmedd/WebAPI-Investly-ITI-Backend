@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Investly.PL.Controllers.Admin
 {
-    //[AuthorizeUserType((int)UserType.Investor)]
     [Route("api/admin/[controller]")]
     [ApiController]
 
@@ -19,7 +18,7 @@ namespace Investly.PL.Controllers.Admin
         {
             _investorService = investorService;
         }
-
+        [AuthorizeUserType(((int)UserType.Staff))]
         [HttpPost("paginated")]
         public ResponseDto<InvestorDtoWithPagination> GetPaginted(InvestorSearchDto dataSearch)
          {
@@ -34,6 +33,7 @@ namespace Investly.PL.Controllers.Admin
 
         }
 
+        [AuthorizeUserType((int)UserType.Staff)]
 
         [HttpGet("total-active-inactive")]
         public ResponseDto<InvestorTotalActiveIactiveDto> GetTotalActiveInactive()

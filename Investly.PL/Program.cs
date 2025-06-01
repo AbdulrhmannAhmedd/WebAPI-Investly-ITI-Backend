@@ -2,6 +2,7 @@
 using Investly.DAL.Entities;
 using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
+using Investly.DAL.Seeding;
 using Investly.PL.BL;
 using Investly.PL.General.Services;
 using Investly.PL.General.Services.IServices;
@@ -73,12 +74,28 @@ namespace Investly.PL
 
             var app = builder.Build();
 
+
+            #region DataSeeding
+            using (var scope = app.Services.CreateScope())
+            {
+                var services= scope.ServiceProvider;
+                var dbContext = services.GetRequiredService<AppDbContext>();
+             
+                    // Ensure the database is created and apply migrations
+                   // dbContext.Database.Migrate();
+                    var seeder = new DataSeeding(dbContext);
+                    // Seed the database with initial data
+                    seeder.SuperAdminSeed();
+                
+            }
+            #endregion
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
 
             app.UseHttpsRedirection();
 
