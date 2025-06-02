@@ -4,6 +4,7 @@ using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Investly.PL.Controllers.Admin
 {
@@ -37,8 +38,8 @@ namespace Investly.PL.Controllers.Admin
         [HttpPut("ChangeFounderStatus/{id}")]
         public IActionResult ChangeFoundersStatus(int id,[FromQuery]int Status)
         {
-
-            int status = _founderService.ChangeFounderStatus(id,Status,null);
+            int LoggedInUser =int.Parse(User.FindFirst("id").Value);
+            int status = _founderService.ChangeFounderStatus(id,Status,LoggedInUser);
             ResponseDto<object> res;
             if (status > 0)
             {

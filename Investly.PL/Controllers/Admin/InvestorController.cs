@@ -114,7 +114,8 @@ namespace Investly.PL.Controllers.Admin
         [HttpPut("change-status/{id}")]
         public ResponseDto<object> ChangeStatus(int id, [FromQuery] int status)
         {
-            var result = _investorService.ChangeStatus(id, status, null);
+            int LoggedInUser = int.Parse(User.FindFirst("id").Value);
+            var result = _investorService.ChangeStatus(id, status, LoggedInUser);
             ResponseDto<object> response;
             if (result > 0)
             {
