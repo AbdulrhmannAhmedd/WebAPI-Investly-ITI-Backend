@@ -1,12 +1,14 @@
-﻿using Investly.PL.BL;
+﻿using Investly.PL.Attributes;
+using Investly.PL.BL;
 using Investly.PL.Dtos;
+using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
-
+    [AuthorizeUserType(((int)UserType.Staff))]
     public class FounderController : Controller
     {
        private readonly  IFounderService _founderService;

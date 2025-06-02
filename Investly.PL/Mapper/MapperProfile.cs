@@ -10,6 +10,10 @@ namespace Investly.PL.Mapper
         {
             CreateMap<Dtos.UserDto,User>().ReverseMap();   
             CreateMap<Dtos.InvestorDto, Investor>().ReverseMap();
+            CreateMap<GovernmentDto, Government>().ReverseMap();
+            CreateMap<CityDto, City>().ReverseMap();
+
+
             CreateMap <Dtos.FounderDto,Founder>().ReverseMap();
         }
     }
