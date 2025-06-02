@@ -63,11 +63,11 @@ namespace Investly.PL.BL
                      f.User.PhoneNumber.Contains(search.SearchInput))&&
                  (search.Gender == null || f.User.Gender == search.Gender) &&
                  (search.GovernmentId == null || search.GovernmentId == 0|| f.User.GovernmentId == search.GovernmentId) &&
-                 (search.Status == null || search.Status == 0|| f.User.Status == search.Status) &&
-                    ( f.User.Status != (int)UserStatus.Deleted) 
+                 ( (search.Status == null || search.Status == 0) && f.User.Status != (int)UserStatus.Deleted)||(search.Status != null && search.Status != 0 && f.User.Status == search.Status)
+
                 , "User" ).OrderByDescending(f => f.User.CreatedAt);
                 var PaginatedData = FoundersList
-                  .Skip(((search.PageNumber > 0 ? search.PageNumber : 1) - 1) * (search.PageSize > 0 ? search.PageSize : 10))
+                  .Skip(((search.PageNumber > 0 ? search.PageNumber : 1) - 1) * (search.PageSize > 0 ? search.PageSize : 5))
                   .Take(search.PageSize > 0 ? search.PageSize : 10)
                   .ToList();
 
@@ -76,7 +76,7 @@ namespace Investly.PL.BL
                 {
                     founders=_mapper.Map<List<FounderDto>>(PaginatedData),
                     CurrentPage = (search.PageNumber > 0) ? search.PageNumber : 1,
-                    PageSize = (search.PageSize>0)?search.PageSize:10,
+                    PageSize = (search.PageSize>0)?search.PageSize:5,
                     TotalCount = FoundersList.Count(),
 
                 };
