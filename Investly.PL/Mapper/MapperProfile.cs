@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Investly.DAL.Entities;
+using Investly.PL.Dtos;
 
 namespace Investly.PL.Mapper
 {
@@ -10,7 +11,7 @@ namespace Investly.PL.Mapper
             CreateMap<Dtos.UserDto,User>().ReverseMap();   
             CreateMap<Dtos.InvestorDto, Investor>().ReverseMap();
 
-            CreateMap<Dtos.InvestorContactRequest.ContactRequestViewDto, InvestorContactRequest>().AfterMap((src, dest) =>
+            CreateMap<InvestorContactRequestDto, InvestorContactRequest>().AfterMap((src, dest) =>
             {
                 src.InvestorName = $"{dest.Investor.User.FirstName} {dest.Investor.User.LastName}";
                 src.BusinessTitle = $"{dest.Business.Title}";

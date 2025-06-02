@@ -11,7 +11,7 @@ public partial class InvestorContactRequest
 
     public int BusinessId { get; set; }
 
-    public int Status { get; set; }
+    public bool Status { get; set; }
 
     public string? DeclineReason { get; set; }
 

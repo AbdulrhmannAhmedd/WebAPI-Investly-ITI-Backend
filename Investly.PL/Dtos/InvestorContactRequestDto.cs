@@ -1,6 +1,6 @@
-﻿namespace Investly.PL.Dtos.InvestorContactRequest
+﻿namespace Investly.PL.Dtos
 {
-    public class ContactRequestViewDto
+    public class InvestorContactRequestDto
     {
         public int Id { get; set; }
         // Founder (include the ID if you want to navigate to that specific founder)
@@ -14,4 +14,12 @@
         public string? DeclineReason { get; set; }
         public DateTime? CreatedAt { get; set; }
     }
+
+    public class ContactRequestToggleActivationDto
+    {
+        public int ContactRequestId { get; set; }
+        public string? DeclineReason { get; set; }
+    }
+
+
 }

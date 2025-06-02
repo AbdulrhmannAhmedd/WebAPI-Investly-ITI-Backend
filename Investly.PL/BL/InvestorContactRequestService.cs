@@ -3,7 +3,7 @@ using Investly.DAL.Entities;
 using Investly.DAL.Helper;
 using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
-using Investly.PL.Dtos.InvestorContactRequest;
+using Investly.PL.Dtos;
 using Investly.PL.IBL;
 using System.Linq.Expressions;
 
@@ -11,20 +11,20 @@ namespace Investly.PL.BL
 {
     public class InvestorContactRequestService : IInvestorContactRequestService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public InvestorContactRequestService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            this.unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<PaginatedResult<ContactRequestViewDto>> GetContactRequestsAsync(
+        public async Task<PaginatedResult<InvestorContactRequestDto>> GetContactRequestsAsync(
             int? pageNumber = 1,
             int? pageSize = 10,
             int? investorIdFilter = null,
             int? founderIdFilter = null,
-            int? statusFilter = null,
+            bool? statusFilter = null,
             string columnOrderBy = null,
             string orderByDirection = OrderBy.Ascending,
             string searchTerm = null)
@@ -70,7 +70,7 @@ namespace Investly.PL.BL
             }
 
             // Get paginated results from repository
-            PaginatedResult<InvestorContactRequest> tempRes = await unitOfWork.InvestorContactRequestRepo.FindAllAsync(
+            PaginatedResult<InvestorContactRequest> tempRes = await _unitOfWork.InvestorContactRequestRepo.FindAllAsync(
                 take: pageSize,
                 skip: (pageNumber - 1) * pageSize,
                 criteria: criteria,
@@ -79,9 +79,9 @@ namespace Investly.PL.BL
             );
 
             // Map to DTO and return
-            PaginatedResult<ContactRequestViewDto> res = new PaginatedResult<ContactRequestViewDto>()
+            PaginatedResult<InvestorContactRequestDto> res = new PaginatedResult<InvestorContactRequestDto>()
             {
-                Items = _mapper.Map<List<ContactRequestViewDto>>(tempRes.Items),
+                Items = _mapper.Map<List<InvestorContactRequestDto>>(tempRes.Items),
                 PageSize = tempRes.PageSize,
                 CurrentPage = tempRes.CurrentPage,
                 TotalPages = tempRes.TotalPages,
@@ -92,6 +92,29 @@ namespace Investly.PL.BL
             return res;
         }
 
+        public async Task<InvestorContactRequestDto> GetContactRequestById (int contactId)
+        {
+            var contact = _unitOfWork.InvestorContactRequestRepo.GetById(contactId);
+            if (contact == null)
+                throw new Exception($"Contact With Id {contactId} Not found");
+
+            return _mapper.Map<InvestorContactRequestDto>(contact);
+        }
+
+        public void ToggelActivateContactRequest(ContactRequestToggleActivationDto model)
+        {
+            var contact =  _unitOfWork.InvestorContactRequestRepo.GetById(model.ContactRequestId);
+            if (contact == null)
+                throw new Exception($"Contact With Id {model.ContactRequestId} Not found");
+
+            if (contact.Status && model.DeclineReason == null)
+                throw new ArgumentException("DeclineReason is Required");
+
+            contact.Status = !contact.Status;
+            if (!contact.Status)
+                contact.DeclineReason = model.DeclineReason;
+            _unitOfWork.Save();
+        }
 
 
     }
