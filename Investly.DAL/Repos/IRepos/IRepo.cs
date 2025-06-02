@@ -19,21 +19,7 @@ namespace Investly.DAL.Repos.IRepos
         public void Update(T entity);
         public void AddRange(IEnumerable<T> entites);
 
-        public PaginatedResult<T> FindAll(
-            int? take = 10,
-            int? skip = 0,
-            Expression<Func<T, bool>> criteria = null,
-            Expression<Func<T, object>> orderBy = null,
-            string orderByDirection = OrderBy.Ascending
-        );
-
-        public Task<PaginatedResult<T>> FindAllAsync(
-            int? take = 10,
-            int? skip = 0,
-            Expression<Func<T, bool>> criteria = null,
-            Expression<Func<T, object>> orderBy = null,
-            string orderByDirection = OrderBy.Ascending
-        );
+        public IQueryable<T> FindAll(Expression<Func<T, bool>>? filter = null, string? properties = null);
 
 
     }

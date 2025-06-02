@@ -4,6 +4,7 @@ using Investly.DAL.Helper;
 using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
+using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using System.Linq.Expressions;
 
@@ -13,11 +14,17 @@ namespace Investly.PL.BL
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IQueryService<InvestorContactRequest> _queryService;
 
-        public InvestorContactRequestService(IUnitOfWork unitOfWork, IMapper mapper)
+        public InvestorContactRequestService(
+            IUnitOfWork unitOfWork, 
+            IMapper mapper,
+            IQueryService<InvestorContactRequest> queryService
+            )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _queryService = queryService;
         }
         public async Task<PaginatedResult<InvestorContactRequestDto>> GetContactRequestsAsync(
             int? pageNumber = 1,
@@ -70,12 +77,13 @@ namespace Investly.PL.BL
             }
 
             // Get paginated results from repository
-            PaginatedResult<InvestorContactRequest> tempRes = await _unitOfWork.InvestorContactRequestRepo.FindAllAsync(
+            PaginatedResult<InvestorContactRequest> tempRes = await _queryService.FindAllAsync(
                 take: pageSize,
                 skip: (pageNumber - 1) * pageSize,
                 criteria: criteria,
                 orderBy: orderBy,
-                orderByDirection: orderByDirection
+                orderByDirection: orderByDirection,
+                properties: "Investor.User,Business.Founder.User,Business"
             );
 
             // Map to DTO and return

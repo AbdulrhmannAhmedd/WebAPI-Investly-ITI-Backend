@@ -86,117 +86,28 @@ namespace Investly.DAL.Repos
             dbSet.AddRange(entites);
         }
 
-        ////////////////
 
-
-        // Synchronous version
-        public PaginatedResult<T> FindAll(
-            int? take = 10,
-            int? skip = 0,
-            Expression<Func<T, bool>> criteria = null,
-            Expression<Func<T, object>> orderBy = null,
-            string orderByDirection = OrderBy.Ascending
-        )
+        public IQueryable<T> FindAll(Expression<Func<T, bool>>? filter = null, string? properties = null)
         {
-            IQueryable<T> query = dbSet.AsQueryable();
-
-            // Get total count before applying filters
-            var totalItemsInTable = query.Count();
-
-            // Apply filtering criteria
-            if (criteria != null)
-                query = query.Where(criteria);
-
-            // Get filtered count
-            var totalFilteredItems = query.Count();
-
-            // Apply ordering before pagination
-            if (orderBy != null)
+            IQueryable<T> query = dbSet;
+            if (filter != null)
             {
-                query = orderByDirection == OrderBy.Ascending
-                    ? query.OrderBy(orderBy)
-                    : query.OrderByDescending(orderBy);
+                query = query.Where(filter);
             }
 
-            // Apply pagination
-            if (skip.HasValue && skip.Value > 0)
-                query = query.Skip(skip.Value);
-
-            if (take.HasValue && take.Value > 0)
-                query = query.Take(take.Value);
-
-            // Execute query
-            var items = query.ToList();
-
-            // Calculate pagination metadata
-            var pageSize = take.GetValueOrDefault(10);
-            var totalPages = (int)Math.Ceiling(totalFilteredItems / (double)pageSize);
-            var currentPage = (skip.GetValueOrDefault(0) / pageSize) + 1;
-
-            return new PaginatedResult<T>
+            if (!string.IsNullOrWhiteSpace(properties))
             {
-                Items = items,
-                CurrentPage = currentPage,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                TotalFilteredItems = totalFilteredItems,
-                TotalItemsInTable = totalItemsInTable
-            };
-        }
-
-        // Asynchronous version
-        public async Task<PaginatedResult<T>> FindAllAsync(
-            int? take = 10,
-            int? skip = 0,
-            Expression<Func<T, bool>> criteria = null,
-            Expression<Func<T, object>> orderBy = null,
-            string orderByDirection = OrderBy.Ascending
-        )
-        {
-            IQueryable<T> query = dbSet.AsQueryable();
-
-            // Get total count before applying filters (async)
-            var totalItemsInTable = await query.CountAsync();
-
-            // Apply filtering criteria
-            if (criteria != null)
-                query = query.Where(criteria);
-
-            // Get filtered count (async)
-            var totalFilteredItems = await query.CountAsync();
-
-            // Apply ordering before pagination
-            if (orderBy != null)
-            {
-                query = orderByDirection == OrderBy.Ascending
-                    ? query.OrderBy(orderBy)
-                    : query.OrderByDescending(orderBy);
+                foreach (var prop in properties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var trimmedProp = prop.Trim();
+                    if (!string.IsNullOrEmpty(trimmedProp))
+                    {
+                        query = query.Include(trimmedProp);
+                    }
+                }
             }
 
-            // Apply pagination
-            if (skip.HasValue && skip.Value > 0)
-                query = query.Skip(skip.Value);
-
-            if (take.HasValue && take.Value > 0)
-                query = query.Take(take.Value);
-
-            // Execute query (async)
-            var items = await query.ToListAsync();
-
-            // Calculate pagination metadata
-            var pageSize = take.GetValueOrDefault(10);
-            var totalPages = (int)Math.Ceiling(totalFilteredItems / (double)pageSize);
-            var currentPage = (skip.GetValueOrDefault(0) / pageSize) + 1;
-
-            return new PaginatedResult<T>
-            {
-                Items = items,
-                CurrentPage = currentPage,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                TotalFilteredItems = totalFilteredItems,
-                TotalItemsInTable = totalItemsInTable
-            };
+            return query;
         }
 
 

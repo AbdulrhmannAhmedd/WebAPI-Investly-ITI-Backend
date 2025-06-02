@@ -4,6 +4,7 @@ using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
 using Investly.DAL.Seeding;
 using Investly.PL.BL;
+using Investly.PL.General;
 using Investly.PL.General.Services;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
@@ -60,6 +61,8 @@ namespace Investly.PL
            
             #region General services registeration
             builder.Services.AddScoped<IJWTService, JWTService>();
+            builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));
+            builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
             #endregion
 
             #region Unit of work  registeration

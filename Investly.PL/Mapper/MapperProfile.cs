@@ -13,15 +13,16 @@ namespace Investly.PL.Mapper
             CreateMap<GovernmentDto, Government>().ReverseMap();
             CreateMap<CityDto, City>().ReverseMap();
 
-            CreateMap<InvestorContactRequestDto, InvestorContactRequest>().AfterMap((src, dest) =>
-            {
-                src.InvestorName = $"{dest.Investor.User.FirstName} {dest.Investor.User.LastName}";
-                src.BusinessTitle = $"{dest.Business.Title}";
-                src.FounderName = $"{dest.Business.Founder.User.FirstName} {dest.Business.Founder.User.LastName}";
-                src.BusinessId = dest.Business.Id;
-                src.InvestorId = dest.Business.Id;
-                src.FounderId = dest.Business.Founder.Id;
-            }).ReverseMap();
+            CreateMap<InvestorContactRequest, InvestorContactRequestDto>()
+                .AfterMap((src, dest) =>
+                {
+                    dest.InvestorName = $"{src.Investor.User.FirstName} {src.Investor.User.LastName}";
+                    dest.BusinessTitle = $"{src.Business.Title}";
+                    dest.FounderName = $"{src.Business.Founder.User.FirstName} {src.Business.Founder.User.LastName}";
+                    dest.BusinessId = src.Business.Id;
+                    dest.InvestorId = src.Investor.Id; // Fixed: was src.Business.Id
+                    dest.FounderId = src.Business.Founder.Id;
+                });
         }
     }
 }
