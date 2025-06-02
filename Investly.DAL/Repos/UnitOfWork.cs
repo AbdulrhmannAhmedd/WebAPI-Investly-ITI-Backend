@@ -15,8 +15,12 @@ namespace Investly.DAL.Repos
         private IUserRepo _UserRepo;
         private InvestorContactRequestRepo _InvestorContactRequestRepo;
 
+        private IGovernmentRepo _GovernmentRepo;
+        private ICityRepo _CityRepo;
         public IInvestorRepo InvestorRepo => _InvestorRepo ??= new InvestorRepo(_db);
         public IUserRepo UserRepo => _UserRepo ??= new UserRepo(_db);
+        public IGovernmentRepo GovernmentRepo => _GovernmentRepo ??= new GovermentRepo(_db);
+        public ICityRepo CityRepo => _CityRepo ??= new CityRepo(_db);
 
         public IInvestorContactRequestRepo InvestorContactRequestRepo => _InvestorContactRequestRepo ??= new InvestorContactRequestRepo(_db);
 

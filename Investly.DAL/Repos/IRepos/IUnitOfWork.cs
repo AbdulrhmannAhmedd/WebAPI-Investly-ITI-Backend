@@ -10,6 +10,8 @@ namespace Investly.DAL.Repos.IRepos
     {
         public IInvestorRepo InvestorRepo { get; }
         public IUserRepo UserRepo { get; }
+        public IGovernmentRepo GovernmentRepo { get; }
+        public ICityRepo CityRepo { get; }
         public int Save();
         public void Dispose();
 
