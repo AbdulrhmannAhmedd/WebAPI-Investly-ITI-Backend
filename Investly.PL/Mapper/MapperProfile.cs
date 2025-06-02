@@ -8,7 +8,6 @@ namespace Investly.PL.Mapper
     {
         public MapperProfile()
         {
-<<<<<<< HEAD
             CreateMap<UserDto, User>().ReverseMap();
 
             CreateMap<InvestorDto, Investor>().ReverseMap();
@@ -19,19 +18,13 @@ namespace Investly.PL.Mapper
                     src.Founder != null && src.Founder.User != null ? $"{src.Founder.User.FirstName} {src.Founder.User.LastName}" : null
                 ))
                 .ReverseMap();
-=======
+
             CreateMap<Dtos.UserDto,User>().ReverseMap();   
             CreateMap<Dtos.InvestorDto, Investor>().ReverseMap();
             CreateMap<GovernmentDto, Government>().ReverseMap();
             CreateMap<CityDto, City>().ReverseMap();
->>>>>>> 4d53adaf67a365785fd38eecd30404860c64ab31
 
 
-            //CreateMap<Founder, FounderForListDto>()
-            //    .ForMember(dest => dest.FullName, opt => opt.MapFrom(src =>
-            //        src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : null
-            //    ))
-            //    .ReverseMap();
         }
 
     }

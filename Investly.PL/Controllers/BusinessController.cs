@@ -48,7 +48,7 @@ namespace Investly.PL.Controllers
         public ResponseDto<object> SoftDeleteBusiness(int id)
         {
             int? loggedUserId = null;
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier); 
+            var userIdClaim = User.FindFirst("id"); 
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
             {
                 loggedUserId = parsedUserId;
@@ -94,7 +94,7 @@ namespace Investly.PL.Controllers
         public ResponseDto<object> UpdateBusinessStatus(int id, [FromQuery] BusinessIdeaStatus newStatus)
         {
             int? loggedUserId = null;
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userIdClaim = User.FindFirst("id");
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
             {
                 loggedUserId = parsedUserId;

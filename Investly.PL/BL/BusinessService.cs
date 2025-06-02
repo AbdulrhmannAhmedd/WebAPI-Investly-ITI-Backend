@@ -92,26 +92,7 @@ namespace Investly.PL.BL
         }
         public int SoftDeleteBusiness(int businessId, int? loggedUserId)
         {
-            try
-            {
-                var business = _unitOfWork.BusinessRepo.GetById(businessId);
-                if (business == null)
-                {
-                    return -1;
-                }
-
-                business.Status = (int)BusinessIdeaStatus.Inactive;
-                business.UpdatedAt = DateTime.UtcNow;
-                business.UpdatedBy = loggedUserId;
-
-                _unitOfWork.BusinessRepo.Update(business);
-                return _unitOfWork.Save();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in SoftDeleteBusiness: {ex.Message}");
-                return -3;
-            }
+            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Inactive, loggedUserId);
         }
 
         public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId)
