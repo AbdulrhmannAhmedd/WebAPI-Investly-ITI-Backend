@@ -70,6 +70,7 @@ namespace Investly.PL
             builder.Services.AddScoped<IInvestorService, InvestorService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IGovernementService,GovernmentService>();
+            builder.Services.AddScoped<IFounderService, FounderService>();
             #endregion
 
             var app = builder.Build();

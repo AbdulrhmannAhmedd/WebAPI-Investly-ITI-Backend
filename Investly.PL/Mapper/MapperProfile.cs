@@ -14,6 +14,7 @@ namespace Investly.PL.Mapper
             CreateMap<CityDto, City>().ReverseMap();
 
 
+            CreateMap <Dtos.FounderDto,Founder>().ReverseMap();
         }
     }
 }
