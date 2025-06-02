@@ -64,11 +64,16 @@ namespace Investly.PL
 
             #region Unit of work  registeration
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IBusinessRepo, BusinessRepo>();
+
+
             #endregion
 
             #region Business services registeration
             builder.Services.AddScoped<IInvestorService, InvestorService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IBusinessService, BusinessService>();
+
             #endregion
 
             var app = builder.Build();

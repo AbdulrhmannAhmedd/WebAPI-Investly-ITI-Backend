@@ -1,0 +1,16 @@
+**/obj/
+**/bin/
+*.nuget.cache
+*.assets.json
+
+# Ignore IDE and project settings
+*.vs/
+.vscode/
+
+# Ignore environment variables and sensitive files
+.env
+config.json
+Investly.PL/appSettings.json
+Investly.PL/appSettings.*.json
+
+/Investly.PL/Properties/

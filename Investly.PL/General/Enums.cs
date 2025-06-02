@@ -17,8 +17,22 @@
         Experience = 1,
         Money = 2,
         Both = 3
-
     }
-   
+    public enum BusinessIdeaStatus
+    {
+        Pending = 1,
+        Active = 2,
+        Rejected = 3,
+        Inactive = 4
+    }
+    public enum Stage
+    {
+        Startup=1,
+        Growth=2,
+        Maturity=3,
+        Decline=4,
+        Renewal=5
+    }
+
 
 }

@@ -13,8 +13,13 @@ namespace Investly.DAL.Repos
         private readonly AppDbContext _db;
         private IInvestorRepo _InvestorRepo;
         private IUserRepo _UserRepo;
+        private IBusinessRepo _BusinessRepo;
+
         public IInvestorRepo InvestorRepo => _InvestorRepo ??= new InvestorRepo(_db);
         public IUserRepo UserRepo => _UserRepo ??= new UserRepo(_db);
+
+        public IBusinessRepo BusinessRepo => _BusinessRepo ??= new BusinessRepo(_db);
+
 
         public UnitOfWork(AppDbContext db)
         {
