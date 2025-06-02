@@ -69,6 +69,7 @@ namespace Investly.PL
             #region Business services registeration
             builder.Services.AddScoped<IInvestorService, InvestorService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IGovernementService,GovernmentService>();
             #endregion
 
             var app = builder.Build();
@@ -84,7 +85,8 @@ namespace Investly.PL
                    // dbContext.Database.Migrate();
                     var seeder = new DataSeeding(dbContext);
                     // Seed the database with initial data
-                    seeder.SuperAdminSeed();
+                   //seeder.SuperAdminSeed();
+                  // seeder.GovernmentCitiesSeed();
                 
             }
             #endregion

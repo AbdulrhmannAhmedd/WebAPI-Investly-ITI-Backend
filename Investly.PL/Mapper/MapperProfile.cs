@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Investly.DAL.Entities;
+using Investly.PL.Dtos;
 
 namespace Investly.PL.Mapper
 {
@@ -9,6 +10,8 @@ namespace Investly.PL.Mapper
         {
             CreateMap<Dtos.UserDto,User>().ReverseMap();   
             CreateMap<Dtos.InvestorDto, Investor>().ReverseMap();
+            CreateMap<GovernmentDto, Government>().ReverseMap();
+            CreateMap<CityDto, City>().ReverseMap();
 
 
         }
