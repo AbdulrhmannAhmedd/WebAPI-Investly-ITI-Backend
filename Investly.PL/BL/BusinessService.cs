@@ -30,9 +30,7 @@ namespace Investly.PL.BL
 
                 businessesQuery = businessesQuery.Where(b =>
                     b.IsDrafted == false &&
-                    b.Status != (int)BusinessIdeaStatus.Rejected &&
-                    b.Status != (int)BusinessIdeaStatus.Inactive &&
-                    b.Status != (int)UserStatus.Deleted
+                    b.Status != (int)BusinessIdeaStatus.Inactive 
                 );
 
                 if (!string.IsNullOrEmpty(searchDto.SearchInput))
