@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
+    [AuthorizeUserType(((int)UserType.Staff))]
     [ApiController]
 
     public class InvestorController : ControllerBase
@@ -22,7 +23,7 @@ namespace Investly.PL.Controllers.Admin
             _investorService = investorService;
             _helper = helper;
         }
-        //[AuthorizeUserType(((int)UserType.Staff))]
+       
         [HttpPost("paginated")]
         public ResponseDto<InvestorDtoWithPagination> GetPaginted(InvestorSearchDto dataSearch)
          {
