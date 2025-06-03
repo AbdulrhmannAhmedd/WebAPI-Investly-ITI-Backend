@@ -12,6 +12,8 @@ public partial class Investor
     public int InvestingType { get; set; }
 
     public string? InterestedBusinessStages { get; set; }
+    public int?MinFunding { get; set; }
+    public int? MaxFunding { get; set; }
 
     public virtual ICollection<InvestorContactRequest> InvestorContactRequests { get; set; } = new List<InvestorContactRequest>();
 

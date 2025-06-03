@@ -1,6 +1,7 @@
 ﻿using Investly.PL.Attributes;
 using Investly.PL.Dtos;
 using Investly.PL.General;
+using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,11 +15,13 @@ namespace Investly.PL.Controllers.Admin
     public class InvestorController : ControllerBase
     {
         private readonly IInvestorService _investorService;
-        public InvestorController(IInvestorService investorService)
+        private readonly IHelper _helper;
+        public InvestorController(IInvestorService investorService, IHelper helper)
         {
             _investorService = investorService;
+            _helper = helper;
         }
-        [AuthorizeUserType(((int)UserType.Staff))]
+        //[AuthorizeUserType(((int)UserType.Staff))]
         [HttpPost("paginated")]
         public ResponseDto<InvestorDtoWithPagination> GetPaginted(InvestorSearchDto dataSearch)
          {
@@ -50,8 +53,15 @@ namespace Investly.PL.Controllers.Admin
 
 
         [HttpPost]
-        public ResponseDto<InvestorDto> Post([FromBody] InvestorDto data)
+        public ResponseDto<InvestorDto> Post([FromForm] InvestorDto data)
         {
+          
+            var picpath = _helper.UploadFile(data.User.PicFile, "investor","profilePic");
+            var frontIdPath=_helper.UploadFile(data.User.FrontIdPicFile, "investor", "nationalIdPic");
+            var backIdPath = _helper.UploadFile(data.User.BackIdPicFile, "investor", "nationalIdPic");
+            data.User.ProfilePicPath = picpath;
+            data.User.FrontIdPicPath = frontIdPath;
+            data.User.BackIdPicPath = backIdPath;
             var result = _investorService.Add(data);
             ResponseDto<InvestorDto> response;
             if (result > 0)

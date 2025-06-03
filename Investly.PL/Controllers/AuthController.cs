@@ -1,8 +1,10 @@
 ﻿using Investly.PL.Dtos;
+using Investly.PL.General.Services;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Investly.PL.Controllers
 {
@@ -13,16 +15,24 @@ namespace Investly.PL.Controllers
         private readonly IInvestorService _investorService;
         private readonly IJWTService _jWTService;
         private readonly IUserService _userService;
-        public AuthController(IInvestorService investorService,IJWTService jWTService, IUserService userService)
+        private readonly IHelper _helper;
+        public AuthController(IInvestorService investorService,IJWTService jWTService, IUserService userService, IHelper helper)
         {
             _investorService = investorService;
             _jWTService = jWTService;
             _userService = userService;
+            _helper = helper;
         }
         [HttpPost("register-investor")]
-        public IActionResult RegisterInvestor([FromBody] Dtos.InvestorDto investorDto)
+        public IActionResult RegisterInvestor([FromForm] Dtos.InvestorDto investorDto)
         {
-            
+            var picpath = _helper.UploadFile(investorDto.User.PicFile, "investor", "profilePic");
+            var frontIdPath = _helper.UploadFile(investorDto.User.FrontIdPicFile, "investor", "nationalIdPic");
+            var backIdPath = _helper.UploadFile(investorDto.User.BackIdPicFile, "investor", "nationalIdPic");
+
+            investorDto.User.ProfilePicPath = picpath;
+            investorDto.User.FrontIdPicPath = frontIdPath;
+            investorDto.User.BackIdPicPath = backIdPath;
             var result = _investorService.Add(investorDto);
             if (result > 0)
             {

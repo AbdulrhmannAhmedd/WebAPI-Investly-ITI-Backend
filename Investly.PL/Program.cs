@@ -60,6 +60,7 @@ namespace Investly.PL
            
             #region General services registeration
             builder.Services.AddScoped<IJWTService, JWTService>();
+            builder.Services.AddScoped<IHelper, Helper>();
             #endregion
 
             #region Unit of work  registeration

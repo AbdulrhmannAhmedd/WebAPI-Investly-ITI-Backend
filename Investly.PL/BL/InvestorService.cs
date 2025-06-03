@@ -17,7 +17,7 @@ namespace Investly.PL.BL
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public int Add(InvestorDto investor)
+        public int Add(InvestorDto investor, int? loggedInUser)
         {
             int res = 0;
             try
@@ -110,7 +110,7 @@ namespace Investly.PL.BL
 
         }
 
-        public int Update(InvestorDto investorDto)
+        public int Update(InvestorDto investorDto, int? loggedInUser)
         {
             int res = 0;
             try
