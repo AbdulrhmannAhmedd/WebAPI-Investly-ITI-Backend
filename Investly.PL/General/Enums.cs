@@ -20,10 +20,11 @@
     }
     public enum BusinessIdeaStatus
     {
-        Pending = 1,
-        Active = 2,
-        Rejected = 3,
-        Inactive = 4
+        Active = 1,
+        Inactive = 2,
+        Deleted = 3,
+        Pending = 4,
+        Rejected = 5,
     }
     public enum Stage
     {

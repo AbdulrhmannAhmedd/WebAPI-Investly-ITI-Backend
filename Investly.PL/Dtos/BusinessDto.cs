@@ -36,4 +36,11 @@ namespace Investly.PL.Dtos
         public int? FounderId { get; set; } 
         public int? Stage { get; set; }
     }
+    public class BusinessCountsDto
+    {
+        public int TotalActive { get; set; }
+        public int TotalInactive { get; set; }
+        public int TotalRejected { get; set; }
+        public int TotalPending { get; set; }
+    }
 }

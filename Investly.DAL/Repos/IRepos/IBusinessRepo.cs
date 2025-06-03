@@ -9,5 +9,7 @@ namespace Investly.DAL.Repos.IRepos
 {
     public interface IBusinessRepo:IRepo<Business>
     {
+        Tuple<int, int, int, int> GetBusinessCountsByStatus(int activeStatus, int inactiveStatus, int rejectedStatus, int pendingStatus, int deletedUserStatus);
+
     }
 }

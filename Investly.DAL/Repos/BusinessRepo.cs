@@ -16,5 +16,17 @@ namespace Investly.DAL.Repos
         {
             _db = db;
         }
+        public Tuple<int, int, int, int> GetBusinessCountsByStatus(int activeStatus, int inactiveStatus, int rejectedStatus, int pendingStatus, int deletedStatus)
+        {
+            var allBusinesses = _db.Businesses
+                                   .Where(b => b.IsDrafted == false && b.Status != deletedStatus) 
+                                   .ToList();
+            int totalActive = allBusinesses.Count(b => b.Status == activeStatus);
+            int totalInactive = allBusinesses.Count(b => b.Status == inactiveStatus);
+            int totalRejected = allBusinesses.Count(b => b.Status == rejectedStatus);
+            int totalPending = allBusinesses.Count(b => b.Status == pendingStatus);
+
+            return new Tuple<int, int, int, int>(totalActive, totalInactive, totalRejected, totalPending);
+        }
     }
 }

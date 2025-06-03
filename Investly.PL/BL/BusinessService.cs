@@ -30,7 +30,7 @@ namespace Investly.PL.BL
 
                 businessesQuery = businessesQuery.Where(b =>
                     b.IsDrafted == false &&
-                    b.Status != (int)BusinessIdeaStatus.Inactive 
+                    b.Status != (int)BusinessIdeaStatus.Deleted 
                 );
 
                 if (!string.IsNullOrEmpty(searchDto.SearchInput))
@@ -92,7 +92,7 @@ namespace Investly.PL.BL
         }
         public int SoftDeleteBusiness(int businessId, int? loggedUserId)
         {
-            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Inactive, loggedUserId);
+            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId);
         }
 
         public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId)
@@ -116,6 +116,32 @@ namespace Investly.PL.BL
             {
                 Console.WriteLine($"Error in UpdateBusinessStatus: {ex.Message}");
                 return -3;
+            }
+        }
+        public BusinessCountsDto GetBusinessIdeasCounts()
+        {
+            try
+            {
+                var counts = _unitOfWork.BusinessRepo.GetBusinessCountsByStatus(
+                    (int)BusinessIdeaStatus.Active,
+                    (int)BusinessIdeaStatus.Inactive,
+                    (int)BusinessIdeaStatus.Rejected,
+                    (int)BusinessIdeaStatus.Pending,
+                    (int)UserStatus.Deleted 
+                );
+
+                return new BusinessCountsDto
+                {
+                    TotalActive = counts.Item1,
+                    TotalInactive = counts.Item2,
+                    TotalRejected = counts.Item3,
+                    TotalPending = counts.Item4
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetBusinessStatisticsCounts: {ex.Message}");
+                return new BusinessCountsDto();
             }
         }
     }

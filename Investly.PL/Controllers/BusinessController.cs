@@ -1,4 +1,5 @@
 ﻿using Investly.PL.Attributes;
+using Investly.PL.BL;
 using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
@@ -145,5 +146,19 @@ namespace Investly.PL.Controllers
             }
             return response;
         }
+        [HttpGet("ideas-counts")]
+        public ResponseDto<BusinessCountsDto> GetBusinessIdeasCounts()
+        {
+            var counts = _businessService.GetBusinessIdeasCounts();
+
+            return new ResponseDto<BusinessCountsDto>
+            {
+                IsSuccess = true,
+                Message = "Business statistics retrieved successfully.",
+                Data = counts,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
     }
 }
