@@ -4,7 +4,6 @@ using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
 using Investly.DAL.Seeding;
 using Investly.PL.BL;
-using Investly.PL.General;
 using Investly.PL.General.Services;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;

@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Investly.DAL.Entities;
-using Investly.DAL.Helper;
 using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
+using Investly.PL.General;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using System.Linq.Expressions;
@@ -26,14 +26,14 @@ namespace Investly.PL.BL
             _mapper = mapper;
             _queryService = queryService;
         }
-        public async Task<PaginatedResult<InvestorContactRequestDto>> GetContactRequestsAsync(
+        public async Task<PaginatedResultDto<InvestorContactRequestDto>> GetContactRequestsAsync(
             int? pageNumber = 1,
             int? pageSize = 10,
             int? investorIdFilter = null,
             int? founderIdFilter = null,
             bool? statusFilter = null,
             string columnOrderBy = null,
-            string orderByDirection = OrderBy.Ascending,
+            string orderByDirection = Constants.Ascending,
             string searchTerm = null)
         {
             pageNumber ??= 1;
@@ -77,7 +77,7 @@ namespace Investly.PL.BL
             }
 
             // Get paginated results from repository
-            PaginatedResult<InvestorContactRequest> tempRes = await _queryService.FindAllAsync(
+            PaginatedResultDto<InvestorContactRequest> tempRes = await _queryService.FindAllAsync(
                 take: pageSize,
                 skip: (pageNumber - 1) * pageSize,
                 criteria: criteria,
@@ -87,7 +87,7 @@ namespace Investly.PL.BL
             );
 
             // Map to DTO and return
-            PaginatedResult<InvestorContactRequestDto> res = new PaginatedResult<InvestorContactRequestDto>()
+            PaginatedResultDto<InvestorContactRequestDto> res = new PaginatedResultDto<InvestorContactRequestDto>()
             {
                 Items = _mapper.Map<List<InvestorContactRequestDto>>(tempRes.Items),
                 PageSize = tempRes.PageSize,
