@@ -28,11 +28,10 @@
     }
     public enum Stage
     {
-        Startup=1,
-        Growth=2,
-        Maturity=3,
-        Decline=4,
-        Renewal=5
+        Ideation=1,
+        Startup=2,
+        Intermediate=3,
+        Advanced=4,
     }
 
 

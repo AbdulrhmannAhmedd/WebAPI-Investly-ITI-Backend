@@ -17,6 +17,7 @@ namespace Investly.PL.Dtos
         public bool IsDrafted { get; set; }
         public string? FilePath { get; set; }
         public int? Status { get; set; }
+        public string? RejectedReason { get; set; }
         public DateTime? CreatedAt { get; set; }
 
     }

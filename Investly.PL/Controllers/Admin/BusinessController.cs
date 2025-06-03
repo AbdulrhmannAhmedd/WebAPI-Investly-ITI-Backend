@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace Investly.PL.Controllers
+namespace Investly.PL.Controllers.Admin
 {
-    [Route("[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
     public class BusinessController : ControllerBase
     {
@@ -92,60 +92,70 @@ namespace Investly.PL.Controllers
         }
 
         [HttpPut("{id}/Update")]
-        public ResponseDto<object> UpdateBusinessStatus(int id, [FromQuery] BusinessIdeaStatus newStatus)
-        {
-            int? loggedUserId = null;
-            var userIdClaim = User.FindFirst("id");
+      public ResponseDto<object> UpdateBusinessStatus(int id, [FromQuery] BusinessIdeaStatus newStatus, [FromQuery] string? rejectedReason = null)
+      {
+           int? loggedUserId = null;
+           var userIdClaim = User.FindFirst("id");
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
             {
                 loggedUserId = parsedUserId;
             }
 
-            var result = _businessService.UpdateBusinessStatus(id, newStatus, loggedUserId);
-            ResponseDto<object> response;
+    var result = _businessService.UpdateBusinessStatus(id, newStatus, loggedUserId, rejectedReason);
+    ResponseDto<object> response;
 
-            if (result > 0)
-            {
-                response = new ResponseDto<object>
-                {
-                    IsSuccess = true,
-                    Message = $"Business idea status updated to {newStatus.ToString()} successfully.",
-                    Data = null,
-                    StatusCode = StatusCodes.Status200OK
-                };
-            }
-            else if (result == -1)
-            {
-                response = new ResponseDto<object>
-                {
-                    IsSuccess = false,
-                    Message = "Business idea not found.",
-                    Data = null,
-                    StatusCode = StatusCodes.Status404NotFound
-                };
-            }
-            else if (result == -2) 
-            {
-                response = new ResponseDto<object>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid status transition for business idea.",
-                    Data = null,
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-            }
-            else
-            {
-                response = new ResponseDto<object>
-                {
-                    IsSuccess = false,
-                    Message = "Failed to update business idea status.",
-                    Data = null,
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
-            }
-            return response;
-        }
+    if (result > 0)
+    {
+        response = new ResponseDto<object>
+        {
+            IsSuccess = true,
+            Message = $"Business idea status updated to {newStatus.ToString()} successfully.",
+            Data = null,
+            StatusCode = StatusCodes.Status200OK
+        };
+    }
+    else if (result == -1)
+    {
+        response = new ResponseDto<object>
+        {
+            IsSuccess = false,
+            Message = "Business idea not found.",
+            Data = null,
+            StatusCode = StatusCodes.Status404NotFound
+        };
+    }
+    else if (result == -2)
+    {
+        response = new ResponseDto<object>
+        {
+            IsSuccess = false,
+            Message = "Invalid status transition for business idea.",
+            Data = null,
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+    }
+    else if (result == -4)
+    {
+        response = new ResponseDto<object>
+        {
+            IsSuccess = false,
+            Message = "Rejected status requires a reason.",
+            Data = null,
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+    }
+    else
+    {
+        response = new ResponseDto<object>
+        {
+            IsSuccess = false,
+            Message = "Failed to update business idea status.",
+            Data = null,
+            StatusCode = StatusCodes.Status500InternalServerError
+        };
+    }
+    return response;
+      }
         [HttpGet("ideas-counts")]
         public ResponseDto<BusinessCountsDto> GetBusinessIdeasCounts()
         {

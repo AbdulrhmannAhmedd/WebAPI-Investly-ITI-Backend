@@ -5,6 +5,7 @@ using Investly.PL.Dtos;
 using Investly.PL.IBL;
 using Investly.PL.General;
 using System.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Investly.PL.BL
 {
@@ -52,6 +53,7 @@ namespace Investly.PL.BL
                 {
                     businessesQuery = businessesQuery.Where(b => b.CategoryId == searchDto.CategoryId.Value);
                 }
+             
 
                 if (searchDto.FounderId.HasValue && searchDto.FounderId.Value > 0)
                 {
@@ -95,7 +97,7 @@ namespace Investly.PL.BL
             return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId);
         }
 
-        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId)
+        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId, string? rejectedReason = null)
         {
             try
             {
@@ -103,6 +105,19 @@ namespace Investly.PL.BL
                 if (business == null)
                 {
                     return -1;
+                }
+
+                if (newStatus == BusinessIdeaStatus.Rejected)
+                {
+                    if (string.IsNullOrWhiteSpace(rejectedReason)) 
+                    {
+                        return -4;
+                    }
+                    business.RejectedReason = rejectedReason.Trim();
+                }
+                else
+                {
+                    business.RejectedReason = null;
                 }
 
                 business.Status = (int)newStatus;
