@@ -11,6 +11,8 @@
         Active = 1,
         Inactive = 2,
         Deleted = 3,
+        Pending = 4,
+        Rejected = 5,
     }
     public enum InvestorInvestingType
     {

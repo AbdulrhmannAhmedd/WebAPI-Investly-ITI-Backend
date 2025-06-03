@@ -33,7 +33,7 @@ namespace Investly.PL.Controllers
             investorDto.User.ProfilePicPath = picpath;
             investorDto.User.FrontIdPicPath = frontIdPath;
             investorDto.User.BackIdPicPath = backIdPath;
-            var result = _investorService.Add(investorDto);
+            var result = _investorService.Add(investorDto,null);
             if (result > 0)
             {
                 // Generate JWT token for the new investor

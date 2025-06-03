@@ -1,5 +1,6 @@
 ﻿using Investly.PL.Attributes;
 using Investly.PL.Dtos;
+using Investly.PL.Extentions;
 using Investly.PL.General;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
@@ -62,7 +63,7 @@ namespace Investly.PL.Controllers.Admin
             data.User.ProfilePicPath = picpath;
             data.User.FrontIdPicPath = frontIdPath;
             data.User.BackIdPicPath = backIdPath;
-            var result = _investorService.Add(data);
+            var result = _investorService.Add(data,User.GetUserId());
             ResponseDto<InvestorDto> response;
             if (result > 0)
             {
@@ -93,7 +94,7 @@ namespace Investly.PL.Controllers.Admin
         [HttpPut]
         public ResponseDto<InvestorDto> Put([FromBody] InvestorDto data)
         {
-            var result = _investorService.Update(data);
+            var result = _investorService.Update(data,User.GetUserId());
             ResponseDto<InvestorDto> response;
             if (result > 0)
             {
@@ -124,8 +125,7 @@ namespace Investly.PL.Controllers.Admin
         [HttpPut("change-status/{id}")]
         public ResponseDto<object> ChangeStatus(int id, [FromQuery] int status)
         {
-            int LoggedInUser = int.Parse(User.FindFirst("id").Value);
-            var result = _investorService.ChangeStatus(id, status, LoggedInUser);
+            var result = _investorService.ChangeStatus(id, status, User.GetUserId());
             ResponseDto<object> response;
             if (result > 0)
             {

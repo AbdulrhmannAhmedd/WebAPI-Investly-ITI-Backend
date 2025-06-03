@@ -33,9 +33,10 @@ namespace Investly.PL.BL
                 }
                 var newInvestor = _mapper.Map<Investor>(investor);
                 newInvestor.User.UserType = (int)UserType.Investor;
-                newInvestor.User.Status = (int)UserStatus.Active;
+                newInvestor.User.CreatedBy = loggedInUser;
+                newInvestor.User.Status =loggedInUser!=null? (int)UserStatus.Active:(int)UserStatus.Pending;
                 newInvestor.User.CreatedAt = DateTime.UtcNow;
-                newInvestor.User.HashedPassword = BCrypt.Net.BCrypt.HashPassword("123456");
+                newInvestor.User.HashedPassword = loggedInUser != null? BCrypt.Net.BCrypt.HashPassword("123456"): BCrypt.Net.BCrypt.HashPassword(investor.User.Password);
                 _unitOfWork.InvestorRepo.Insert(newInvestor);
                 res = _unitOfWork.Save();
                 if (res > 0)
