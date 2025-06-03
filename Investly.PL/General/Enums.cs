@@ -19,8 +19,22 @@
         Experience = 1,
         Money = 2,
         Both = 3
-
     }
-   
+    public enum BusinessIdeaStatus
+    {
+        Active = 1,
+        Inactive = 2,
+        Deleted = 3,
+        Pending = 4,
+        Rejected = 5,
+    }
+    public enum Stage
+    {
+        Ideation=1,
+        Startup=2,
+        Intermediate=3,
+        Advanced=4,
+    }
+
 
 }

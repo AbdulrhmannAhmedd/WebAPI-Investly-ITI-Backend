@@ -26,6 +26,7 @@ public partial class Business
     public string? FilePath { get; set; }
 
     public int? Status { get; set; }
+    public string? RejectedReason { get; set; }
 
     public int? CreatedBy { get; set; }
 

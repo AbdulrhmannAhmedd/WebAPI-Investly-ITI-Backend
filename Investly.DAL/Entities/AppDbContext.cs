@@ -52,9 +52,9 @@ public partial class AppDbContext : DbContext
             entity.ToTable("Business");
 
             entity.Property(e => e.Airate)
-                .HasColumnType("decimal(3, 2)")
+                .HasColumnType("decimal(5, 2)")
                 .HasColumnName("AIRate");
-            entity.Property(e => e.Capital).HasColumnType("decimal(10, 5)");
+            entity.Property(e => e.Capital).HasColumnType("decimal(18, 5)");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.Title).HasMaxLength(50);

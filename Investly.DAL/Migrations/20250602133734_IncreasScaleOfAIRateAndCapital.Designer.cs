@@ -4,6 +4,7 @@ using Investly.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Investly.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250602133734_IncreasScaleOfAIRateAndCapital")]
+    partial class IncreasScaleOfAIRateAndCapital
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,9 +61,6 @@ namespace Investly.DAL.Migrations
                     b.Property<string>("Location")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("RejectedReason")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Stage")
                         .HasColumnType("int");
@@ -429,16 +429,7 @@ namespace Investly.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("InterestedBusinessStages")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("InvestingType")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MaxFunding")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MinFunding")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
