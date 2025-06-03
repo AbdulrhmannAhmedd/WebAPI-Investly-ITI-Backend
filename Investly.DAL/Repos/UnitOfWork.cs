@@ -14,10 +14,10 @@ namespace Investly.DAL.Repos
         private IInvestorRepo _InvestorRepo;
         private IUserRepo _UserRepo;
         private IBusinessRepo _BusinessRepo;
+        private IFounderRepo _FounderRepo;
 
         private IGovernmentRepo _GovernmentRepo;
         private ICityRepo _CityRepo;
-        private IFounderRepo _FounderRepo;
         public IInvestorRepo InvestorRepo => _InvestorRepo ??= new InvestorRepo(_db);
         public IUserRepo UserRepo => _UserRepo ??= new UserRepo(_db);
         public IGovernmentRepo GovernmentRepo => _GovernmentRepo ??= new GovermentRepo(_db);

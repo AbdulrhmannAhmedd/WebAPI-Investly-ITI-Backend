@@ -10,8 +10,8 @@ namespace Investly.PL.Mapper
         {
             CreateMap<UserDto, User>().ReverseMap();
 
+            CreateMap<UserDto, User>().ReverseMap();
             CreateMap<InvestorDto, Investor>().ReverseMap();
-         
             CreateMap<Business, BusinessDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.FounderName, opt => opt.MapFrom(src =>
