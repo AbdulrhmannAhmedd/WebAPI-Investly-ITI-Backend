@@ -10,6 +10,7 @@ namespace Investly.DAL.Repos.IRepos
     {
         public IInvestorRepo InvestorRepo { get; }
         public IUserRepo UserRepo { get; }
+        public IBusinessRepo BusinessRepo { get; } 
         public IGovernmentRepo GovernmentRepo { get; }
         public ICityRepo CityRepo { get; }
         public IFounderRepo FounderRepo { get; }

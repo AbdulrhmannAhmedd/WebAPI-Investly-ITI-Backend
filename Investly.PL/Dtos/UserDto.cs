@@ -34,6 +34,10 @@ namespace Investly.PL.Dtos
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
+        public IFormFile? PicFile { get; set; }
+        public IFormFile? FrontIdPicFile { get; set; }
+        public IFormFile? BackIdPicFile { get; set; }
+
     }
     public class UserLoginDto
     {

@@ -4,6 +4,7 @@ using Investly.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Investly.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250603133912_addMinMaxFundingToInvestorTbl")]
+    partial class addMinMaxFundingToInvestorTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,11 +34,11 @@ namespace Investly.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal?>("Airate")
-                        .HasColumnType("decimal(5, 2)")
+                        .HasColumnType("decimal(3, 2)")
                         .HasColumnName("AIRate");
 
                     b.Property<decimal?>("Capital")
-                        .HasColumnType("decimal(18, 5)");
+                        .HasColumnType("decimal(10, 5)");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -58,9 +61,6 @@ namespace Investly.DAL.Migrations
                     b.Property<string>("Location")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("RejectedReason")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Stage")
                         .HasColumnType("int");
@@ -476,8 +476,8 @@ namespace Investly.DAL.Migrations
                     b.Property<int>("InvestorId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");

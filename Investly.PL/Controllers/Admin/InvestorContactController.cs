@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Investly.PL.Controllers.Admin
 {
-    [Route("api/[controller]")]
+    [Route("api/admin/[controller]")]
     [ApiController]
     public class InvestorContactController : ControllerBase
     {

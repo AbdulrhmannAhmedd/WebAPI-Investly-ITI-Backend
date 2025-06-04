@@ -4,11 +4,13 @@ using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
     [AuthorizeUserType(((int)UserType.Staff))]
+    [ApiController]
     public class FounderController : Controller
     {
        private readonly  IFounderService _founderService;
@@ -26,6 +28,7 @@ namespace Investly.PL.Controllers.Admin
             return Ok(res);
         }
         [HttpGet("ActiveInactiveFounders")]
+       
         public IActionResult GetTotalFoundersActiveIactive()
         {
 
@@ -37,8 +40,8 @@ namespace Investly.PL.Controllers.Admin
         [HttpPut("ChangeFounderStatus/{id}")]
         public IActionResult ChangeFoundersStatus(int id,[FromQuery]int Status)
         {
-
-            int status = _founderService.ChangeFounderStatus(id,Status,null);
+            int LoggedInUser =int.Parse(User.FindFirst("id").Value);
+            int status = _founderService.ChangeFounderStatus(id,Status,LoggedInUser);
             ResponseDto<object> res;
             if (status > 0)
             {

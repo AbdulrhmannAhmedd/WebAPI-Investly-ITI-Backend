@@ -61,19 +61,26 @@ namespace Investly.PL
            
             #region General services registeration
             builder.Services.AddScoped<IJWTService, JWTService>();
+            builder.Services.AddScoped<IHelper, Helper>();
             builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));
             builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
             #endregion
 
             #region Unit of work  registeration
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IBusinessRepo, BusinessRepo>();
+
+
             #endregion
 
             #region Business services registeration
             builder.Services.AddScoped<IInvestorService, InvestorService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IBusinessService, BusinessService>();
             builder.Services.AddScoped<IGovernementService,GovernmentService>();
             builder.Services.AddScoped<IFounderService, FounderService>();
+
+            builder.Services.AddScoped<IGovernementService,GovernmentService>();
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
             #endregion
 
