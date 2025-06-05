@@ -1,11 +1,12 @@
 ﻿using Investly.DAL.Entities;
-using Investly.DAL.Helper;
+
 using Investly.DAL.Repos.IRepos;
+using Investly.PL.Dtos;
 using Investly.PL.General.Services.IServices;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace Investly.PL.General
+namespace Investly.PL.General.Services
 {
     public class QueryService<T> : IQueryService<T> where T : class
     {
@@ -17,12 +18,12 @@ namespace Investly.PL.General
             _repo = repo;
             _context = context;
         }
-        public async Task<PaginatedResult<T>> FindAllAsync(
-            int? take = 10,
+        public async Task<PaginatedResultDto<T>> FindAllAsync(
+            int? take = 5,
             int? skip = 0,
             Expression<Func<T, bool>> criteria = null,
             Expression<Func<T, object>> orderBy = null,
-            string orderByDirection = OrderBy.Ascending,
+            string orderByDirection = Constants.Ascending,
             string? properties = null
         )
         {
@@ -38,7 +39,7 @@ namespace Investly.PL.General
             // Step 4: Apply ordering if provided
             if (orderBy != null)
             {
-                query = orderByDirection == OrderBy.Ascending
+                query = orderByDirection == Constants.Ascending
                     ? query.OrderBy(orderBy)
                     : query.OrderByDescending(orderBy);
             }
@@ -55,10 +56,10 @@ namespace Investly.PL.General
 
             // Step 7: Calculate pagination metadata
             var pageSize = take.GetValueOrDefault(10);
-            var currentPage = (skip.GetValueOrDefault(0) / pageSize) + 1;
+            var currentPage = skip.GetValueOrDefault(0) / pageSize + 1;
             var totalPages = (int)Math.Ceiling(totalFilteredItems / (double)pageSize);
 
-            return new PaginatedResult<T>
+            return new PaginatedResultDto<T>
             {
                 Items = items,
                 CurrentPage = currentPage,

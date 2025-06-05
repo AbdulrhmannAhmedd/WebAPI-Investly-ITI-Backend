@@ -1,4 +1,4 @@
-﻿using Investly.DAL.Helper;
+﻿
 using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
@@ -26,7 +26,7 @@ namespace Investly.PL.Controllers.Admin
             int? founderIdFilter,
             string statusFilter = null, // ← accept as string to allow both "1" and "Accepted"
             string columnOrderBy = null,
-            string orderByDirection = OrderBy.Ascending,
+            string orderByDirection = Constants.Ascending,
             string searchTerm = null)
         {
             ContactRequestStatus? statusFilterEnum = null;
