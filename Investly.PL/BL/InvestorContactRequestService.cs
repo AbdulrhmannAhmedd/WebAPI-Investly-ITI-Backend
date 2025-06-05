@@ -4,6 +4,7 @@ using Investly.DAL.Helper;
 using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
+using Investly.PL.General;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using System.Linq.Expressions;
@@ -31,7 +32,7 @@ namespace Investly.PL.BL
             int? pageSize = 10,
             int? investorIdFilter = null,
             int? founderIdFilter = null,
-            bool? statusFilter = null,
+            ContactRequestStatus? statusFilter = null, // Change parameter type to enum
             string columnOrderBy = null,
             string orderByDirection = OrderBy.Ascending,
             string searchTerm = null)
@@ -39,11 +40,14 @@ namespace Investly.PL.BL
             pageNumber ??= 1;
             pageSize ??= 10;
 
-            // Build comprehensive criteria
+            // Convert enum filter to int for database query
+            int? statusFilterValue = statusFilter.HasValue ? (int)statusFilter.Value : null;
+
+
             Expression<Func<InvestorContactRequest, bool>> criteria = request =>
                 (!investorIdFilter.HasValue || request.InvestorId == investorIdFilter) &&
                 (!founderIdFilter.HasValue || request.Business.Founder.User.Id == founderIdFilter) &&
-                (!statusFilter.HasValue || request.Status == statusFilter) &&
+                (!statusFilterValue.HasValue || request.Status == statusFilterValue) &&
                 (string.IsNullOrWhiteSpace(searchTerm) ||
                  request.Business.Title.Contains(searchTerm) ||
                  request.Investor.User.FirstName.Contains(searchTerm) ||
@@ -100,27 +104,39 @@ namespace Investly.PL.BL
             return res;
         }
 
-        public async Task<InvestorContactRequestDto> GetContactRequestById (int contactId)
+        public InvestorContactRequestDto GetContactRequestById (int contactId)
         {
-            var contact = _unitOfWork.InvestorContactRequestRepo.GetById(contactId);
+            var contact = _unitOfWork.InvestorContactRequestRepo.FirstOrDefault((req => req.Id == contactId), "Investor.User,Business.Founder.User,Business");
             if (contact == null)
-                throw new Exception($"Contact With Id {contactId} Not found");
+                throw new KeyNotFoundException($"Contact With Id {contactId} Not found");
 
             return _mapper.Map<InvestorContactRequestDto>(contact);
         }
 
-        public void ToggelActivateContactRequest(ContactRequestToggleActivationDto model)
+        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model)
         {
-            var contact =  _unitOfWork.InvestorContactRequestRepo.GetById(model.ContactRequestId);
+            var contact = _unitOfWork.InvestorContactRequestRepo.GetById(model.ContactRequestId);
             if (contact == null)
-                throw new Exception($"Contact With Id {model.ContactRequestId} Not found");
+                throw new KeyNotFoundException($"Contact with ID {model.ContactRequestId} not found.");
 
-            if (contact.Status && model.DeclineReason == null)
-                throw new ArgumentException("DeclineReason is Required");
+            // Validate the new status is a valid enum value
+            if (!Enum.IsDefined(typeof(ContactRequestStatus), model.NewStatus))
+            {
+                throw new ArgumentException(
+                    $"Invalid status value. Valid values are: {string.Join(", ", Enum.GetNames(typeof(ContactRequestStatus)))}"
+                );
+            }
 
-            contact.Status = !contact.Status;
-            if (!contact.Status)
-                contact.DeclineReason = model.DeclineReason;
+            // Special validation: DeclineReason required ONLY when transitioning to Declined
+            if (model.NewStatus == ContactRequestStatus.Declined && string.IsNullOrWhiteSpace(model.DeclineReason))
+            {
+                throw new ArgumentException("DeclineReason is required when status is set to Declined.");
+            }
+
+            // Update status and reason (clear DeclineReason if not Declined)
+            contact.Status = (int)model.NewStatus;
+            contact.DeclineReason = model.NewStatus == ContactRequestStatus.Declined ? model.DeclineReason : null;
+
             _unitOfWork.Save();
         }
 

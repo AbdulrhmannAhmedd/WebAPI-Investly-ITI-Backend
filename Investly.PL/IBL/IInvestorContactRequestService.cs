@@ -1,6 +1,7 @@
 ﻿using Investly.DAL.Entities;
 using Investly.DAL.Helper;
 using Investly.PL.Dtos;
+using Investly.PL.General;
 using System.Linq.Expressions;
 
 namespace Investly.PL.IBL
@@ -13,12 +14,13 @@ namespace Investly.PL.IBL
             int? pageSize = 10,
             int? investorIdFilter = null,
             int? founderIdFilter = null,
-            bool? statusFilter = null,
+            ContactRequestStatus? statusFilter = null, // Change parameter type to enum
             string columnOrderBy = null,
             string orderByDirection = OrderBy.Ascending,
             string searchTerm = null);
 
-        public void ToggelActivateContactRequest(ContactRequestToggleActivationDto model);
+        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model);
+        public InvestorContactRequestDto GetContactRequestById(int contactId);
 
 
     }

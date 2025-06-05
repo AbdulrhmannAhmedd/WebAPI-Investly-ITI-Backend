@@ -35,6 +35,11 @@
         Intermediate=3,
         Advanced=4,
     }
-
+    public enum ContactRequestStatus
+    {
+        Pending = 1,
+        Accepted = 2,
+        Declined = 3
+    }
 
 }
