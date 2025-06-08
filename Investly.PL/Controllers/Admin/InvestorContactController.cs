@@ -1,8 +1,10 @@
 ﻿
+using Azure;
 using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Investly.PL.Controllers.Admin
@@ -19,7 +21,7 @@ namespace Investly.PL.Controllers.Admin
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetContactRequests(
+        public async Task<ResponseDto<PaginatedResultDto<InvestorContactRequestDto>>> GetContactRequests(
             int? pageNumber,
             int? pageSize,
             int? investorIdFilter,
@@ -29,88 +31,158 @@ namespace Investly.PL.Controllers.Admin
             string orderByDirection = Constants.Ascending,
             string searchTerm = null)
         {
-            ContactRequestStatus? statusFilterEnum = null;
+            ResponseDto<PaginatedResultDto<InvestorContactRequestDto>> respnose;
 
-            if (!string.IsNullOrWhiteSpace(statusFilter))
+            try
             {
-                // Try to parse as int first
-                if (int.TryParse(statusFilter, out int statusAsInt))
+                ContactRequestStatus? statusFilterEnum = null;
+
+                if (!string.IsNullOrWhiteSpace(statusFilter))
                 {
-                    if (Enum.IsDefined(typeof(ContactRequestStatus), statusAsInt))
+                    // Try to parse as int first
+                    if (int.TryParse(statusFilter, out int statusAsInt))
                     {
-                        statusFilterEnum = (ContactRequestStatus)statusAsInt;
+                        if (Enum.IsDefined(typeof(ContactRequestStatus), statusAsInt))
+                        {
+                            statusFilterEnum = (ContactRequestStatus)statusAsInt;
+                        }
+                    }
+                    else
+                    {
+                        // Try to parse as enum name (case-insensitive)
+                        if (Enum.TryParse(typeof(ContactRequestStatus), statusFilter, ignoreCase: true, out var statusAsEnum))
+                        {
+                            statusFilterEnum = (ContactRequestStatus)statusAsEnum;
+                        }
                     }
                 }
-                else
+
+                var result = await _investorContactRequestService.GetContactRequestsAsync(
+                    pageNumber,
+                    pageSize,
+                    investorIdFilter,
+                    founderIdFilter,
+                    statusFilterEnum, // Pass the enum? to service
+                    columnOrderBy,
+                    orderByDirection,
+                    searchTerm
+                );
+
+                respnose = new ResponseDto<PaginatedResultDto<InvestorContactRequestDto>>()
                 {
-                    // Try to parse as enum name (case-insensitive)
-                    if (Enum.TryParse(typeof(ContactRequestStatus), statusFilter, ignoreCase: true, out var statusAsEnum))
-                    {
-                        statusFilterEnum = (ContactRequestStatus)statusAsEnum;
-                    }
-                }
+                    Data = result,
+                    Message = "Data Retrieved Successfully ",
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                };
+                return respnose;
+
+            }
+            catch (Exception ex)
+            {
+                respnose = new ResponseDto<PaginatedResultDto<InvestorContactRequestDto>>
+                {
+                    Data = null,
+                    Message = "Error While Retireve Data ",
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+                return respnose;
             }
 
-            var result = await _investorContactRequestService.GetContactRequestsAsync(
-                pageNumber,
-                pageSize,
-                investorIdFilter,
-                founderIdFilter,
-                statusFilterEnum, // Pass the enum? to service
-                columnOrderBy,
-                orderByDirection,
-                searchTerm
-            );
-
-            return Ok(result);
         }
 
 
+
+
         [HttpPut("update-status")]
-        public IActionResult UpdateContactRequestStatus([FromBody] UpdateContactRequestStatusDto model)
+        public ResponseDto<InvestorContactRequestDto> UpdateContactRequestStatus([FromBody] UpdateContactRequestStatusDto model)
         {
+            var response = new ResponseDto<InvestorContactRequestDto>();
             // Automatic model validation (checks data annotations)
             if (!ModelState.IsValid)
             {
-                return BadRequest(new { errors = ModelState.Values.SelectMany(v => v.Errors) });
+                response.IsSuccess = false;
+                response.Message = "Validation failed.";
+                response.StatusCode = StatusCodes.Status400BadRequest;
+                response.Data = null;
+                return response;
             }
 
             try
             {
                 _investorContactRequestService.UpdateContactRequestStatus(model);
-                return Ok(new { message = "Contact request status updated successfully." });
+
+                response.IsSuccess = true;
+                response.Message = "Contact request status updated successfully.";
+                response.StatusCode = StatusCodes.Status200OK;
+                response.Data = _investorContactRequestService.GetContactRequestById(model.ContactRequestId);
+                return response;
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new { error = ex.Message });  
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+                response.StatusCode = StatusCodes.Status404NotFound;
+                response.Data = null;
+                return response;
+
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { error = ex.Message });  
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+                response.StatusCode = StatusCodes.Status400BadRequest;
+                response.Data = null;
+                return response;
+
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { error = "An unexpected error occurred" });  
+                response.IsSuccess = false;
+                response.Message = "An unexpected error occurred.";
+                response.StatusCode = StatusCodes.Status500InternalServerError;
+                response.Data = null;
+                return response;
             }
         }
 
         [HttpGet("{contactId}")]
-        public async Task<IActionResult> GetContactRequest(int contactId)
+        public async Task<ResponseDto<InvestorContactRequestDto>> GetContactRequest(int contactId)
         {
+            var response = new ResponseDto<InvestorContactRequestDto>();
+
             try
             {
                 var result = _investorContactRequestService.GetContactRequestById(contactId);
-                return Ok(result);
+
+                response.IsSuccess = true;
+                response.Message = "Contact request retrieved successfully.";
+                response.StatusCode = StatusCodes.Status200OK;
+                response.Data = result;
+
+                return response;
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new { error = ex.Message });  
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+                response.StatusCode = StatusCodes.Status404NotFound;
+                response.Data = null;
+
+                return response;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { error = "An unexpected error occurred" });  
+                response.IsSuccess = false;
+                response.Message = "An unexpected error occurred.";
+                response.StatusCode = StatusCodes.Status500InternalServerError;
+                response.Data = null;
+
+                return response;
             }
         }
+
 
 
 
