@@ -35,6 +35,12 @@
         Intermediate=3,
         Advanced=4,
     }
+    public enum NotificationsStatus
+    {
+        Active = 1,
+        Deleted=2
+    }
+  
     public enum ContactRequestStatus
     {
         Pending = 1,
