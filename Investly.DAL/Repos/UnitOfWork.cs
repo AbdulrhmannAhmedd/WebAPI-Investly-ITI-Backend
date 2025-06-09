@@ -16,6 +16,8 @@ namespace Investly.DAL.Repos
         private IBusinessRepo _BusinessRepo;
         private IFounderRepo _FounderRepo;
 
+        private InvestorContactRequestRepo _InvestorContactRequestRepo;
+
         private IGovernmentRepo _GovernmentRepo;
         private ICityRepo _CityRepo;
         private INotificationRepo _NotificationRepo;
@@ -28,6 +30,8 @@ namespace Investly.DAL.Repos
         public IBusinessRepo BusinessRepo => _BusinessRepo ??= new BusinessRepo(_db);
         public INotificationRepo NotificationRepo => _NotificationRepo ??= new NotificationRepo(_db);  
 
+
+        public IInvestorContactRequestRepo InvestorContactRequestRepo => _InvestorContactRequestRepo ??= new InvestorContactRequestRepo(_db);
 
         public UnitOfWork(AppDbContext db)
         {

@@ -61,6 +61,8 @@ namespace Investly.PL
             #region General services registeration
             builder.Services.AddScoped<IJWTService, JWTService>();
             builder.Services.AddScoped<IHelper, Helper>();
+            builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));
+            builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
             #endregion
 
             #region Unit of work  registeration
@@ -79,6 +81,7 @@ namespace Investly.PL
 
             builder.Services.AddScoped<IGovernementService,GovernmentService>();
             builder.Services.AddScoped<INotficationService,NotificationService>();
+            builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
             #endregion
 
             var app = builder.Build();

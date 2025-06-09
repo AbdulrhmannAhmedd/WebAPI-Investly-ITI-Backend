@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Investly.DAL.Entities;
 using Investly.PL.Dtos;
+using Investly.PL.General;
 
 namespace Investly.PL.Mapper
 {
@@ -26,6 +27,24 @@ namespace Investly.PL.Mapper
             CreateMap<NotificationDto, Notification>().ReverseMap();
          
             CreateMap <Dtos.FounderDto,Founder>().ReverseMap();
+
+
+            CreateMap<InvestorContactRequest, InvestorContactRequestDto>()
+            .ForMember(dest => dest.InvestorName,
+                opt => opt.MapFrom(src => $"{src.Investor.User.FirstName} {src.Investor.User.LastName}"))
+            .ForMember(dest => dest.BusinessTitle,
+                opt => opt.MapFrom(src => src.Business.Title))
+            .ForMember(dest => dest.FounderName,
+                opt => opt.MapFrom(src => $"{src.Business.Founder.User.FirstName} {src.Business.Founder.User.LastName}"))
+            .ForMember(dest => dest.BusinessId,
+                opt => opt.MapFrom(src => src.Business.Id))
+            .ForMember(dest => dest.InvestorId,
+                opt => opt.MapFrom(src => src.Investor.Id)) // Corrected from Business.Id
+            .ForMember(dest => dest.FounderId,
+                opt => opt.MapFrom(src => src.Business.Founder.Id))
+            .ForMember(dest => dest.Status,
+                opt => opt.MapFrom(src => (ContactRequestStatus)src.Status));
+
         }
 
     }

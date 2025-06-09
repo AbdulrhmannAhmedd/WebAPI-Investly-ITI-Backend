@@ -41,4 +41,11 @@
         Deleted=2
     }
   
+    public enum ContactRequestStatus
+    {
+        Pending = 1,
+        Accepted = 2,
+        Declined = 3
+    }
+
 }
