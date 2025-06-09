@@ -107,6 +107,7 @@ namespace Investly.PL
                     app.UseSwaggerUI();
                 }
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

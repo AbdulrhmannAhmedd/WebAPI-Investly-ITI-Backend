@@ -93,7 +93,7 @@ namespace Investly.PL.Controllers.Admin
 
 
         [HttpPut]
-        public ResponseDto<InvestorDto> Put([FromBody] InvestorDto data)
+        public ResponseDto<InvestorDto> Put([FromForm] InvestorDto data)
         {
             var result = _investorService.Update(data,User.GetUserId());
             ResponseDto<InvestorDto> response;

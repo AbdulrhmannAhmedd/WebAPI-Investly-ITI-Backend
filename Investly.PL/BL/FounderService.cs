@@ -123,5 +123,39 @@ namespace Investly.PL.BL
                 return null;
             }
         }
+
+        public int Add(FounderDto founder, int? loggedInUser)
+        {
+            try
+            {
+                if (founder == null || founder.User == null)
+                {
+                    return 0; // Invalid input
+                }
+                var existedUser = _unitOfWork.UserRepo.GetAll(u => u.Email == founder.User.Email).FirstOrDefault();
+                if (existedUser != null)
+                {
+                    return -1; // User already exists
+                }
+                var newFounder = _mapper.Map<Founder>(founder);
+                newFounder.User.UserType = (int)UserType.Founder;
+                newFounder.User.CreatedBy = loggedInUser;
+                newFounder.User.Status = loggedInUser != null ? (int)UserStatus.Active : (int)UserStatus.Pending;
+                newFounder.User.CreatedAt = DateTime.UtcNow;
+                newFounder.User.HashedPassword = loggedInUser != null ? BCrypt.Net.BCrypt.HashPassword("123456") : BCrypt.Net.BCrypt.HashPassword(founder.User.Password);
+                _unitOfWork.FounderRepo.Insert(newFounder);
+                int res = _unitOfWork.Save();
+                if (res > 0)
+                {
+                    return newFounder.Id;
+                }
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                return -3; // Exception occurred
+            }
+        }
     }
 }

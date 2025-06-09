@@ -13,19 +13,36 @@ namespace Investly.PL.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IInvestorService _investorService;
+        private readonly IFounderService _founderService;   
         private readonly IJWTService _jWTService;
         private readonly IUserService _userService;
         private readonly IHelper _helper;
-        public AuthController(IInvestorService investorService,IJWTService jWTService, IUserService userService, IHelper helper)
+        public AuthController(IInvestorService investorService,IJWTService jWTService, IUserService userService, IHelper helper, IFounderService founderService)
         {
             _investorService = investorService;
             _jWTService = jWTService;
             _userService = userService;
             _helper = helper;
+            _founderService = founderService;
         }
         [HttpPost("register-investor")]
         public IActionResult RegisterInvestor([FromForm] Dtos.InvestorDto investorDto)
         {
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                return BadRequest(new ResponseDto<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid input data.",
+                    Data = errors,
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
             var picpath = _helper.UploadFile(investorDto.User.PicFile, "investor", "profilePic");
             var frontIdPath = _helper.UploadFile(investorDto.User.FrontIdPicFile, "investor", "nationalIdPic");
             var backIdPath = _helper.UploadFile(investorDto.User.BackIdPicFile, "investor", "nationalIdPic");
@@ -60,6 +77,55 @@ namespace Investly.PL.Controllers
                 });
             }
         }
+
+        [HttpPost("register-founder")]
+
+        public IActionResult RegisterFounder([FromForm] FounderDto userDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                return BadRequest(new ResponseDto<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid input data.",
+                    Data = errors,
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            var picpath = _helper.UploadFile(userDto.User.PicFile, "founder", "profilePic");
+            var frontIdPath = _helper.UploadFile(userDto.User.FrontIdPicFile, "founder", "nationalIdPic");
+            var backIdPath = _helper.UploadFile(userDto.User.BackIdPicFile, "founder", "nationalIdPic");
+
+            userDto.User.ProfilePicPath = picpath;
+            userDto.User.FrontIdPicPath = frontIdPath;
+            userDto.User.BackIdPicPath = backIdPath;
+            var result = _founderService.Add(userDto,null);
+            if (result > 0)
+            {
+                return Ok(new ResponseDto<object>
+                {
+                    IsSuccess = true,
+                    Message = "Founder registered successfully.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status201Created
+                });
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseDto<object>
+                {
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "An error occurred while registering the founder.",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                });
+            }
+        }
+
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLoginDto loginDto)
