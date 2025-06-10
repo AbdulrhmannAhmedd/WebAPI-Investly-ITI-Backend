@@ -11,6 +11,8 @@
         Active = 1,
         Inactive = 2,
         Deleted = 3,
+        Pending = 4,
+        Rejected = 5,
     }
     public enum InvestorInvestingType
     {
@@ -33,6 +35,17 @@
         Intermediate=3,
         Advanced=4,
     }
-
+    public enum NotificationsStatus
+    {
+        Active = 1,
+        Deleted=2
+    }
+  
+    public enum ContactRequestStatus
+    {
+        Pending = 1,
+        Accepted = 2,
+        Declined = 3
+    }
 
 }

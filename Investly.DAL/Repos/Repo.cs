@@ -84,5 +84,31 @@ namespace Investly.DAL.Repos
         {
             dbSet.AddRange(entites);
         }
+
+
+        public IQueryable<T> FindAll(Expression<Func<T, bool>>? filter = null, string? properties = null)
+        {
+            IQueryable<T> query = dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(properties))
+            {
+                foreach (var prop in properties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var trimmedProp = prop.Trim();
+                    if (!string.IsNullOrEmpty(trimmedProp))
+                    {
+                        query = query.Include(trimmedProp);
+                    }
+                }
+            }
+
+            return query;
+        }
+
+
     }
 }

@@ -6,6 +6,9 @@
         public int? UserId { get; set; }
         public UserDto User { get; set; }
         public int? InvestingType { get; set; }
+        public string? InterestedBusinessStages { get; set; }
+        public int? MinFunding { get; set; }
+        public int? MaxFunding { get; set; }
     }
     public class InvestorSearchDto
     {
