@@ -45,7 +45,7 @@ namespace Investly.PL.BL
 
             Expression<Func<InvestorContactRequest, bool>> criteria = request =>
                 (!investorIdFilter.HasValue || request.InvestorId == investorIdFilter) &&
-                (!founderIdFilter.HasValue || request.Business.Founder.User.Id == founderIdFilter) &&
+                (!founderIdFilter.HasValue || request.Business.FounderId == founderIdFilter) &&
                 (!statusFilterValue.HasValue || request.Status == statusFilterValue) &&
                 (string.IsNullOrWhiteSpace(searchTerm) ||
                  request.Business.Title.Contains(searchTerm) ||
