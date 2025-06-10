@@ -95,6 +95,41 @@ namespace Investly.PL.Controllers.Admin
         [HttpPut]
         public ResponseDto<InvestorDto> Put([FromForm] InvestorDto data)
         {
+           
+                var oldinvestor = _investorService.GetById(data.Id??0);
+            
+            
+            if (data.User.PicFile != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.ProfilePicPath))
+                {
+                    var deleteResult = _helper.DeleteFile(oldinvestor.User.ProfilePicPath);
+                 
+                }
+
+                var picpath = _helper.UploadFile(data.User.PicFile, "investor", "profilePic");
+                data.User.ProfilePicPath = picpath;
+            }
+            if (data.User.FrontIdPicFile != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.FrontIdPicPath))
+                {
+                    _helper.DeleteFile(oldinvestor.User.FrontIdPicPath);
+                }
+                var frontIdPath = _helper.UploadFile(data.User.FrontIdPicFile, "investor", "nationalIdPic");
+                data.User.FrontIdPicPath = frontIdPath;
+            }
+            if (data.User.BackIdPicFile != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.BackIdPicPath))
+                {
+                    _helper.DeleteFile(oldinvestor.User.BackIdPicPath);
+                }
+                var backIdPath = _helper.UploadFile(data.User.BackIdPicFile, "investor", "nationalIdPic");
+                data.User.BackIdPicPath = backIdPath;
+            }
+            
+            
             var result = _investorService.Update(data,User.GetUserId());
             ResponseDto<InvestorDto> response;
             if (result > 0)

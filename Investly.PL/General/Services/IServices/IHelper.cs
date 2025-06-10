@@ -3,5 +3,6 @@
     public interface IHelper
     {
         public string? UploadFile(IFormFile file, string folderName, string? subFolder);
+        public int DeleteFile(string oldfilepath);
     }
 }

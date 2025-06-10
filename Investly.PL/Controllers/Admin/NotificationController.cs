@@ -11,7 +11,7 @@ namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
     [ApiController]
-  //  [AuthorizeUserType(((int)UserType.Staff))]
+   [AuthorizeUserType(((int)UserType.Staff))]
     public class NotificationController : Controller
     {
         private readonly INotficationService _notificationService;
