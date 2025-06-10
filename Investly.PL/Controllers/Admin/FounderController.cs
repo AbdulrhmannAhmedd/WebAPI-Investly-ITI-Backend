@@ -10,8 +10,8 @@ using System.Security.Claims;
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
-    [AuthorizeUserType(((int)UserType.Staff))]
-    [ApiController]
+    //[AuthorizeUserType(((int)UserType.Staff))]
+    //[ApiController]
     public class FounderController : Controller
     {
        private readonly  IFounderService _founderService;
@@ -69,5 +69,35 @@ namespace Investly.PL.Controllers.Admin
             { IsSuccess = true, Data = founder, Message = "Founder Retrived Sucssfullyy", StatusCode = StatusCodes.Status200OK };
             return Ok(res);
         }
+
+
+        [HttpGet("dropdown")]
+        public async Task<ResponseDto<List<DropdownDto>>> GetFoundersForDropdown()
+        {
+            ResponseDto<List<DropdownDto>> response;
+            try
+            {
+                var founders = await _founderService.GetFoundersForDropdownAsync();
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = true,
+                    Data = founders,
+                    StatusCode = StatusCodes.Status200OK
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = false,
+                    Data = null,
+                    StatusCode = StatusCodes.Status200OK
+                };
+                return response;
+            }
+
+        }
+
     }
 }

@@ -11,5 +11,7 @@ namespace Investly.PL.IBL
         public int Update(InvestorDto investor, int? loggedInUser);
         public InvestorTotalActiveIactiveDto GetTotalActiveInactiveInvestors();
         public int ChangeStatus(int id, int status,int? loggedUser);
+        public Task<List<DropdownDto>> GetInvestorsForDropdownAsync();
+
     }
 }
