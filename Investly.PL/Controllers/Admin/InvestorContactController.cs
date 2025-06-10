@@ -125,7 +125,14 @@ namespace Investly.PL.Controllers.Admin
                 response.StatusCode = StatusCodes.Status404NotFound;
                 response.Data = null;
                 return response;
-
+            }
+            catch (InvalidOperationException ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ex.Message;
+                response.StatusCode = StatusCodes.Status403Forbidden; // Or 400 Bad Request
+                response.Data = null;
+                return response;
             }
             catch (ArgumentException ex)
             {
@@ -134,7 +141,6 @@ namespace Investly.PL.Controllers.Admin
                 response.StatusCode = StatusCodes.Status400BadRequest;
                 response.Data = null;
                 return response;
-
             }
             catch (Exception)
             {
