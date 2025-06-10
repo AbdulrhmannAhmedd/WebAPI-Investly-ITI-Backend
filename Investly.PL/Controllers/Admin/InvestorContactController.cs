@@ -99,7 +99,6 @@ namespace Investly.PL.Controllers.Admin
         public ResponseDto<InvestorContactRequestDto> UpdateContactRequestStatus([FromBody] UpdateContactRequestStatusDto model)
         {
             var response = new ResponseDto<InvestorContactRequestDto>();
-            // Automatic model validation (checks data annotations)
             if (!ModelState.IsValid)
             {
                 response.IsSuccess = false;

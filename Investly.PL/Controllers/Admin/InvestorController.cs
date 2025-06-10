@@ -13,8 +13,8 @@ using System.Collections.Generic;
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
-    //[AuthorizeUserType(((int)UserType.Staff))]
-    //[ApiController]
+    [AuthorizeUserType(((int)UserType.Staff))]
+    [ApiController]
 
     public class InvestorController : ControllerBase
     {
@@ -174,7 +174,8 @@ namespace Investly.PL.Controllers.Admin
                 {
                     IsSuccess = false,
                     Data = null,
-                    StatusCode = StatusCodes.Status200OK
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "An unexpected error occurred ."
                 };
                 return response;
             }
