@@ -107,7 +107,7 @@ namespace Investly.PL.Controllers.Admin
     if (result > 0)
     {
         response = new ResponseDto<object>
-        {
+        { 
             IsSuccess = true,
             Message = $"Business idea status updated to {newStatus.ToString()} successfully.",
             Data = null,
