@@ -34,4 +34,6 @@
         public int TotalInactive { get; set; }
     }
 
+
+
 }

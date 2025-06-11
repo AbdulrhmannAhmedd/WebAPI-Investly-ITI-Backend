@@ -1,10 +1,12 @@
-﻿using Investly.PL.Attributes;
+﻿using Investly.DAL.Entities;
+using Investly.PL.Attributes;
 using Investly.PL.Dtos;
 using Investly.PL.Extentions;
 using Investly.PL.General;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -184,6 +186,35 @@ namespace Investly.PL.Controllers.Admin
                 };
             }
             return response;
+        }
+
+        [HttpGet("dropdown")]
+        public async Task<ResponseDto<List<DropdownDto>>> GetInvestorsForDropdown()
+        {
+            ResponseDto<List<DropdownDto>> response;
+            try
+            {
+                var investors = await _investorService.GetInvestorsForDropdownAsync();
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = true,
+                    Data = investors,
+                    StatusCode = StatusCodes.Status200OK
+                };
+                return response;
+            }
+            catch(Exception ex)
+            {
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = false,
+                    Data = null,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "An unexpected error occurred ."
+                };
+                return response;
+            }
+
         }
 
     }

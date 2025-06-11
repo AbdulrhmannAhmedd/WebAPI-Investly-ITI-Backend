@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Investly.DAL.Entities;
+using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Investly.PL.BL
 {
@@ -195,5 +198,16 @@ namespace Investly.PL.BL
 
             }
         }
+
+        public async Task<List<DropdownDto>> GetInvestorsForDropdownAsync()
+        {
+            return await _unitOfWork.InvestorRepo.FindAll(properties: "User")
+                .Select(i => new DropdownDto
+                {
+                    Id = i.Id,
+                    Name = $"{i.User.FirstName} {i.User.LastName}"
+                }).ToListAsync();
+        }
+
     }
 }
