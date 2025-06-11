@@ -150,7 +150,7 @@ namespace Investly.PL.Controllers
             var user = _userService.GetByEmail(loginDto.Email);
             if (user == null||user.UserType!=(int)UserType.Staff || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword))
             {
-                return Unauthorized(new ResponseDto<object>
+                return BadRequest(new ResponseDto<object>
                 {
                     Data = null,
                     IsSuccess = false,
@@ -190,7 +190,7 @@ namespace Investly.PL.Controllers
             var user = _userService.GetByEmail(loginDto.Email);
             if (user == null ||user.UserType==(int)UserType.Staff || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword))
             {
-                return Unauthorized(new ResponseDto<object>
+                return BadRequest(new ResponseDto<object>
                 {
                     Data = null,
                     IsSuccess = false,
