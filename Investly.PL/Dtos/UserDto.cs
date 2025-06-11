@@ -47,4 +47,11 @@ namespace Investly.PL.Dtos
         [Required]
         public string Password { get; set; }
     }
+
+    public class DropdownDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
 }

@@ -9,5 +9,6 @@ namespace Investly.PL.IBL
         public FoundersTotalActiveIactiveDto GetTotalFoundersActiveIactive();
         public FounderDto GetFounderById(int Id);
         public int Add(FounderDto founder, int? loggedInUser);
+        public Task<List<DropdownDto>> GetFoundersForDropdownAsync();
     }
 }

@@ -1,10 +1,12 @@
-﻿using Investly.PL.Attributes;
+﻿using Investly.DAL.Entities;
+using Investly.PL.Attributes;
 using Investly.PL.Dtos;
 using Investly.PL.Extentions;
 using Investly.PL.General;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -95,6 +97,41 @@ namespace Investly.PL.Controllers.Admin
         [HttpPut]
         public ResponseDto<InvestorDto> Put([FromForm] InvestorDto data)
         {
+           
+                var oldinvestor = _investorService.GetById(data.Id??0);
+            
+            
+            if (data.User.PicFile != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.ProfilePicPath))
+                {
+                    var deleteResult = _helper.DeleteFile(oldinvestor.User.ProfilePicPath);
+                 
+                }
+
+                var picpath = _helper.UploadFile(data.User.PicFile, "investor", "profilePic");
+                data.User.ProfilePicPath = picpath;
+            }
+            if (data.User.FrontIdPicFile != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.FrontIdPicPath))
+                {
+                    _helper.DeleteFile(oldinvestor.User.FrontIdPicPath);
+                }
+                var frontIdPath = _helper.UploadFile(data.User.FrontIdPicFile, "investor", "nationalIdPic");
+                data.User.FrontIdPicPath = frontIdPath;
+            }
+            if (data.User.BackIdPicFile != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.BackIdPicPath))
+                {
+                    _helper.DeleteFile(oldinvestor.User.BackIdPicPath);
+                }
+                var backIdPath = _helper.UploadFile(data.User.BackIdPicFile, "investor", "nationalIdPic");
+                data.User.BackIdPicPath = backIdPath;
+            }
+            
+            
             var result = _investorService.Update(data,User.GetUserId());
             ResponseDto<InvestorDto> response;
             if (result > 0)
@@ -149,6 +186,35 @@ namespace Investly.PL.Controllers.Admin
                 };
             }
             return response;
+        }
+
+        [HttpGet("dropdown")]
+        public async Task<ResponseDto<List<DropdownDto>>> GetInvestorsForDropdown()
+        {
+            ResponseDto<List<DropdownDto>> response;
+            try
+            {
+                var investors = await _investorService.GetInvestorsForDropdownAsync();
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = true,
+                    Data = investors,
+                    StatusCode = StatusCodes.Status200OK
+                };
+                return response;
+            }
+            catch(Exception ex)
+            {
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = false,
+                    Data = null,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "An unexpected error occurred ."
+                };
+                return response;
+            }
+
         }
 
     }

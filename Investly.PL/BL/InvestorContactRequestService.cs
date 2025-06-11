@@ -45,7 +45,7 @@ namespace Investly.PL.BL
 
             Expression<Func<InvestorContactRequest, bool>> criteria = request =>
                 (!investorIdFilter.HasValue || request.InvestorId == investorIdFilter) &&
-                (!founderIdFilter.HasValue || request.Business.Founder.User.Id == founderIdFilter) &&
+                (!founderIdFilter.HasValue || request.Business.FounderId == founderIdFilter) &&
                 (!statusFilterValue.HasValue || request.Status == statusFilterValue) &&
                 (string.IsNullOrWhiteSpace(searchTerm) ||
                  request.Business.Title.Contains(searchTerm) ||
@@ -118,6 +118,14 @@ namespace Investly.PL.BL
             if (contact == null)
                 throw new KeyNotFoundException($"Contact with ID {model.ContactRequestId} not found.");
 
+            // Validate current status is Pending
+            if (contact.Status != (int)ContactRequestStatus.Pending)
+            {
+                throw new InvalidOperationException(
+                    $"Status can only be changed from Pending. Current status is: {Enum.GetName(typeof(ContactRequestStatus), contact.Status)}"
+                );
+            }
+
             // Validate the new status is a valid enum value
             if (!Enum.IsDefined(typeof(ContactRequestStatus), model.NewStatus))
             {
@@ -135,6 +143,7 @@ namespace Investly.PL.BL
             // Update status and reason (clear DeclineReason if not Declined)
             contact.Status = (int)model.NewStatus;
             contact.DeclineReason = model.NewStatus == ContactRequestStatus.Declined ? model.DeclineReason : null;
+            contact.UpdatedAt = DateTime.UtcNow;
 
             _unitOfWork.Save();
         }

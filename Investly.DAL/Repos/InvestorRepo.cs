@@ -12,6 +12,7 @@ namespace Investly.DAL.Repos
    public class InvestorRepo: Repo<Investor>, IInvestorRepo
     {
         private readonly AppDbContext _db;
+
         public InvestorRepo(AppDbContext db) : base(db)
         {
             this._db = db;
@@ -23,5 +24,6 @@ namespace Investly.DAL.Repos
             var totalActive = total.Count(i => i.User.Status == activeStatus);
             return new Tuple<int, int>(totalActive, totalInactive);
         }
+
     }
 }

@@ -4,6 +4,7 @@ using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
+using Microsoft.EntityFrameworkCore;
 
 namespace Investly.PL.BL
 {
@@ -157,5 +158,18 @@ namespace Investly.PL.BL
                 return -3; // Exception occurred
             }
         }
+
+
+        public async Task<List<DropdownDto>> GetFoundersForDropdownAsync()
+        {
+            return await _unitOfWork.FounderRepo.FindAll(properties: "User")
+                .Select(i => new DropdownDto
+                {
+                    Id = i.Id,
+                    Name = $"{i.User.FirstName} {i.User.LastName}"
+                }).ToListAsync();
+        }
+
+
     }
 }

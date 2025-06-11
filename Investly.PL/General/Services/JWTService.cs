@@ -21,7 +21,9 @@ namespace Investly.PL.General.Services
                 new Claim("id", user.Id.ToString()),
                 new Claim("email", user.Email),
                 new Claim("name", $"{user.FirstName} {user.LastName}"),
-                new Claim("userType", user.UserType.ToString())
+                new Claim("userType", user.UserType.ToString()),
+                new Claim("status",user.Status.ToString()),
+                new Claim("profilePicPath",String.IsNullOrEmpty(user?.ProfilePicPath)?"":user?.ProfilePicPath.ToString())
             };
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

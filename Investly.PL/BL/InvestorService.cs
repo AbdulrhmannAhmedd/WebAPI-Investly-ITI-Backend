@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Investly.DAL.Entities;
+using Investly.DAL.Repos;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Investly.PL.BL
 {
@@ -138,6 +141,10 @@ namespace Investly.PL.BL
                 existingInvestor.User.CityId = investorDto.User.CityId;
                 existingInvestor.User.DateOfBirth = investorDto.User.DateOfBirth;
                 existingInvestor.User.UpdatedAt = DateTime.UtcNow;
+                existingInvestor.User.ProfilePicPath = investorDto.User.ProfilePicPath ?? existingInvestor.User.ProfilePicPath;
+                existingInvestor.User.FrontIdPicPath = investorDto.User.FrontIdPicPath ?? existingInvestor.User.FrontIdPicPath;
+                existingInvestor.User.BackIdPicPath = investorDto.User.BackIdPicPath ?? existingInvestor.User.BackIdPicPath;
+
                 _unitOfWork.InvestorRepo.Update(existingInvestor);
                 res = _unitOfWork.Save();
                 return res;
@@ -191,5 +198,16 @@ namespace Investly.PL.BL
 
             }
         }
+
+        public async Task<List<DropdownDto>> GetInvestorsForDropdownAsync()
+        {
+            return await _unitOfWork.InvestorRepo.FindAll(properties: "User")
+                .Select(i => new DropdownDto
+                {
+                    Id = i.Id,
+                    Name = $"{i.User.FirstName} {i.User.LastName}"
+                }).ToListAsync();
+        }
+
     }
 }
