@@ -138,6 +138,10 @@ namespace Investly.PL.BL
                 existingInvestor.User.CityId = investorDto.User.CityId;
                 existingInvestor.User.DateOfBirth = investorDto.User.DateOfBirth;
                 existingInvestor.User.UpdatedAt = DateTime.UtcNow;
+                existingInvestor.User.ProfilePicPath = investorDto.User.ProfilePicPath ?? existingInvestor.User.ProfilePicPath;
+                existingInvestor.User.FrontIdPicPath = investorDto.User.FrontIdPicPath ?? existingInvestor.User.FrontIdPicPath;
+                existingInvestor.User.BackIdPicPath = investorDto.User.BackIdPicPath ?? existingInvestor.User.BackIdPicPath;
+
                 _unitOfWork.InvestorRepo.Update(existingInvestor);
                 res = _unitOfWork.Save();
                 return res;

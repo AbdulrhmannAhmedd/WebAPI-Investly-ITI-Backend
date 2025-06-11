@@ -26,6 +26,22 @@ namespace Investly.PL.General.Services
            var urlPath=Path.Combine("uploads", mainFolder, subFolder ?? "", fileName).Replace("\\", "/");
            return urlPath;
         }
+        public int DeleteFile(string oldfilepath)
+        {
+
+            if (string.IsNullOrEmpty(oldfilepath))
+                return -1;
+            var physicalpath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", oldfilepath.Replace("\\", "/"));
+            if (File.Exists(physicalpath))
+            {
+                File.Delete(physicalpath);
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
     }
 }
