@@ -10,14 +10,16 @@ using System.Security.Claims;
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
-    //[AuthorizeUserType(((int)UserType.Staff))]
-    //[ApiController]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
+    [ApiController]
     public class FounderController : Controller
     {
-       private readonly  IFounderService _founderService;
-        public FounderController(IFounderService founderService)
+        private readonly  IFounderService _founderService;
+        private readonly IUserService _userService;
+        public FounderController(IFounderService founderService, IUserService userService)
         {
             _founderService = founderService;
+            _userService = userService;
         }
         [HttpPost("PaginatedFounders")]
         public IActionResult GetAllFoundersPaginated([FromBody]FounderSearchDto search)
@@ -43,6 +45,7 @@ namespace Investly.PL.Controllers.Admin
         {
           
             int status = _founderService.ChangeFounderStatus(id,Status, User.GetUserId());
+
             ResponseDto<object> res;
             if (status > 0)
             {

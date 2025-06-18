@@ -34,6 +34,7 @@ namespace Investly.PL.BL
                     founder.User.UpdatedBy = LoggedInUser;
                     founder.User.UpdatedAt = DateTime.Now;
                     founder.User.Status = Status;
+                    founder.User.TokenVersion = Status == (int)UserStatus.Inactive ? (founder.User.TokenVersion ??0)+1 :founder.User.TokenVersion;
                     _unitOfWork.FounderRepo.Update(founder);
                    var res= _unitOfWork.Save();
                     if(res>0)
