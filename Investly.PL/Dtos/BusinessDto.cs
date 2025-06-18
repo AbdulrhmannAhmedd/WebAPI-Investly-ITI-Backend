@@ -1,4 +1,6 @@
 ﻿using Investly.DAL.Entities;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Investly.PL.Dtos
 {
@@ -18,7 +20,21 @@ namespace Investly.PL.Dtos
         public string? FilePath { get; set; }
         public int? Status { get; set; }
         public string? RejectedReason { get; set; }
+
         public DateTime? CreatedAt { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? UpdatedBy { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public IFormFile? IdeaFile { get; set; }
+        public int? GovernmentId { get; set; }
+
+        public int? CityId { get; set; }
+        public string? Description { get; set; }
+        public int? DesiredInvestmentType { get; set; }
+        public  List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
+        public CategoryForListDto Category { get; set; } 
+        public  CityDto? City { get; set; }
+        public  GovernmentDto? Government { get; set; }
 
     }
 
