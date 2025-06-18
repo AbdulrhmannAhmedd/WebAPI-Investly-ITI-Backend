@@ -1,5 +1,6 @@
 ﻿
 using Azure;
+using Investly.PL.Attributes;
 using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.IBL;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
     [ApiController]
     public class InvestorContactController : ControllerBase
     {

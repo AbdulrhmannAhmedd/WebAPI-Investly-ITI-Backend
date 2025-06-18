@@ -8,12 +8,11 @@ using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
-    [AuthorizeUserType(((int)UserType.Staff))]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
     [ApiController]
 
     public class InvestorController : ControllerBase
@@ -40,7 +39,7 @@ namespace Investly.PL.Controllers.Admin
 
         }
 
-        [AuthorizeUserType((int)UserType.Staff)]
+        
 
         [HttpGet("total-active-inactive")]
         public ResponseDto<InvestorTotalActiveIactiveDto> GetTotalActiveInactive()

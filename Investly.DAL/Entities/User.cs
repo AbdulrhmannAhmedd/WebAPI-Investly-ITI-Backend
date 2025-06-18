@@ -47,6 +47,8 @@ public partial class User
 
     public DateTime? UpdatedAt { get; set; }
 
+    public int? TokenVersion { get; set; } = 1;
+
     public virtual ICollection<Business> BusinessCreatedByNavigations { get; set; } = new List<Business>();
 
     public virtual ICollection<BusinessStandardAnswer> BusinessStandardAnswerCreatedByNavigations { get; set; } = new List<BusinessStandardAnswer>();
