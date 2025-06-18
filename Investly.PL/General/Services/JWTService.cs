@@ -23,7 +23,6 @@ namespace Investly.PL.General.Services
                 new Claim("name", $"{user.FirstName} {user.LastName}"),
                 new Claim("userType", user.UserType.ToString()),
                 new Claim("status",user.Status.ToString()),
-                new Claim("notificationCountUnread",user.NotificationCountUnRead.ToString()),
                 new Claim("tokenVersion",user.TokenVersion.ToString()),
                 new Claim("profilePicPath",String.IsNullOrEmpty(user?.ProfilePicPath)?"":user?.ProfilePicPath.ToString())
             };

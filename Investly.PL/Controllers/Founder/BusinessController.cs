@@ -11,8 +11,8 @@ using System.Text.Json;
 namespace Investly.PL.Controllers.Founder
 {
     [Route("api/founder/[controller]")]
-    [AuthorizeUserType(((int)UserType.Founder))]
-    
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
+
     public class BusinessController : Controller
     {
         private readonly IBusinessService _businessService;
@@ -23,24 +23,24 @@ namespace Investly.PL.Controllers.Founder
             _helper = helper;
         }
         [HttpPost]
-        public IActionResult AddBusinessIdeaByFile([FromForm]BusinessDto BusinessIdea)
+        public IActionResult AddBusinessIdeaByFile([FromForm] BusinessDto BusinessIdea)
         {
-           
+
             if (BusinessIdea.IdeaFile != null)
             {
                 var Filepath = _helper.UploadFile(BusinessIdea.IdeaFile, "founder", "IdeaFile");
                 BusinessIdea.FilePath = Filepath;
             }
-           
-            int res=_businessService.AddBusinessIdea(BusinessIdea,User.GetUserId());
-            if(res>0)
+
+            int res = _businessService.AddBusinessIdea(BusinessIdea, User.GetUserId());
+            if (res > 0)
             {
                 var response = new ResponseDto<BusinessDto>
                 {
                     Data = BusinessIdea,
                     IsSuccess = true,
-                    StatusCode=StatusCodes.Status200OK,
-                    Message="Business Idea Added Sucessfully"
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Business Idea Added Sucessfully"
                 };
                 return Ok(response);
             }
@@ -53,11 +53,10 @@ namespace Investly.PL.Controllers.Founder
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "Business Idea Added Failed"
                 };
-                return Ok(response );
+                return Ok(response);
             }
-            return Ok();
         }
-       
-    
-}
+
+
+    }
 }

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Investly.PL.Controllers.Founder
 {
     [Route("api/founder/[controller]")]
-    
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
     public class StandardsController : Controller
     {
         private readonly IStandardService _standardService;

@@ -15,5 +15,12 @@ namespace Investly.DAL.Repos
         {
             _db = db;
         }
+
+        public int getCountUnRead(int userIdTo)
+        {
+            int res = 0;
+            res = _db.Notifications.Count(n => n.UserIdTo == userIdTo && n.IsRead!=1);
+            return res;
+        }
     }
 }

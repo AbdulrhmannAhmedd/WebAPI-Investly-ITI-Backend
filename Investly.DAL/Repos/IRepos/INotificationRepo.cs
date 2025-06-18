@@ -9,5 +9,6 @@ namespace Investly.DAL.Repos.IRepos
 {
     public interface INotificationRepo:IRepo<Notification>
     {
+        public int getCountUnRead(int userIdTo);
     }
 }

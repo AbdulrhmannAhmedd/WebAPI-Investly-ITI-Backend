@@ -12,6 +12,12 @@ namespace Investly.PL.IBL
         public NotifcationsTotalActiveDeletedDto GetTotalNotificationsActiveDeleted();
         #endregion
 
+        #region Founder
+
+        public int getFounderNotificationUnreadCount(int loggedInUserId);
+
+        #endregion
+
         public Task NotifyUser(string UserId);
     }
 }
