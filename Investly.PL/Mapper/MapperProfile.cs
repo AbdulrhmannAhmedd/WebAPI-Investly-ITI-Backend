@@ -27,7 +27,8 @@ namespace Investly.PL.Mapper
             CreateMap<NotificationDto, Notification>().ReverseMap();
          
             CreateMap <Dtos.FounderDto,Founder>().ReverseMap();
-
+            CreateMap<BusinessStandardAnswerDto, BusinessStandardAnswer>().ReverseMap();
+            CreateMap<StandardDto, Standard>().ReverseMap();
 
             CreateMap<InvestorContactRequest, InvestorContactRequestDto>()
             .ForMember(dest => dest.InvestorName,
@@ -44,7 +45,7 @@ namespace Investly.PL.Mapper
                 opt => opt.MapFrom(src => src.Business.Founder.Id))
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => (ContactRequestStatus)src.Status));
-
+            CreateMap<CategoryForListDto,Category>().ReverseMap();
         }
 
     }

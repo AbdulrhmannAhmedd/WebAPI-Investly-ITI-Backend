@@ -159,5 +159,57 @@ namespace Investly.PL.BL
                 return new BusinessCountsDto();
             }
         }
+
+        public int AddBusinessIdea(BusinessDto BusinessIdea, int? LoggedInUser)
+        {
+           try
+            {
+                if (BusinessIdea == null)
+                {
+                    return -2;
+                }
+                var newIdea=_mapper.Map<Business>(BusinessIdea);
+               
+                newIdea.CreatedBy = LoggedInUser;
+               
+
+                if (LoggedInUser != null)
+                {
+                    var founder = _unitOfWork.FounderRepo.FirstOrDefault(f=>f.UserId==LoggedInUser.Value);
+                    if (founder != null)
+                    {
+                      
+                        newIdea.FounderId = founder.Id;
+                    }
+                }
+               if(newIdea.BusinessStandardAnswers != null)
+
+                {
+                    foreach(var answer in newIdea.BusinessStandardAnswers)
+                    {
+                        answer.CreatedBy = LoggedInUser;
+                        answer.CreatedAt = DateTime.Now;
+                    }
+                }
+                newIdea.CreatedAt = DateTime.Now;
+                newIdea.Category = null;
+                newIdea.Status = (int)BusinessIdeaStatus.Pending;
+                _unitOfWork.BusinessRepo.Insert(newIdea);
+                var res = _unitOfWork.Save();
+                if (res>0)
+                {
+                    return 1;
+                }else
+                {
+                    return 0;
+                }
+
+            }
+            catch (Exception ex)
+            {
+              
+                return -1;
+            }
+        }
     }
 }

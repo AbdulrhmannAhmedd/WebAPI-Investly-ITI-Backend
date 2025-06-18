@@ -1,4 +1,5 @@
 ﻿using Investly.PL.Attributes;
+using Investly.PL.BL;
 using Investly.PL.Dtos;
 using Investly.PL.Extentions;
 using Investly.PL.General;
@@ -258,14 +259,43 @@ namespace Investly.PL.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+        [Authorize]
+        [HttpGet("notification-unread-num")]
+        public ResponseDto<object> GetCountUnreadNotification()
+        {
+            var res = _notificationService.getFounderNotificationUnreadCount(User.GetUserId() ?? 0);
+            if (res >= 0)
+            {
+                return new ResponseDto<object>
+                {
+                    Data = res,
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "data retreived successfully"
+                };
 
-        //[HttpPost("send")]
-        //public async Task<IActionResult> sendNotifacation([FromQuery] int count) 
-        //{
-        //    await _notificationService.NotifyUser("14");
-        //    return Ok(count);
+            }
+            else
+            {
+                return new ResponseDto<object>
+                {
+                    Data = res,
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "something went wrong"
+                };
 
-        //}
+            }
+
+        }
+
+        [HttpPost("send")]
+        public async Task<IActionResult> sendNotifacation([FromQuery] int count)
+        {
+            await _notificationService.NotifyUser("14");
+            return Ok(count);
+
+        }
 
 
     }

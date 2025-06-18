@@ -171,6 +171,22 @@ namespace Investly.PL.BL
                 }).ToListAsync();
         }
 
+        public FounderDto GetFounderByUserId(int LoggedInUserId)
+        {
+            try
+            {
+                var founder = _unitOfWork.FounderRepo.FirstOrDefault(f => f.UserId == LoggedInUserId, "User.Government,User.City");
+                return _mapper.Map<FounderDto>(founder);
+
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+
+            }
+        }
+
 
     }
 }

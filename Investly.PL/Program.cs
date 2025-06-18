@@ -103,6 +103,8 @@ namespace Investly.PL
             builder.Services.AddScoped<IGovernementService,GovernmentService>();
             builder.Services.AddScoped<INotficationService,NotificationService>();
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IStandardService, StandardService>();
             #endregion
 
             #region Hubs

@@ -161,6 +161,24 @@ namespace Investly.PL.BL
             }
         }
         #endregion
+
+        #region Founder
+        public int getFounderNotificationUnreadCount(int loggedInUserId)
+        {
+            try
+            {
+                var count = _unitOfWork.NotificationRepo.getCountUnRead(loggedInUserId);
+                return count;
+
+            }
+            catch (Exception ex)
+            {
+                return -1;
+
+            }
+        }
+
+        #endregion
         public async Task NotifyUser(string UserId)
         {
             // int count = _unitOfWork.NotificationRepo.GetAll(n => n.IsRead != 0 && n.UserIdTo==int.Parse(UserId)).Count();

@@ -10,6 +10,7 @@ namespace Investly.PL.IBL
         public int SoftDeleteBusiness(int businessId, int? loggedUserId);
         public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId,string? rejectedReason = null);
         public BusinessCountsDto GetBusinessIdeasCounts();
+        public int AddBusinessIdea(BusinessDto BusinessIdea,int? LoggedInUser);
 
     }
 }
