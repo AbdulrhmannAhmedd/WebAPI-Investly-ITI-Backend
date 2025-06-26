@@ -46,6 +46,12 @@ namespace Investly.PL.Mapper
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => (ContactRequestStatus)src.Status));
             CreateMap<CategoryForListDto,Category>().ReverseMap();
+            CreateMap<Feedback, FeedbackDto>()
+                .ForMember(dest => dest.UserTypeFromName, opt => opt.MapFrom(src => ((UserType)src.UserTypeFrom).ToString()))
+                .ForMember(dest => dest.UserTypeToName, opt => opt.MapFrom(src => ((UserType)src.UserTypeTo).ToString()))
+                .ForMember(dest => dest.UserToName, opt => opt.MapFrom(src => src.UserIdToNavigation != null ? $"{src.UserIdToNavigation.FirstName} {src.UserIdToNavigation.LastName}" : null))
+                .ForMember(dest => dest.UserFromName, opt => opt.MapFrom(src => src.CreatedByNavigation != null ? $"{src.CreatedByNavigation.FirstName} {src.CreatedByNavigation.LastName}" : null)) // New mapping
+                .ReverseMap();
         }
 
     }

@@ -16,5 +16,15 @@ namespace Investly.DAL.Repos
         {
             _db = db;
         }
+        public Tuple<int, int> GetFeedbackCountsByStatus(int activeStatus, int inactiveStatus)
+        {
+           
+            var allFeedbacks = _db.Feedbacks.ToList();
+
+            int totalActive = allFeedbacks.Count(f => f.Status == activeStatus);
+            int totalInactive = allFeedbacks.Count(f => f.Status == inactiveStatus);
+
+            return new Tuple<int, int>(totalActive, totalInactive);
+        }
     }
 }

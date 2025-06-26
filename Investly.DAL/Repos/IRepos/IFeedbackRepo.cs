@@ -9,6 +9,7 @@ namespace Investly.DAL.Repos.IRepos
 {
     public interface IFeedbackRepo:IRepo<Feedback>
     {
+        Tuple<int, int> GetFeedbackCountsByStatus(int activeStatus, int inactiveStatus);
 
     }
 }

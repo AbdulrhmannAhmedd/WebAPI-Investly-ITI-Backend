@@ -4,6 +4,8 @@ namespace Investly.PL.IBL
 {
     public interface IFeedbackService
     {
-       
+        FeedbackListDto GetAllFeedbacks(FeedbackSearchDto searchDto);
+        int DeleteFeedback(int feedbackId, int? loggedUserId, string actionType);
+        FeedbackCountsDto GetFeedbackStatisticsCounts();
     }
 }
