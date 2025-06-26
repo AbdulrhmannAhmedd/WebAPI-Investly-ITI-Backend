@@ -7,6 +7,7 @@ using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
 
 namespace Investly.PL.BL
 {
@@ -188,6 +189,7 @@ namespace Investly.PL.BL
                 investor.User.Status = status;
                 investor.User.UpdatedAt = DateTime.UtcNow;
                 investor.User.UpdatedBy = loggedUser;
+                investor.User.TokenVersion= status == (int)UserStatus.Inactive ? (investor.User.TokenVersion ?? 0) + 1 : investor.User.TokenVersion;
                 _unitOfWork.InvestorRepo.Update(investor);
                 return _unitOfWork.Save();
 

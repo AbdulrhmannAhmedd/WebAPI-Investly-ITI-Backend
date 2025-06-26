@@ -35,7 +35,12 @@ public partial class Business
     public int? UpdatedBy { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+    public int? GovernmentId { get; set; }
 
+    public int? CityId { get; set; }
+    public string? Description { get; set; }
+
+    public int? DesiredInvestmentType { get; set; }
     public virtual ICollection<BusinessStandardAnswer> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswer>();
 
     public virtual Category Category { get; set; } = null!;
@@ -47,4 +52,6 @@ public partial class Business
     public virtual ICollection<InvestorContactRequest> InvestorContactRequests { get; set; } = new List<InvestorContactRequest>();
 
     public virtual User? UpdatedByNavigation { get; set; }
+    public virtual City? City { get; set; }
+    public virtual Government? Government { get; set; }
 }

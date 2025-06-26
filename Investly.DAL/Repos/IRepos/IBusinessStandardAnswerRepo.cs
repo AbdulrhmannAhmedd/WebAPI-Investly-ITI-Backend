@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Investly.DAL.Repos.IRepos
 {
-    public interface INotificationRepo:IRepo<Notification>
+    public interface IBusinessStandardAnswerRepo:IRepo<BusinessStandardAnswer>
     {
-        public int getCountUnRead(int userIdTo);
     }
 }

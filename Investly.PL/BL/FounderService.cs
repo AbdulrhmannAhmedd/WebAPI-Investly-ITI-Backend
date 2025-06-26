@@ -34,6 +34,7 @@ namespace Investly.PL.BL
                     founder.User.UpdatedBy = LoggedInUser;
                     founder.User.UpdatedAt = DateTime.Now;
                     founder.User.Status = Status;
+                    founder.User.TokenVersion = Status == (int)UserStatus.Inactive ? (founder.User.TokenVersion ??0)+1 :founder.User.TokenVersion;
                     _unitOfWork.FounderRepo.Update(founder);
                    var res= _unitOfWork.Save();
                     if(res>0)
@@ -168,6 +169,22 @@ namespace Investly.PL.BL
                     Id = i.Id,
                     Name = $"{i.User.FirstName} {i.User.LastName}"
                 }).ToListAsync();
+        }
+
+        public FounderDto GetFounderByUserId(int LoggedInUserId)
+        {
+            try
+            {
+                var founder = _unitOfWork.FounderRepo.FirstOrDefault(f => f.UserId == LoggedInUserId, "User.Government,User.City");
+                return _mapper.Map<FounderDto>(founder);
+
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+
+            }
         }
 
 

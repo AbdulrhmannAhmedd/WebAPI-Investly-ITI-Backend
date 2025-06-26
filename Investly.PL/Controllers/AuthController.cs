@@ -1,10 +1,15 @@
-﻿using Investly.PL.Dtos;
+﻿using Investly.PL.Attributes;
+using Investly.PL.BL;
+using Investly.PL.Dtos;
+using Investly.PL.Extentions;
 using Investly.PL.General;
 using Investly.PL.General.Services;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Investly.PL.Controllers
@@ -17,14 +22,16 @@ namespace Investly.PL.Controllers
         private readonly IFounderService _founderService;   
         private readonly IJWTService _jWTService;
         private readonly IUserService _userService;
+        private readonly INotficationService _notificationService;
         private readonly IHelper _helper;
-        public AuthController(IInvestorService investorService,IJWTService jWTService, IUserService userService, IHelper helper, IFounderService founderService)
+        public AuthController(IInvestorService investorService,IJWTService jWTService, IUserService userService, IHelper helper, IFounderService founderService, INotficationService notificationService)
         {
             _investorService = investorService;
             _jWTService = jWTService;
             _userService = userService;
             _helper = helper;
             _founderService = founderService;
+            _notificationService = notificationService;
         }
         [HttpPost("register-investor")]
         public IActionResult RegisterInvestor([FromForm] Dtos.InvestorDto investorDto)
@@ -107,6 +114,7 @@ namespace Investly.PL.Controllers
             var result = _founderService.Add(userDto,null);
             if (result > 0)
             {
+
                 return Ok(new ResponseDto<object>
                 {
                     IsSuccess = true,
@@ -170,7 +178,7 @@ namespace Investly.PL.Controllers
 
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] UserLoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
         {
             if (!ModelState.IsValid)
             {
@@ -188,7 +196,12 @@ namespace Investly.PL.Controllers
 
             }
             var user = _userService.GetByEmail(loginDto.Email);
-            if (user == null ||user.UserType==(int)UserType.Staff || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword))
+            if (user == null
+                ||user.UserType==(int)UserType.Staff 
+                || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword)
+                || user.Status==(int)UserStatus.Inactive
+                || user.Status == (int)UserStatus.Deleted
+                )
             {
                 return BadRequest(new ResponseDto<object>
                 {
@@ -199,6 +212,7 @@ namespace Investly.PL.Controllers
                 });
             }
             var token = _jWTService.GenerateToken(user);
+            //await _notificationService.NotifyUser(user.Id.ToString());
             return Ok(new ResponseDto<string>
             {
                 Data = token,
@@ -208,6 +222,80 @@ namespace Investly.PL.Controllers
             });
         }
 
+
+        [Authorize]
+        [HttpGet("refresh-token")]
+        public IActionResult GetUser()
+        {
+            var userId = User.GetUserId();
+            if (userId==null)
+            {
+                return Unauthorized(new ResponseDto<object>
+                {
+                    IsSuccess = false,
+                    Message = "Unauthorized: user email not found in claims.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            var user = _userService.GetById(userId??0);
+            if (user == null)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    IsSuccess = false,
+                    Message = "User not found.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            var token = _jWTService.GenerateToken(user);
+            
+            return Ok(new ResponseDto<string>
+            {
+                IsSuccess = true,
+                Message = "User retrieved successfully.",
+                Data = token,
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [Authorize]
+        [HttpGet("notification-unread-num")]
+        public ResponseDto<object> GetCountUnreadNotification()
+        {
+            var res = _notificationService.getFounderNotificationUnreadCount(User.GetUserId() ?? 0);
+            if (res >= 0)
+            {
+                return new ResponseDto<object>
+                {
+                    Data = res,
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "data retreived successfully"
+                };
+
+            }
+            else
+            {
+                return new ResponseDto<object>
+                {
+                    Data = res,
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "something went wrong"
+                };
+
+            }
+
+        }
+
+        [HttpPost("send")]
+        public async Task<IActionResult> sendNotifacation([FromQuery] int count)
+        {
+            await _notificationService.NotifyUser("14");
+            return Ok(count);
+
+        }
 
 
     }

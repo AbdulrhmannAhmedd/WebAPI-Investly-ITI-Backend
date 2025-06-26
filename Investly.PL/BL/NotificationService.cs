@@ -3,7 +3,9 @@ using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
 using Investly.PL.General;
+using Investly.PL.Hubs;
 using Investly.PL.IBL;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Investly.PL.BL
 {
@@ -11,14 +13,16 @@ namespace Investly.PL.BL
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
-        public NotificationService(IMapper mapper, IUnitOfWork unitOfWork)
+        private readonly IHubContext<NotificationHub> _notifcationHubContext;
+        public NotificationService(IMapper mapper, IUnitOfWork unitOfWork,IHubContext<NotificationHub> hubContext)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _notifcationHubContext = hubContext;
         }
 
-      
 
+        #region Admin
         public PaginatedNotificationsDto GetallPaginatedNotifications(NotificationSearchDto search)
         {
             try
@@ -76,7 +80,7 @@ namespace Investly.PL.BL
             }
         }
 
-        public int SendNotification(NotificationDto notification,int? LoggedInUser,int LoggedInUserType)
+        public async Task<int> SendNotification(NotificationDto notification,int? LoggedInUser,int LoggedInUserType)
         {
            try
             {
@@ -97,6 +101,10 @@ namespace Investly.PL.BL
                 newnotification.Status = (int)NotificationsStatus.Active;
                _unitOfWork.NotificationRepo.Insert(newnotification);
                 res = _unitOfWork.Save();
+                if (res > 0)
+                {
+                   await this.NotifyUser(notification.UserIdTo.ToString());
+                }
                 return res;
 
              }
@@ -151,6 +159,32 @@ namespace Investly.PL.BL
             {
                 return null;
             }
+        }
+        #endregion
+
+        #region Founder
+        public int getFounderNotificationUnreadCount(int loggedInUserId)
+        {
+            try
+            {
+                var count = _unitOfWork.NotificationRepo.getCountUnRead(loggedInUserId);
+                return count;
+
+            }
+            catch (Exception ex)
+            {
+                return -1;
+
+            }
+        }
+
+        #endregion
+        public async Task NotifyUser(string UserId)
+        {
+            // int count = _unitOfWork.NotificationRepo.GetAll(n => n.IsRead != 0 && n.UserIdTo==int.Parse(UserId)).Count();
+            int count = 7;
+            await _notifcationHubContext.Clients.User(UserId).SendAsync("RecieveNotificationCount", count);
+
         }
     }
 }

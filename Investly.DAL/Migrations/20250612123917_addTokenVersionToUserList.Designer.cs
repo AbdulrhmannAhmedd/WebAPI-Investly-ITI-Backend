@@ -4,6 +4,7 @@ using Investly.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Investly.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250612123917_addTokenVersionToUserList")]
+    partial class addTokenVersionToUserList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,28 +43,16 @@ namespace Investly.DAL.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CityId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime");
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("DesiredInvestmentType")
-                        .HasColumnType("int");
-
                     b.Property<string>("FilePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("FounderId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("GovernmentId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDrafted")
@@ -96,13 +87,9 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("CityId");
-
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("FounderId");
-
-                    b.HasIndex("GovernmentId");
 
                     b.HasIndex("UpdatedBy");
 
@@ -731,10 +718,6 @@ namespace Investly.DAL.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__Business__Catego__7F2BE32F");
 
-                    b.HasOne("Investly.DAL.Entities.City", "City")
-                        .WithMany()
-                        .HasForeignKey("CityId");
-
                     b.HasOne("Investly.DAL.Entities.User", "CreatedByNavigation")
                         .WithMany("BusinessCreatedByNavigations")
                         .HasForeignKey("CreatedBy")
@@ -746,10 +729,6 @@ namespace Investly.DAL.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__Business__Founde__00200768");
 
-                    b.HasOne("Investly.DAL.Entities.Government", "Government")
-                        .WithMany()
-                        .HasForeignKey("GovernmentId");
-
                     b.HasOne("Investly.DAL.Entities.User", "UpdatedByNavigation")
                         .WithMany("BusinessUpdatedByNavigations")
                         .HasForeignKey("UpdatedBy")
@@ -757,13 +736,9 @@ namespace Investly.DAL.Migrations
 
                     b.Navigation("Category");
 
-                    b.Navigation("City");
-
                     b.Navigation("CreatedByNavigation");
 
                     b.Navigation("Founder");
-
-                    b.Navigation("Government");
 
                     b.Navigation("UpdatedByNavigation");
                 });

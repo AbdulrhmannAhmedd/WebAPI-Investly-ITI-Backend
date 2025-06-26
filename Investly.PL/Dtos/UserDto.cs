@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Investly.DAL.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Investly.PL.Dtos
 {
@@ -37,6 +38,10 @@ namespace Investly.PL.Dtos
         public IFormFile? PicFile { get; set; }
         public IFormFile? FrontIdPicFile { get; set; }
         public IFormFile? BackIdPicFile { get; set; }
+        public int? TokenVersion { get; set; }
+        public int NotificationCountUnRead { get; set; }
+        public  GovernmentDto? Government { get; set; }
+        public  CityDto? City { get; set; }
 
     }
     public class UserLoginDto

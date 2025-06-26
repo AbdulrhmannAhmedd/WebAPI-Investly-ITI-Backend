@@ -11,7 +11,8 @@ namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
     [ApiController]
-   [AuthorizeUserType(((int)UserType.Staff))]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
+
     public class NotificationController : Controller
     {
         private readonly INotficationService _notificationService;
@@ -29,9 +30,9 @@ namespace Investly.PL.Controllers.Admin
             return Ok(res);
         }
         [HttpPost("SendNotification")]
-        public IActionResult SendNotification(NotificationDto notification)
+        public async Task<IActionResult> SendNotification(NotificationDto notification)
         {
-            int res = _notificationService.SendNotification(notification, User.GetUserId(), User.GetUserType());
+            int res = await _notificationService.SendNotification(notification, User.GetUserId(), User.GetUserType());
             ResponseDto<object> Data;
             if (res > 0)
             {

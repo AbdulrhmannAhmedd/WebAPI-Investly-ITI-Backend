@@ -40,7 +40,14 @@
         Active = 1,
         Deleted=2
     }
-  
+    public enum DesiredInvestmentType
+    {
+        IndustrialExperience=1,
+        Funding=2,
+        Both=3
+    }
+
+
     public enum ContactRequestStatus
     {
         Pending = 1,
