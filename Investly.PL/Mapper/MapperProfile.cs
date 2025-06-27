@@ -19,7 +19,6 @@ namespace Investly.PL.Mapper
                     src.Founder != null && src.Founder.User != null ? $"{src.Founder.User.FirstName} {src.Founder.User.LastName}" : null
                 ))
                  .ForMember(dest => dest.DesiredInvestmentTypeName, opt => opt.MapFrom(src =>
-                    // Map the integer value to the enum and then get its string name
                     src.DesiredInvestmentType.HasValue
                     ? ((DesiredInvestmentType)src.DesiredInvestmentType.Value).ToString()
                     : null
