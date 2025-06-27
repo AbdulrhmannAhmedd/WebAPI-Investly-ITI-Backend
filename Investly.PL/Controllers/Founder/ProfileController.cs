@@ -264,6 +264,54 @@ namespace Investly.PL.Controllers.Founder
             }
         }
 
+        [HttpPatch("national-id")]
+        public IActionResult UpdateNationalIdImages([FromForm] UpdateNationalIdDto model)
+        {
+            try
+            {
+                var result = _founderService.UpdateNationalIdImages(model); // this still returns bool
+
+                var message = "National ID images updated successfully.";
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = message,
+                    Data = message
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 404,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred while updating national ID images.",
+                    Data = null
+                });
+            }
+        }
+
 
 
     }

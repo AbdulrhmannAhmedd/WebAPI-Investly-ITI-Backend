@@ -275,36 +275,81 @@ namespace Investly.PL.BL
 
         public bool UpdateProfilePicture(UpdateProfilePicDto model)
         {
+            if (string.IsNullOrWhiteSpace(model.Email))
+                throw new ArgumentException("Email is required.");
 
             var user = _unitOfWork.UserRepo.FirstOrDefault(user => user.Email == model.Email);
             if (user == null)
                 throw new KeyNotFoundException("User not found.");
 
-
-            var allowedExtensions = new []{ ".jpg", ".jpeg", ".png" };
-            var extension = Path.GetExtension(model.PicFile.FileName).ToLowerInvariant();
-            if (!allowedExtensions.Contains(extension))
-                throw new ArgumentException("Only JPG and PNG files are allowed.");
-
-
-            var path = _helper.UploadFile(model.PicFile, "founder", "profilePic");
-
-            if (string.IsNullOrWhiteSpace(path))
-                throw new InvalidOperationException("Failed to upload image.");
-
-            if (!string.IsNullOrWhiteSpace(user.ProfilePicPath))
-                _helper.DeleteFile(user.ProfilePicPath);
-
-            user.ProfilePicPath = path;
+            user.ProfilePicPath = HandleImageUpload(
+                model.PicFile,
+                user.ProfilePicPath,
+                "profilePic"
+            );
 
             _unitOfWork.UserRepo.Update(user);
-
             _unitOfWork.Save();
+
             return true;
         }
 
 
+        public bool UpdateNationalIdImages(UpdateNationalIdDto model)
+        {
+            var user = _unitOfWork.UserRepo.FirstOrDefault(u => u.Email == model.Email);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
 
+            if (model.FrontIdFile != null)
+            {
+                user.FrontIdPicPath = HandleImageUpload(
+                    model.FrontIdFile,
+                    user.FrontIdPicPath,
+                    "nationalIdPic"
+                );
+            }
+
+            if (model.BackIdFile != null)
+            {
+                user.BackIdPicPath = HandleImageUpload(
+                    model.BackIdFile,
+                    user.BackIdPicPath,
+                    "nationalIdPic"
+                );
+            }
+
+            _unitOfWork.UserRepo.Update(user);
+            _unitOfWork.Save();
+
+            return true;
+
+        }
+
+
+        private string HandleImageUpload(IFormFile file, string? oldPath, string folderName)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("Image file is required.");
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(file.FileName);
+
+            if (string.IsNullOrWhiteSpace(extension) ||
+                !allowedExtensions.Contains(extension.ToLowerInvariant()))
+            {
+                throw new ArgumentException("Only JPG and PNG files are allowed.");
+            }
+
+            var path = _helper.UploadFile(file, "founder", folderName);
+            if (string.IsNullOrWhiteSpace(path))
+                throw new InvalidOperationException("Failed to upload image.");
+
+            if (!string.IsNullOrWhiteSpace(oldPath))
+                _helper.DeleteFile(oldPath);
+
+            return path;
+        }
 
 
 

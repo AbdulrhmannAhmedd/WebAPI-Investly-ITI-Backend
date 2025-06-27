@@ -133,6 +133,16 @@ namespace Investly.PL.Dtos
     }
 
 
+    public class UpdateNationalIdDto
+    {
+        public string Email { get; set; }
+
+        public IFormFile? FrontIdFile { get; set; }
+
+        public IFormFile? BackIdFile { get; set; }
+    }
+
+
     public static class FounderExtensions
     {
         public static UpdateFounderDto ToUpdateDto(this Founder founder)

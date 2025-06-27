@@ -18,5 +18,6 @@ namespace Investly.PL.IBL
 
         public bool ChangePassword(ChangePasswordDto model);
         public bool UpdateProfilePicture(UpdateProfilePicDto model);
+        public bool UpdateNationalIdImages(UpdateNationalIdDto model);
     }
 }
