@@ -18,6 +18,12 @@ namespace Investly.PL.Mapper
                 .ForMember(dest => dest.FounderName, opt => opt.MapFrom(src =>
                     src.Founder != null && src.Founder.User != null ? $"{src.Founder.User.FirstName} {src.Founder.User.LastName}" : null
                 ))
+                 .ForMember(dest => dest.DesiredInvestmentTypeName, opt => opt.MapFrom(src =>
+                    // Map the integer value to the enum and then get its string name
+                    src.DesiredInvestmentType.HasValue
+                    ? ((DesiredInvestmentType)src.DesiredInvestmentType.Value).ToString()
+                    : null
+                ))
                 .ReverseMap();
 
             CreateMap<Dtos.UserDto,User>().ReverseMap();   
@@ -27,8 +33,9 @@ namespace Investly.PL.Mapper
             CreateMap<NotificationDto, Notification>().ReverseMap();
          
             CreateMap <Dtos.FounderDto,Founder>().ReverseMap();
-            CreateMap<BusinessStandardAnswerDto, BusinessStandardAnswer>().ReverseMap();
-            CreateMap<StandardDto, Standard>().ReverseMap();
+            CreateMap<BusinessStandardAnswer, BusinessStandardAnswerDto>()
+                           .ForMember(dest => dest.StandardQuestion, opt => opt.MapFrom(src => src.Standard != null ? src.Standard.Name : null)) // <--- NEW: Add this line
+                           .ReverseMap(); CreateMap<StandardDto, Standard>().ReverseMap();
 
             CreateMap<InvestorContactRequest, InvestorContactRequestDto>()
             .ForMember(dest => dest.InvestorName,
