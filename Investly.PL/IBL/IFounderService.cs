@@ -1,4 +1,5 @@
 ﻿using Investly.PL.Dtos;
+using Microsoft.AspNetCore.Identity;
 
 namespace Investly.PL.IBL
 {
@@ -12,5 +13,10 @@ namespace Investly.PL.IBL
         public Task<List<DropdownDto>> GetFoundersForDropdownAsync();
 
         public FounderDto GetFounderByUserId(int LoggedInUserId);
+
+        public Tuple<bool, FounderDto> UpdateFounderData(string email, UpdateFounderDto founderDto);
+
+        public bool ChangePassword(ChangePasswordDto model);
+
     }
 }

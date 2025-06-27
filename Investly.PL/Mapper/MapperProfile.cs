@@ -46,6 +46,39 @@ namespace Investly.PL.Mapper
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => (ContactRequestStatus)src.Status));
             CreateMap<CategoryForListDto,Category>().ReverseMap();
+
+
+
+            CreateMap<User, UpdateFounderDto>()
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
+                .ForMember(dest => dest.GovernmentId, opt => opt.MapFrom(src => src.GovernmentId))
+                .ForMember(dest => dest.CityId, opt => opt.MapFrom(src => src.CityId))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+                .ReverseMap() // This creates the UpdateFounderDto → User mapping
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) =>
+                    srcMember != null)); // Only map if source value is not null
+
+            // Explicitly ignore all sensitive fields that should never be updated
+            CreateMap<UpdateFounderDto, User>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Email, opt => opt.Ignore())
+                .ForMember(dest => dest.HashedPassword, opt => opt.Ignore())
+                .ForMember(dest => dest.NationalId, opt => opt.Ignore())
+                .ForMember(dest => dest.FrontIdPicPath, opt => opt.Ignore())
+                .ForMember(dest => dest.BackIdPicPath, opt => opt.Ignore())
+                .ForMember(dest => dest.ProfilePicPath, opt => opt.Ignore())
+                .ForMember(dest => dest.UserType, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.TokenVersion, opt => opt.Ignore());
+
         }
 
     }

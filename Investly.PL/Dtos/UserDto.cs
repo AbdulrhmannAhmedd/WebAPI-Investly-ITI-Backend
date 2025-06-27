@@ -34,7 +34,6 @@ namespace Investly.PL.Dtos
         public int? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
         public IFormFile? PicFile { get; set; }
         public IFormFile? FrontIdPicFile { get; set; }
         public IFormFile? BackIdPicFile { get; set; }
