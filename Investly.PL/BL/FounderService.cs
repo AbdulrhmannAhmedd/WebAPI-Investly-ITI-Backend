@@ -259,12 +259,9 @@ namespace Investly.PL.BL
             if (user == null)
                 throw new KeyNotFoundException("User not found");
 
-            // Validate current password
             if (!BCrypt.Net.BCrypt.Verify(model.CurrentPassword, user.HashedPassword))
                 throw new ArgumentException("Current password is incorrect");
 
-            // Proceed to change password
-            
             user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
 
             _unitOfWork.UserRepo.Update(user);

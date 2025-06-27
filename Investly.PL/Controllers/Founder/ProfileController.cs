@@ -136,84 +136,67 @@ namespace Investly.PL.Controllers.Founder
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                bool hasCurrentPasswordError = errors.Any(e =>
-                    e.Contains("Current password is incorrect") ||
-                    e.Contains("User not found"));
-
-                int statusCode = hasCurrentPasswordError ? 401 : 400;
-
                 var response = new ResponseDto<string>
                 {
                     IsSuccess = false,
-                    StatusCode = statusCode,
+                    StatusCode = 400,
                     Message = string.Join("; ", errors),
                     Data = string.Join("; ", errors)
                 };
 
-                return StatusCode(statusCode, response);
+                return BadRequest(response);
             }
-
             try
             {
-                var result = _founderService.ChangePassword(changePasswordDto);
+                _founderService.ChangePassword(changePasswordDto);
 
-                var response = new ResponseDto<string>
+                return Ok(new ResponseDto<string>
                 {
                     IsSuccess = true,
-                    StatusCode = StatusCodes.Status200OK,
+                    StatusCode = 200,
                     Message = "Password changed successfully",
                     Data = "Password changed successfully"
-                };
-
-                return Ok(response);
+                });
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException ex) when (ex.Message.Contains("Current password is incorrect"))
             {
-                var response = new ResponseDto<string>
+                return Unauthorized(new ResponseDto<string>
                 {
                     IsSuccess = false,
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = 401,
                     Message = ex.Message,
                     Data = ex.Message
-                };
-
-                return BadRequest(response);
+                });
             }
             catch (KeyNotFoundException ex)
             {
-                var response = new ResponseDto<string>
+                return NotFound(new ResponseDto<string>
                 {
                     IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound,
+                    StatusCode = 404,
                     Message = ex.Message,
                     Data = ex.Message
-                };
-
-                return NotFound(response);
+                });
             }
             catch (DbUpdateException)
             {
-                var response = new ResponseDto<string>
+                return StatusCode(500, new ResponseDto<string>
                 {
                     IsSuccess = false,
-                    StatusCode = StatusCodes.Status500InternalServerError,
+                    StatusCode = 500,
                     Message = "Database update error",
                     Data = "Database update error"
-                };
-
-                return StatusCode(500, response);
+                });
             }
             catch (Exception)
             {
-                var response = new ResponseDto<string>
+                return StatusCode(500, new ResponseDto<string>
                 {
                     IsSuccess = false,
-                    StatusCode = StatusCodes.Status500InternalServerError,
+                    StatusCode = 500,
                     Message = "An unexpected error occurred",
                     Data = "An unexpected error occurred"
-                };
-
-                return StatusCode(500, response);
+                });
             }
         }
 
