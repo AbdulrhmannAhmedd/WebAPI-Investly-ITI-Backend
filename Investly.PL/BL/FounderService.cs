@@ -3,6 +3,7 @@ using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
 using Investly.PL.General;
+using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -15,16 +16,19 @@ namespace Investly.PL.BL
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
+        private readonly IHelper _helper;
 
         public FounderService(
             IUnitOfWork unitOfWork, 
             IMapper mapper,
-            IUserService userService
+            IUserService userService,
+            IHelper helper
             )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
+            _helper = helper;
         }
         public int ChangeFounderStatus(int Id, int Status,int ?LoggedInUser)
         {
@@ -196,84 +200,6 @@ namespace Investly.PL.BL
             }
         }
 
-        //public Tuple<bool, FounderDto> UpdateFounderData(int id, UpdateFounderDto founderDto)
-        //{
-        //    var founder = _unitOfWork.FounderRepo.FirstOrDefault(founder => founder.Id == id, includeProperties: "User");
-        //    if (founder == null)
-        //        throw new KeyNotFoundException("No Founder Found");
-
-        //    var currentDto = founder.ToUpdateDto();
-        //    if (founderDto.Equals(currentDto))
-        //        return new Tuple<bool, FounderDto>(false, _mapper.Map<FounderDto>(founder));
-
-        //    var updatedUser = _mapper.Map(founderDto, founder.User);
-
-        //    updatedUser.Status = (int)UserStatus.Inactive;
-
-        //    _unitOfWork.UserRepo.Update(updatedUser);
-
-        //    _unitOfWork.Save();
-
-        //    return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));
-        //}
-
-
-        //public Tuple<bool, FounderDto> UpdateFounderData(string email, UpdateFounderDto founderDto)
-        //{
-        //    var founder = _unitOfWork.FounderRepo.FirstOrDefault(f => f.User.Email == email, includeProperties: "User");
-        //    if (founder == null)
-        //        throw new KeyNotFoundException("No Founder Found");
-
-        //    var currentDto = founder.ToUpdateDto();
-        //    if (founderDto.Equals(currentDto))
-        //        return new Tuple<bool, FounderDto>(false, _mapper.Map<FounderDto>(founder));
-
-        //    if (!string.IsNullOrWhiteSpace(founderDto.PhoneNumber))
-        //    {
-        //        var existingUser = _unitOfWork.UserRepo.FirstOrDefault(u =>
-        //            u.PhoneNumber == founderDto.PhoneNumber &&
-        //            u.Id != founder.User.Id);
-
-        //        if (existingUser != null)
-        //            throw new ArgumentException("Phone number must be unique.");
-        //    }
-
-
-        //    if (founderDto.DateOfBirth.HasValue)
-        //    {
-        //        var dob = founderDto.DateOfBirth.Value;
-        //        var today = DateOnly.FromDateTime(DateTime.Today);
-        //        int age = today.Year - dob.Year;
-        //        if (today < dob.AddYears(age))
-        //            age--;
-
-        //        if (age < 21)
-        //            throw new ArgumentException("Age must be at least 21 years.");
-        //    }
-
-
-        //    var user = founder.User;
-
-        //    user.FirstName = founderDto.FirstName;
-        //    user.LastName = founderDto.LastName;
-        //    user.PhoneNumber = founderDto.PhoneNumber;
-        //    user.Gender = founderDto.Gender;
-        //    user.GovernmentId = founderDto.GovernmentId;
-        //    user.CityId = founderDto.CityId;
-        //    user.Address = founderDto.Address;
-        //    user.DateOfBirth = founderDto.DateOfBirth;
-        //    user.Status = (int)UserStatus.Inactive;
-
-        //    _unitOfWork.UserRepo.Update(user);
-        //    _unitOfWork.Save();
-
-
-
-
-        //    return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));
-        //}
-
-
         public Tuple<bool, FounderDto> UpdateFounderData(string email, UpdateFounderDto founderDto)
         {
             var founder = _unitOfWork.FounderRepo.FirstOrDefault(f => f.User.Email == email, includeProperties: "User");
@@ -326,26 +252,6 @@ namespace Investly.PL.BL
             return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));
         }
 
-
-
-
-
-        //public bool ChangePassword(ChangePasswordDto model)
-        //{
-        //    var user = _unitOfWork.UserRepo.GetById(model.Id);
-
-
-        //    if (user == null)
-        //    {
-        //        throw new KeyNotFoundException("User not found"); 
-        //    }
-
-        //    user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
-        //    _unitOfWork.Save();
-
-        //    return true;
-        //}
-
         public bool ChangePassword(ChangePasswordDto model)
         {
             var user = _unitOfWork.UserRepo.FirstOrDefault(user => user.Email == model.email);
@@ -364,29 +270,40 @@ namespace Investly.PL.BL
             _unitOfWork.UserRepo.Update(user);
 
             _unitOfWork.Save();
+            return true;
+        }
 
+        public bool UpdateProfilePicture(UpdateProfilePicDto model)
+        {
+
+            var user = _unitOfWork.UserRepo.FirstOrDefault(user => user.Email == model.Email);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+
+
+            var allowedExtensions = new []{ ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(model.PicFile.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension))
+                throw new ArgumentException("Only JPG and PNG files are allowed.");
+
+
+            var path = _helper.UploadFile(model.PicFile, "founder", "profilePic");
+
+            if (string.IsNullOrWhiteSpace(path))
+                throw new InvalidOperationException("Failed to upload image.");
+
+            if (!string.IsNullOrWhiteSpace(user.ProfilePicPath))
+                _helper.DeleteFile(user.ProfilePicPath);
+
+            user.ProfilePicPath = path;
+
+            _unitOfWork.UserRepo.Update(user);
+
+            _unitOfWork.Save();
             return true;
         }
 
 
-        //public async Task<bool> VerifyCurrentPasswordAsync(string password)
-        //{
-        //    var user = await GetCurrentUserAsync();
-        //    if (user == null) return false;
-
-        //    return await _userManager.CheckPasswordAsync(user, password);
-        //}
-
-        //private async Task<IdentityUser?> GetCurrentUserAsync()
-        //{
-        //    var userId = _httpContextAccessor.HttpContext?
-        //        .User?
-        //        .FindFirstValue(ClaimTypes.NameIdentifier);
-
-        //    if (string.IsNullOrEmpty(userId)) return null;
-
-        //    return await _userManager.FindByIdAsync(userId);
-        //}
 
 
 

@@ -217,6 +217,53 @@ namespace Investly.PL.Controllers.Founder
             }
         }
 
+        [HttpPatch("profile-picture")]
+        public IActionResult UpdateFounderProfilePicture([FromForm] UpdateProfilePicDto model)
+        {
+            try
+            {
+                var result = _founderService.UpdateProfilePicture(model);
+
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "Profile picture updated successfully.",
+                    Data = model.Email 
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 404,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An error occurred while updating the profile picture.",
+                    Data = null
+                });
+            }
+        }
+
 
 
     }

@@ -17,6 +17,6 @@ namespace Investly.PL.IBL
         public Tuple<bool, FounderDto> UpdateFounderData(string email, UpdateFounderDto founderDto);
 
         public bool ChangePassword(ChangePasswordDto model);
-
+        public bool UpdateProfilePicture(UpdateProfilePicDto model);
     }
 }

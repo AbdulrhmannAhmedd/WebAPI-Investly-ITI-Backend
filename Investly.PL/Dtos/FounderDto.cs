@@ -126,87 +126,13 @@ namespace Investly.PL.Dtos
         public string ConfirmNewPassword { get; set; } = null!;
     }
 
+    public class UpdateProfilePicDto
+    {
+        public string Email { get; set; }
+        public IFormFile PicFile { get; set; }
+    }
 
 
-
-
-
-
-    // validation for date
-    //public class MinimumAgeAttribute : ValidationAttribute
-    //{
-    //    private readonly int _minAge;
-
-    //    public MinimumAgeAttribute(int minAge)
-    //    {
-    //        _minAge = minAge;
-    //        ErrorMessage = $"Age must be at least {_minAge} years.";
-    //    }
-
-    //    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-    //    {
-    //        if (value is null)
-    //            return ValidationResult.Success;
-
-
-    //        if (value is DateOnly BOD)
-    //        {
-    //            var today = DateOnly.FromDateTime(DateTime.Today);
-    //            int age = today.Year - BOD.Year;
-
-    //            if (today < BOD.AddYears(age))
-    //                age--;
-
-    //            if (age < _minAge)
-    //                return new ValidationResult(ErrorMessage);
-
-    //        }
-    //        return ValidationResult.Success;
-    //    }
-    //}
-
-
-    //public class UniquePhoneNumberAttribute : ValidationAttribute
-    //{
-    //    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-    //    {
-    //        if (value is null || (value is string str && string.IsNullOrWhiteSpace(str)))
-    //            return ValidationResult.Success;
-
-    //        try
-    //        {
-    //            // Get HTTP context accessor
-    //            var httpContextAccessor = (IHttpContextAccessor)validationContext
-    //                .GetRequiredService(typeof(IHttpContextAccessor));
-
-    //            // Get route data
-    //            var routeData = httpContextAccessor.HttpContext?.GetRouteData();
-    //            var idFromRoute = routeData?.Values["id"]?.ToString();
-
-    //            if (!int.TryParse(idFromRoute, out int routeId))
-    //                return new ValidationResult("Invalid ID in route");
-
-    //            // Get repository
-    //            var userRepo = (IUserRepo)validationContext
-    //                .GetRequiredService(typeof(IUserRepo));
-
-    //            var existingUser = userRepo.FirstOrDefault(u =>
-    //                u.PhoneNumber == value.ToString() &&
-    //                u.Id != routeId); // Compare with ID from route
-
-    //            return existingUser == null
-    //                ? ValidationResult.Success
-    //                : new ValidationResult("Phone number must be unique.");
-    //        }
-    //        catch
-    //        {
-    //            return ValidationResult.Success; // Fail gracefully
-    //        }
-    //    }
-    //}
-
-
-    // extension methods for founder 
     public static class FounderExtensions
     {
         public static UpdateFounderDto ToUpdateDto(this Founder founder)
@@ -224,55 +150,6 @@ namespace Investly.PL.Dtos
             };
         }
     }
-
-    //public class ValidateCurrentPasswordAttribute : ValidationAttribute
-    //{
-    //    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-    //    {
-    //        var httpContext = validationContext.GetRequiredService<IHttpContextAccessor>().HttpContext;
-    //        var userManager = validationContext.GetRequiredService<UserManager<IdentityUser>>();
-
-    //        // Get current user
-    //        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-    //        var user = userManager.FindByIdAsync(userId).Result;
-
-    //        // Verify current password
-    //        var currentPassword = value as string;
-    //        if (!userManager.CheckPasswordAsync(user, currentPassword).Result)
-    //        {
-    //            return new ValidationResult("Current password is incorrect");
-    //        }
-
-    //        return ValidationResult.Success;
-    //    }
-    //}
-
-    //public class ValidateCurrentPasswordAttribute : ValidationAttribute
-    //{
-    //    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
-    //    {
-    //        var currentPassword = value as string;
-    //        if (string.IsNullOrWhiteSpace(currentPassword))
-    //            return new ValidationResult("Current password is required");
-
-    //        // Access the full DTO model
-    //        var model = (ChangePasswordDto)validationContext.ObjectInstance;
-
-    //        // Resolve your user service from DI
-    //        var userService = (IUserService)validationContext.GetService(typeof(IUserService))!;
-    //        var user = userService.GetById(model.Id);
-
-    //        if (user == null)
-    //            return new ValidationResult("User not found");
-
-    //        // Verify current password
-    //        if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.HashedPassword))
-    //            return new ValidationResult("Current password is incorrect");
-
-    //        return ValidationResult.Success;
-    //    }
-    //}
-
 
 
 }
