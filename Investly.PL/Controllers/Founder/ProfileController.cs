@@ -158,9 +158,9 @@ namespace Investly.PL.Controllers.Founder
                     Data = "Password changed successfully"
                 });
             }
-            catch (ArgumentException ex) when (ex.Message.Contains("Current password is incorrect"))
+            catch (ArgumentException ex) 
             {
-                return Unauthorized(new ResponseDto<string>
+                return BadRequest(new ResponseDto<string>
                 {
                     IsSuccess = false,
                     StatusCode = 401,
@@ -199,6 +199,7 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
         }
+
 
         [HttpPatch("profile-picture")]
         public IActionResult UpdateFounderProfilePicture([FromForm] UpdateProfilePicDto model)
