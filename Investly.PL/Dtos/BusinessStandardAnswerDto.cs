@@ -7,7 +7,7 @@ namespace Investly.PL.Dtos
        
             public int StandardId { get; set; }
             public string Answer { get; set; }
-        
+            public string? StandardQuestion { get; set; }
 
     }
 

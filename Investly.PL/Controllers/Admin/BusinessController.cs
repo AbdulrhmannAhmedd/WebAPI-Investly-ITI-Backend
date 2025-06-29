@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
-    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
+    //[TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
     [ApiController]
     public class BusinessController : ControllerBase
     {
@@ -108,7 +108,7 @@ namespace Investly.PL.Controllers.Admin
     if (result > 0)
     {
         response = new ResponseDto<object>
-        {
+        { 
             IsSuccess = true,
             Message = $"Business idea status updated to {newStatus.ToString()} successfully.",
             Data = null,
