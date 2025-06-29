@@ -195,7 +195,10 @@ namespace Investly.PL.Controllers
                 });
 
             }
+            var test = BCrypt.Net.BCrypt.HashPassword(loginDto.Password);
+
             var user = _userService.GetByEmail(loginDto.Email);
+
             if (user == null
                 ||user.UserType==(int)UserType.Staff 
                 || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword)
