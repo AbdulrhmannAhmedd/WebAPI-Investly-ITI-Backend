@@ -112,7 +112,7 @@ namespace Investly.PL.Controllers.Founder
 
             var result = await _notificationService.MarkAllUserNotificationsAsRead(userId.Value);
 
-            if (result >= 0) // result indicates number of rows affected or 0 if none
+            if (result >= 0)
             {
                 return Ok(new ResponseDto<object>
                 {
@@ -133,10 +133,10 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
         }
-        [HttpPut("{id}/soft-delete")] // A specific route for soft-delete
+        [HttpPut("{id}/soft-delete")] 
         public IActionResult SoftDeleteNotification(int id)
         {
-            var loggedInUserId = User.GetUserId(); // Get the ID of the logged-in user
+            var loggedInUserId = User.GetUserId();
 
             if (loggedInUserId == null)
             {
@@ -149,7 +149,6 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
 
-            // Call the shared ChnageStatus method with the Deleted status enum value
             int res = _notificationService.ChnageStatus(id, (int)NotificationsStatus.Deleted, loggedInUserId);
             ResponseDto<object> Data;
 
@@ -166,7 +165,6 @@ namespace Investly.PL.Controllers.Founder
             }
             else
             {
-                // Handle different error codes from ChnageStatus
                 string errorMessage;
                 int statusCode;
                 switch (res)
@@ -181,7 +179,7 @@ namespace Investly.PL.Controllers.Founder
                         break;
                     case -3:
                         errorMessage = "You do not have permission to delete this notification.";
-                        statusCode = StatusCodes.Status403Forbidden; // Forbidden if not creator/recipient
+                        statusCode = StatusCodes.Status403Forbidden;
                         break;
                     case -4:
                     default:
@@ -196,7 +194,7 @@ namespace Investly.PL.Controllers.Founder
                     Message = errorMessage,
                     StatusCode = statusCode
                 };
-                return StatusCode(statusCode, Data); // Use StatusCode for non-200 responses
+                return StatusCode(statusCode, Data);
             }
         }
     }

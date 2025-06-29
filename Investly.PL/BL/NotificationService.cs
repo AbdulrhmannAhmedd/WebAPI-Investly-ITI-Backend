@@ -136,14 +136,7 @@ namespace Investly.PL.BL
                 notification.UpdatedAt = DateTime.Now;
                 _unitOfWork.NotificationRepo.Update(notification);
                 var res= _unitOfWork.Save();
-                //if (Status == (int)NotificationsStatus.Deleted)
-                //{
-                //    _ = NotifyUser(notification.UserIdTo.ToString()); // Fire and forget update
-                //}
-                //else if (Status == (int)NotificationsStatus.Active && notification.IsRead == 0)
-                //{
-                //    _ = NotifyUser(notification.UserIdTo.ToString()); // Fire and forget update
-                //}
+              
                 return res;
             }
             catch (Exception ex)
@@ -248,20 +241,17 @@ namespace Investly.PL.BL
 
                 if (!unreadNotifications.Any())
                 {
-                    return 0; // No unread notifications to mark
+                    return 0; 
                 }
 
                 foreach (var notification in unreadNotifications)
                 {
-                    notification.IsRead = 1; // Mark as read
-                    // notification.UpdatedAt = DateTime.Now; // Optionally update timestamp
-                    // notification.UpdatedBy = userId; // Optionally set who updated it (the user themselves)
-                    _unitOfWork.NotificationRepo.Update(notification); // Mark for update
+                    notification.IsRead = 1;
+                    _unitOfWork.NotificationRepo.Update(notification);
                 }
 
-                var res = _unitOfWork.Save(); // Save all changes
+                var res = _unitOfWork.Save(); 
 
-                // Notify the user via SignalR that their unread count is now 0
                 if (res > 0)
                 {
                     await NotifyUser(userId.ToString());
@@ -271,9 +261,8 @@ namespace Investly.PL.BL
             }
             catch (Exception ex)
             {
-                // Log the exception
                 Console.WriteLine($"Error in MarkAllUserNotificationsAsRead: {ex.Message}");
-                return -1; // Indicate failure
+                return -1;
             }
         }
     }
