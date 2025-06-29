@@ -145,7 +145,11 @@ namespace Investly.PL.BL
                 existingInvestor.User.ProfilePicPath = investorDto.User.ProfilePicPath ?? existingInvestor.User.ProfilePicPath;
                 existingInvestor.User.FrontIdPicPath = investorDto.User.FrontIdPicPath ?? existingInvestor.User.FrontIdPicPath;
                 existingInvestor.User.BackIdPicPath = investorDto.User.BackIdPicPath ?? existingInvestor.User.BackIdPicPath;
-
+                existingInvestor.User.Status=investorDto.User.Status??existingInvestor.User.Status;
+                existingInvestor.InvestingType = investorDto.InvestingType ?? existingInvestor.InvestingType;
+                existingInvestor.InterestedBusinessStages = investorDto.InterestedBusinessStages ?? existingInvestor.InterestedBusinessStages;
+                existingInvestor.MaxFunding = investorDto.MaxFunding ?? existingInvestor.MaxFunding;
+                existingInvestor.MinFunding = investorDto.MinFunding ?? existingInvestor.MinFunding;
                 _unitOfWork.InvestorRepo.Update(existingInvestor);
                 res = _unitOfWork.Save();
                 return res;
@@ -210,6 +214,21 @@ namespace Investly.PL.BL
                     Name = $"{i.User.FirstName} {i.User.LastName}"
                 }).ToListAsync();
         }
+        public InvestorDto GetInvestorByUserId(int? loggedInUser)
+        {
+            try
+            {
+                var investor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser, "User.Government,User.City");
+                var res = _mapper.Map<InvestorDto>(investor);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return null;
 
+            }
+        }
+
+        
     }
 }
