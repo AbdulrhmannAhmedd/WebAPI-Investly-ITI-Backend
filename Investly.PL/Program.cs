@@ -89,6 +89,7 @@ namespace Investly.PL
             #region Unit of work  registeration
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IBusinessRepo, BusinessRepo>();
+            builder.Services.AddScoped<IFeedbackRepo, FeedbackRepo>();
 
 
             #endregion
@@ -105,6 +106,8 @@ namespace Investly.PL
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IStandardService, StandardService>();
+            builder.Services.AddScoped<IFeedbackService, FeedbackService>(); 
+
             #endregion
 
             #region Hubs
