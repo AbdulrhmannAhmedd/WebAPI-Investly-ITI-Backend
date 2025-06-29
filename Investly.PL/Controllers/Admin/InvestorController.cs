@@ -97,7 +97,7 @@ namespace Investly.PL.Controllers.Admin
         public ResponseDto<InvestorDto> Put([FromForm] InvestorDto data)
         {
            
-                var oldinvestor = _investorService.GetById(data.Id??0);
+            var oldinvestor = _investorService.GetById(data.Id??0);
             
             
             if (data.User.PicFile != null)

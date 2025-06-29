@@ -5,6 +5,7 @@ using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Investly.PL.Controllers.Founder
 {
@@ -51,6 +52,265 @@ namespace Investly.PL.Controllers.Founder
 
             }
         }
+        [HttpPut("{email}")]
+        public IActionResult UpdateFounder(string email, [FromBody] UpdateFounderDto founderDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = string.Join("; ", errors),
+                    Data = null
+                };
+
+                return BadRequest(response); // StatusCode 400
+            }
+
+            try
+            {
+                var (isUpdated, founderData) = _founderService.UpdateFounderData(email, founderDto);
+
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = isUpdated ? 200 : 304,
+                    Message = isUpdated ? "Update successful" : "No changes detected",
+                    Data = "Update successful",
+                    RefreshTokenRequired=isUpdated?true:false
+                };
+
+                return StatusCode(response.StatusCode, response); // Either 200 or 304
+            }
+            catch (ArgumentException ex)
+            {
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Data = null
+                };
+
+                return BadRequest(response); // StatusCode 404
+            }
+            catch (KeyNotFoundException ex)
+            {
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 404,
+                    Message = ex.Message,
+                    Data = null
+                };
+
+                return NotFound(response); // StatusCode 404
+            }
+            catch (DbUpdateException)
+            {
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "Database update error",
+                    Data = null
+                };
+
+                return StatusCode(500, response);
+            }
+            catch (Exception)
+            {
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred",
+                    Data = null
+                };
+
+                return StatusCode(500, response);
+            }
+        }
+
+
+        [HttpPost("change-password")]
+        public IActionResult ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = string.Join("; ", errors),
+                    Data = string.Join("; ", errors)
+                };
+
+                return BadRequest(response);
+            }
+            try
+            {
+                _founderService.ChangePassword(changePasswordDto);
+
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "Password changed successfully",
+                    Data = "Password changed successfully"
+                });
+            }
+            catch (ArgumentException ex) 
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 401,
+                    Message = ex.Message,
+                    Data = ex.Message
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 404,
+                    Message = ex.Message,
+                    Data = ex.Message
+                });
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "Database update error",
+                    Data = "Database update error"
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred",
+                    Data = "An unexpected error occurred"
+                });
+            }
+        }
+
+
+        [HttpPatch("profile-picture")]
+        public IActionResult UpdateFounderProfilePicture([FromForm] UpdateProfilePicDto model)
+        {
+            try
+            {
+                var result = _founderService.UpdateProfilePicture(model);
+
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "Profile picture updated successfully.",
+                    Data = model.Email ,
+                    RefreshTokenRequired=true
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 404,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An error occurred while updating the profile picture.",
+                    Data = null
+                });
+            }
+        }
+
+        [HttpPatch("national-id")]
+        public IActionResult UpdateNationalIdImages([FromForm] UpdateNationalIdDto model)
+        {
+            try
+            {
+                var result = _founderService.UpdateNationalIdImages(model); // this still returns bool
+
+                var message = "National ID images updated successfully.";
+                return Ok(new ResponseDto<UpdateNationalIdResponseDto>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = message,
+                    Data = result
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResponseDto<UpdateNationalIdResponseDto>
+                {
+                    IsSuccess = false,
+                    StatusCode = 404,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ResponseDto<UpdateNationalIdResponseDto>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResponseDto<UpdateNationalIdResponseDto>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred while updating national ID images.",
+                    Data = null
+                });
+            }
+        }
+
+
 
     }
 }
