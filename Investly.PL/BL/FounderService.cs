@@ -242,8 +242,7 @@ namespace Investly.PL.BL
             user.CityId = founderDto.CityId;
             user.Address = founderDto.Address;
             user.DateOfBirth = founderDto.DateOfBirth;
-            user.Status = (int)UserStatus.Inactive;
-
+            user.Status = (int)UserStatus.Pending;
             _unitOfWork.Save();
 
             return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));

@@ -82,7 +82,8 @@ namespace Investly.PL.Controllers.Founder
                     IsSuccess = true,
                     StatusCode = isUpdated ? 200 : 304,
                     Message = isUpdated ? "Update successful" : "No changes detected",
-                    Data = "Update successful"
+                    Data = "Update successful",
+                    RefreshTokenRequired=isUpdated?true:false
                 };
 
                 return StatusCode(response.StatusCode, response); // Either 200 or 304
