@@ -142,6 +142,11 @@ namespace Investly.PL.Dtos
         public IFormFile? BackIdFile { get; set; }
     }
 
+    public class UpdateNationalIdResponseDto
+    {
+        public string? FrontIdPicPath { get; set; }
+        public string? BackIdPicPath { get; set; }
+    }
 
     public static class FounderExtensions
     {

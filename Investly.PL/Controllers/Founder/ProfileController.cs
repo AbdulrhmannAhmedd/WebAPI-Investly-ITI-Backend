@@ -87,6 +87,18 @@ namespace Investly.PL.Controllers.Founder
 
                 return StatusCode(response.StatusCode, response); // Either 200 or 304
             }
+            catch (ArgumentException ex)
+            {
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Data = null
+                };
+
+                return BadRequest(response); // StatusCode 404
+            }
             catch (KeyNotFoundException ex)
             {
                 var response = new ResponseDto<string>
@@ -256,17 +268,17 @@ namespace Investly.PL.Controllers.Founder
                 var result = _founderService.UpdateNationalIdImages(model); // this still returns bool
 
                 var message = "National ID images updated successfully.";
-                return Ok(new ResponseDto<string>
+                return Ok(new ResponseDto<UpdateNationalIdResponseDto>
                 {
                     IsSuccess = true,
                     StatusCode = 200,
                     Message = message,
-                    Data = message
+                    Data = result
                 });
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new ResponseDto<string>
+                return NotFound(new ResponseDto<UpdateNationalIdResponseDto>
                 {
                     IsSuccess = false,
                     StatusCode = 404,
@@ -276,7 +288,7 @@ namespace Investly.PL.Controllers.Founder
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new ResponseDto<string>
+                return BadRequest(new ResponseDto<UpdateNationalIdResponseDto>
                 {
                     IsSuccess = false,
                     StatusCode = 400,
@@ -286,7 +298,7 @@ namespace Investly.PL.Controllers.Founder
             }
             catch (Exception)
             {
-                return StatusCode(500, new ResponseDto<string>
+                return StatusCode(500, new ResponseDto<UpdateNationalIdResponseDto>
                 {
                     IsSuccess = false,
                     StatusCode = 500,

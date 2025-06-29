@@ -234,7 +234,6 @@ namespace Investly.PL.BL
 
             var user = founder.User;
 
-            // Update only specific fields - don't use automapper here
             user.FirstName = founderDto.FirstName;
             user.LastName = founderDto.LastName;
             user.PhoneNumber = founderDto.PhoneNumber;
@@ -245,8 +244,6 @@ namespace Investly.PL.BL
             user.DateOfBirth = founderDto.DateOfBirth;
             user.Status = (int)UserStatus.Inactive;
 
-            // Explicitly mark as modified if needed
-            //_unitOfWork.UserRepo.Update(user);
             _unitOfWork.Save();
 
             return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));
@@ -292,7 +289,7 @@ namespace Investly.PL.BL
         }
 
 
-        public bool UpdateNationalIdImages(UpdateNationalIdDto model)
+        public UpdateNationalIdResponseDto UpdateNationalIdImages(UpdateNationalIdDto model)
         {
             var user = _unitOfWork.UserRepo.FirstOrDefault(u => u.Email == model.Email);
             if (user == null)
@@ -319,7 +316,13 @@ namespace Investly.PL.BL
             _unitOfWork.UserRepo.Update(user);
             _unitOfWork.Save();
 
-            return true;
+            UpdateNationalIdResponseDto res = new UpdateNationalIdResponseDto()
+            {
+                FrontIdPicPath = user.FrontIdPicPath,
+                BackIdPicPath = user.BackIdPicPath
+            };
+
+            return res;
 
         }
 
