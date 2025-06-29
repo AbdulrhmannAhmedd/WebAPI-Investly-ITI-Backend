@@ -19,9 +19,9 @@ namespace Investly.DAL.Repos
         }
         public Tuple<int, int> GetTotalActiveInactive(int activeStatus, int InactiveStatus)
         {
-            var total = _db.Investors.Include(i=>i.User).ToList();
-            var totalInactive =total.Count(i=>i.User.Status==InactiveStatus);
-            var totalActive = total.Count(i => i.User.Status == activeStatus);
+            var total = _db.Investors.Include(i => i.User).Select(u => u.User.Status).AsQueryable();
+            var totalInactive = total.Count(i => i == InactiveStatus);
+            var totalActive = total.Count(i => i == activeStatus);
             return new Tuple<int, int>(totalActive, totalInactive);
         }
 

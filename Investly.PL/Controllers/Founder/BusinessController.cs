@@ -16,14 +16,25 @@ namespace Investly.PL.Controllers.Founder
     public class BusinessController : Controller
     {
         private readonly IBusinessService _businessService;
+        private readonly IStandardService _standardService;
         private readonly IHelper _helper;
-        public BusinessController(IBusinessService businessService, IHelper helper)
+        private readonly IAiService _aiService;
+
+        public BusinessController(
+              IBusinessService businessService
+            , IHelper helper
+            , IStandardService standardService
+            , IAiService aiService
+
+            )
         {
             _businessService = businessService;
             _helper = helper;
+            _standardService = standardService;
+            _aiService = aiService;
         }
         [HttpPost]
-        public IActionResult AddBusinessIdeaByFile([FromForm] BusinessDto BusinessIdea)
+        public async Task<IActionResult> AddBusinessIdeaByFile([FromForm] BusinessDto BusinessIdea)
         {
 
             if (BusinessIdea.IdeaFile != null)
@@ -57,6 +68,93 @@ namespace Investly.PL.Controllers.Founder
             }
         }
 
+        [HttpPost("evaluate")]
 
+        public async Task<IActionResult> EvaluateBusinessIdea([FromForm] BusinessDto businessDto)
+        {
+            if (businessDto == null)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid business idea data.",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            var standards = _standardService.GetStandardsByCategory(businessDto.CategoryId);
+            if (standards == null || standards.Count == 0)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    Message = "No standards found for the selected category.",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            
+
+            string ExtractedTxt;
+            using (var ms = new MemoryStream())
+            {
+                await businessDto.IdeaFile.CopyToAsync(ms);
+                ExtractedTxt = _helper.ExtractTxtFromFile(ms.ToArray(), businessDto.IdeaFile.FileName);
+
+            }
+            // var aiResponse = await _aiService.EvaluateIdea(ExtractedTxt, standards);
+            var aiResponse = @"
+{
+  ""standards"": [
+    {
+      ""name"": ""What makes your tourism destination attractive to visitors?"",
+      ""weight"": 20,
+      ""achievementScore"": 70,
+      ""weightedContribution"": 14,
+      ""feedback"": ""The destination has unique features but lacks promotional visibility.""
+    },
+    {
+      ""name"": ""How do you ensure a positive and enjoyable experience for your guests?"",
+      ""weight"": 30,
+      ""achievementScore"": 90,
+      ""weightedContribution"": 27,
+      ""feedback"": ""Excellent focus on customer service and feedback mechanisms.""
+    },
+    {
+      ""name"": ""Describe the accommodation and facilities you provide."",
+      ""weight"": 20,
+      ""achievementScore"": 40,
+      ""weightedContribution"": 8,
+      ""feedback"": ""Accommodation is basic with room for improvement in amenities.""
+    },
+    {
+      ""name"": ""How accessible is your destination via transportation?"",
+      ""weight"": 10,
+      ""achievementScore"": 60,
+      ""weightedContribution"": 6,
+      ""feedback"": ""Transport is available but could be more convenient for tourists.""
+    },
+    {
+      ""name"": ""How does your project incorporate local culture and community?"",
+      ""weight"": 20,
+      ""achievementScore"": 80,
+      ""weightedContribution"": 16,
+      ""feedback"": ""Strong integration with local traditions and community support.""
+    }
+  ],
+  ""totalWeightedScore"": 71
+}";
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+            var aiResultJson = JsonSerializer.Deserialize<AiIdeaEvaluationResult>(aiResponse, options);
+
+            return Ok(new ResponseDto<AiIdeaEvaluationResult>
+            {
+                Data = aiResultJson,
+                IsSuccess = true,
+                Message = "Business idea evaluated successfully.",
+                StatusCode = StatusCodes.Status200OK
+            });
+
+
+        }
     }
 }

@@ -26,4 +26,7 @@ namespace Investly.PL.Dtos
 
         public  UserDto? UpdatedByNavigation { get; set; }
     }
+
+
+
 }

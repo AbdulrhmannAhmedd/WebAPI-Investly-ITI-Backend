@@ -84,6 +84,7 @@ namespace Investly.PL
             builder.Services.AddScoped<IHelper, Helper>();
             builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));
             builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
+            builder .Services.AddHttpClient<IAiService, AiService>();
             #endregion
 
             #region Unit of work  registeration
