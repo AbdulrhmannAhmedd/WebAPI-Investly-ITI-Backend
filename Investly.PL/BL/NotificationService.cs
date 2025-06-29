@@ -127,7 +127,7 @@ namespace Investly.PL.BL
                 {
                     return -2;
                 }
-                if (LoggedInUser != notification.CreatedBy)
+                if (LoggedInUser != notification.CreatedBy && LoggedInUser != notification.UserIdTo)
                 {
                     return -3;
                 }
@@ -136,6 +136,14 @@ namespace Investly.PL.BL
                 notification.UpdatedAt = DateTime.Now;
                 _unitOfWork.NotificationRepo.Update(notification);
                 var res= _unitOfWork.Save();
+                //if (Status == (int)NotificationsStatus.Deleted)
+                //{
+                //    _ = NotifyUser(notification.UserIdTo.ToString()); // Fire and forget update
+                //}
+                //else if (Status == (int)NotificationsStatus.Active && notification.IsRead == 0)
+                //{
+                //    _ = NotifyUser(notification.UserIdTo.ToString()); // Fire and forget update
+                //}
                 return res;
             }
             catch (Exception ex)
@@ -185,6 +193,88 @@ namespace Investly.PL.BL
             int count = 7;
             await _notifcationHubContext.Clients.User(UserId).SendAsync("RecieveNotificationCount", count);
 
+        }
+        public PaginatedNotificationsDto GetUserNotifications(NotificationSearchDto search, int userId)
+        {
+            try
+            {
+                var notifications = _unitOfWork.NotificationRepo.GetAll(n =>
+                    n.UserIdTo == userId &&
+                    (
+                        ((search.Status == null || search.Status == 0) && n.Status != (int)NotificationsStatus.Deleted) ||
+                        (search.Status != null && search.Status != 0 && n.Status == search.Status)
+                    )
+                    &&
+                    (search.isRead == null || n.IsRead == search.isRead)
+                    &&
+                    (
+                        string.IsNullOrEmpty(search.SearchInput)
+                        ||
+                        (
+                            (n.Title != null && n.Title.Contains(search.SearchInput)) ||
+                            (n.Body != null && n.Body.Contains(search.SearchInput))
+                        )
+                    ),
+                    includeProperties: "CreatedByNavigation,UpdatedByNavigation" 
+                )
+                .OrderByDescending(n => n.CreatedAt);
+
+                var paginatedData = notifications
+                    .Skip(((search.PageNumber > 0 ? search.PageNumber : 1) - 1) * (search.PageSize > 0 ? search.PageSize : 5))
+                    .Take(search.PageSize > 0 ? search.PageSize : 5)
+                    .ToList();
+
+                var notificationPaginated = new PaginatedNotificationsDto
+                {
+                    notifications = _mapper.Map<List<NotificationDto>>(paginatedData),
+                    CurrentPage = (search.PageNumber > 0) ? search.PageNumber : 1,
+                    PageSize = (search.PageSize > 0) ? search.PageSize : 5,
+                    TotalCount = notifications.Count(),
+                };
+                return notificationPaginated;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+          public async Task<int> MarkAllUserNotificationsAsRead(int userId)
+        {
+            try
+            {
+                var unreadNotifications = _unitOfWork.NotificationRepo
+                    .GetAll(n => n.UserIdTo == userId && n.IsRead == 0 && n.Status == (int)NotificationsStatus.Active)
+                    .ToList();
+
+                if (!unreadNotifications.Any())
+                {
+                    return 0; // No unread notifications to mark
+                }
+
+                foreach (var notification in unreadNotifications)
+                {
+                    notification.IsRead = 1; // Mark as read
+                    // notification.UpdatedAt = DateTime.Now; // Optionally update timestamp
+                    // notification.UpdatedBy = userId; // Optionally set who updated it (the user themselves)
+                    _unitOfWork.NotificationRepo.Update(notification); // Mark for update
+                }
+
+                var res = _unitOfWork.Save(); // Save all changes
+
+                // Notify the user via SignalR that their unread count is now 0
+                if (res > 0)
+                {
+                    await NotifyUser(userId.ToString());
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error in MarkAllUserNotificationsAsRead: {ex.Message}");
+                return -1; // Indicate failure
+            }
         }
     }
 }

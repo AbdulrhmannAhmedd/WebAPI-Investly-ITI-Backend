@@ -56,7 +56,7 @@ namespace Investly.PL.Controllers.Admin
             if (res > 0)
             {
                 Data = new ResponseDto<object>
-                { IsSuccess = true, Data = null, Message = "Status Change Sucssfullyy", StatusCode = StatusCodes.Status200OK };
+                { IsSuccess = true, Data = null, Message = "Status Change Successfully", StatusCode = StatusCodes.Status200OK };
                 return Ok(Data);
             }
             else if(res==-3)
@@ -68,7 +68,7 @@ namespace Investly.PL.Controllers.Admin
             else
             {
                 Data = new ResponseDto<object>
-                { IsSuccess = false, Data = null, Message = "Status Chnage Failed", StatusCode = StatusCodes.Status500InternalServerError };
+                { IsSuccess = false, Data = null, Message = "Status Change Failed", StatusCode = StatusCodes.Status500InternalServerError };
                 return Ok(Data);
             }
            
@@ -82,5 +82,6 @@ namespace Investly.PL.Controllers.Admin
             { IsSuccess = true, Data = data, Message = "Notifactions By Status Retrived Sucssfullyy", StatusCode = StatusCodes.Status200OK };
             return Ok(res);
         }
+
     }
 }

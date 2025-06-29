@@ -17,6 +17,8 @@ namespace Investly.PL.IBL
         public int getFounderNotificationUnreadCount(int loggedInUserId);
 
         #endregion
+        public PaginatedNotificationsDto GetUserNotifications(NotificationSearchDto search, int userId);
+        public Task<int> MarkAllUserNotificationsAsRead(int userId);
 
         public Task NotifyUser(string UserId);
     }
