@@ -11,7 +11,7 @@ namespace Investly.PL.Controllers.Founder
 {
     [Route("api/founder/[controller]")]
     [ApiController]
-    //[TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
 
     public class ProfileController : ControllerBase
     {
@@ -225,7 +225,8 @@ namespace Investly.PL.Controllers.Founder
                     IsSuccess = true,
                     StatusCode = 200,
                     Message = "Profile picture updated successfully.",
-                    Data = model.Email 
+                    Data = model.Email ,
+                    RefreshTokenRequired=true
                 });
             }
             catch (KeyNotFoundException ex)
