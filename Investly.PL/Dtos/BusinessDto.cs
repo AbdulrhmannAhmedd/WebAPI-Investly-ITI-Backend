@@ -31,6 +31,7 @@ namespace Investly.PL.Dtos
         public int? CityId { get; set; }
         public string? Description { get; set; }
         public int? DesiredInvestmentType { get; set; }
+        public string? DesiredInvestmentTypeName { get; set; }
         public  List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
         public CategoryForListDto Category { get; set; } 
         public  CityDto? City { get; set; }

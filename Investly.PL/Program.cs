@@ -78,8 +78,9 @@ namespace Investly.PL
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-           
+
             #region General services registeration
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IJWTService, JWTService>();
             builder.Services.AddScoped<IHelper, Helper>();
             builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));
@@ -89,6 +90,7 @@ namespace Investly.PL
             #region Unit of work  registeration
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IBusinessRepo, BusinessRepo>();
+            builder.Services.AddScoped<IFeedbackRepo, FeedbackRepo>();
 
 
             #endregion
@@ -105,6 +107,8 @@ namespace Investly.PL
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IStandardService, StandardService>();
+            builder.Services.AddScoped<IFeedbackService, FeedbackService>(); 
+
             #endregion
 
             #region Hubs

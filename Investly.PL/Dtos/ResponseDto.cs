@@ -8,6 +8,7 @@
         public int StatusCode { get; set; }
         public bool RefreshTokenRequired { get; set; } = false;
 
+
     }
    
 }
