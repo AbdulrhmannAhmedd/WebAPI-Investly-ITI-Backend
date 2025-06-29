@@ -14,10 +14,10 @@ namespace Investly.PL.Controllers.Investor
     {
         private readonly IInvestorService _investorService;
         private readonly IHelper _helper;
-        public ProfileController(IInvestorService investorService,  IHelper helper)
+        public ProfileController(IInvestorService investorService, IHelper helper)
         {
-            _investorService=investorService;
-            _helper=helper;
+            _investorService = investorService;
+            _helper = helper;
         }
         [HttpGet]
         public IActionResult GetProfileData()
@@ -34,7 +34,7 @@ namespace Investly.PL.Controllers.Investor
                 };
                 return NotFound(response);
             }
-           else
+            else
             {
                 var response = new ResponseDto<InvestorDto>
                 {
@@ -51,37 +51,6 @@ namespace Investly.PL.Controllers.Investor
         {
 
             var oldinvestor = _investorService.GetById(data.Id ?? 0);
-
-
-            if (data.User.PicFile != null)
-            {
-                if (!string.IsNullOrEmpty(oldinvestor.User.ProfilePicPath))
-                {
-                    var deleteResult = _helper.DeleteFile(oldinvestor.User.ProfilePicPath);
-
-                }
-
-                var picpath = _helper.UploadFile(data.User.PicFile, "investor", "profilePic");
-                data.User.ProfilePicPath = picpath;
-            }
-            if (data.User.FrontIdPicFile != null)
-            {
-                if (!string.IsNullOrEmpty(oldinvestor.User.FrontIdPicPath))
-                {
-                    _helper.DeleteFile(oldinvestor.User.FrontIdPicPath);
-                }
-                var frontIdPath = _helper.UploadFile(data.User.FrontIdPicFile, "investor", "nationalIdPic");
-                data.User.FrontIdPicPath = frontIdPath;
-            }
-            if (data.User.BackIdPicFile != null)
-            {
-                if (!string.IsNullOrEmpty(oldinvestor.User.BackIdPicPath))
-                {
-                    _helper.DeleteFile(oldinvestor.User.BackIdPicPath);
-                }
-                var backIdPath = _helper.UploadFile(data.User.BackIdPicFile, "investor", "nationalIdPic");
-                data.User.BackIdPicPath = backIdPath;
-            }
 
             data.User.Status = (int)UserStatus.Pending;
             var result = _investorService.Update(data, User.GetUserId());
@@ -112,5 +81,168 @@ namespace Investly.PL.Controllers.Investor
             }
             return response;
         }
+        [HttpPatch]
+        public ResponseDto<InvestorDto> UpdateProfile(IFormFile profilepic)
+        {
+
+            var oldinvestor = _investorService.GetInvestorByUserId(User.GetUserId());
+
+
+            if (profilepic != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.ProfilePicPath))
+                {
+                    var deleteResult = _helper.DeleteFile(oldinvestor.User.ProfilePicPath);
+
+                }
+
+                var picpath = _helper.UploadFile(profilepic, "investor", "profilePic");
+                oldinvestor.User.ProfilePicPath = picpath;
+            }
+      
+            var result = _investorService.UpdateProfilePicture(oldinvestor.User.ProfilePicPath, User.GetUserId());
+            ResponseDto<InvestorDto> response;
+            if (result > 0)
+            {
+                response = new ResponseDto<InvestorDto>
+                {
+                    IsSuccess = true,
+                    Message = "Investor Profile pic updated successfully.",
+                    Data = _investorService.GetById(oldinvestor.Id ?? 0),
+                    StatusCode = StatusCodes.Status200OK,
+                    RefreshTokenRequired = true,
+                };
+
+            }
+            else
+            {
+                response = new ResponseDto<InvestorDto>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to update profile pic investor.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+
+
+            }
+            return response;
+        }
+        [HttpPatch("NationalId")]
+        public ResponseDto<InvestorDto> UpdateNationalId(IFormFile FrontIdPic, IFormFile BackIdPic)
+        {
+
+            var oldinvestor = _investorService.GetInvestorByUserId(User.GetUserId());
+
+
+            if (FrontIdPic != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.FrontIdPicPath))
+                {
+                    var deleteResult = _helper.DeleteFile(oldinvestor.User.FrontIdPicPath);
+
+                }
+
+                var picpath = _helper.UploadFile(FrontIdPic, "investor", "profilePic");
+                oldinvestor.User.FrontIdPicPath = picpath;
+            }
+            if (BackIdPic != null)
+            {
+                if (!string.IsNullOrEmpty(oldinvestor.User.BackIdPicPath))
+                {
+                    var deleteResult = _helper.DeleteFile(oldinvestor.User.BackIdPicPath);
+
+                }
+
+                var picpath = _helper.UploadFile(BackIdPic, "investor", "profilePic");
+                oldinvestor.User.BackIdPicPath = picpath;
+            }
+           
+            var result = _investorService.UpdateNationalId(oldinvestor.User.FrontIdPicPath, oldinvestor.User.BackIdPicPath, User.GetUserId());
+            ResponseDto<InvestorDto> response;
+            if (result > 0)
+            {
+                response = new ResponseDto<InvestorDto>
+                {
+                    IsSuccess = true,
+                    Message = "Investor Profile pic updated successfully.",
+                    Data = oldinvestor,
+                    StatusCode = StatusCodes.Status200OK,
+                    RefreshTokenRequired = true,
+                };
+
+            }
+            else
+            {
+                response = new ResponseDto<InvestorDto>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to update profile pic investor.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+
+
+            }
+            return response;
+        }
+        [HttpPatch("ChangePassword")]
+        public ResponseDto<ChangePasswordDto> ChangePassword([FromBody]ChangePasswordDto passwordDto)
+        {
+
+            var result = _investorService.ChangePassword(passwordDto, User.GetUserId());
+            ResponseDto<ChangePasswordDto> response;
+            if (result == 0)
+            {
+                response = new ResponseDto<ChangePasswordDto>
+                {
+                    IsSuccess = false,
+                    Message = "Investor Not Found.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status404NotFound,
+                  
+                };
+
+            }
+            else if (result == -2)
+            {
+                response = new ResponseDto<ChangePasswordDto>
+                {
+                    IsSuccess = false,
+                    Message = "incorrect Current Password .",
+                    Data = null,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    
+                };
+
+            }
+            else if(result>0)
+            {
+                response = new ResponseDto<ChangePasswordDto>
+                {
+                    IsSuccess = true,
+                    Message = "Investor Password updated .",
+                    Data = null,
+                    StatusCode = StatusCodes.Status200OK,
+                   
+                };
+            }
+            else
+            {
+                response = new ResponseDto<ChangePasswordDto>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to update Password ",
+                    Data = null,
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+
+
+            }
+            return response;
+        }
     }
-}
+
+   
+    }
+
