@@ -26,7 +26,7 @@ namespace Investly.PL.BL
             {
                 IQueryable<Business> businessesQuery = _unitOfWork.BusinessRepo.GetAll(
                     filter: null,
-                    includeProperties: "Category,Founder.User"
+                    includeProperties: "Category,Founder.User,BusinessStandardAnswers.Standard,City,Government"
                 ).AsQueryable();
 
                 businessesQuery = businessesQuery.Where(b =>

@@ -18,6 +18,7 @@ namespace Investly.DAL.Repos.IRepos
         public IBusinessStandardAnswerRepo BusinessStandardAnswerRepo { get; }
         public ICategoryRepo CategoryRepo { get; }
         public IStandardRepo StandardRepo { get; }
+        public IFeedbackRepo FeedbackRepo { get; }
         public int Save();
         public void Dispose();
 
