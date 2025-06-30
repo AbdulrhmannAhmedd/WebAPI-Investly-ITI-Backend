@@ -147,7 +147,7 @@ namespace Investly.PL.BL
                 {
                     return 0; // Invalid input
                 }
-                var existedUser = _unitOfWork.UserRepo.GetAll(u => u.Email == founder.User.Email).FirstOrDefault();
+                var existedUser = _unitOfWork.UserRepo.GetAll(u => (u.Email == founder.User.Email || u.NationalId==founder.User.NationalId)&&u.Status!=(int)UserStatus.Deleted).FirstOrDefault();
                 if (existedUser != null)
                 {
                     return -1; // User already exists

@@ -143,7 +143,7 @@ namespace Investly.PL.Controllers.Investor
 
                 }
 
-                var picpath = _helper.UploadFile(FrontIdPic, "investor", "profilePic");
+                var picpath = _helper.UploadFile(FrontIdPic, "investor", "nationalIdPic");
                 oldinvestor.User.FrontIdPicPath = picpath;
             }
             if (BackIdPic != null)
@@ -154,7 +154,7 @@ namespace Investly.PL.Controllers.Investor
 
                 }
 
-                var picpath = _helper.UploadFile(BackIdPic, "investor", "profilePic");
+                var picpath = _helper.UploadFile(BackIdPic, "investor", "nationalIdPic");
                 oldinvestor.User.BackIdPicPath = picpath;
             }
            
