@@ -250,7 +250,6 @@ namespace Investly.PL.BL
                 existingInvestor.User.UpdatedBy = loggedInUser.Value;
                 existingInvestor.User.UpdatedAt = DateTime.Now;
                 existingInvestor.User.ProfilePicPath = ProfilePicPath;
-                existingInvestor.User.Status = (int)UserStatus.Pending;
                 _unitOfWork.InvestorRepo.Update(existingInvestor);
                 res = _unitOfWork.Save();
                 return res;
