@@ -48,6 +48,7 @@ public partial class User
     public DateTime? UpdatedAt { get; set; }
 
     public int? TokenVersion { get; set; } = 1;
+    public string ?CountryCode { get; set; }
 
     public virtual ICollection<Business> BusinessCreatedByNavigations { get; set; } = new List<Business>();
 
