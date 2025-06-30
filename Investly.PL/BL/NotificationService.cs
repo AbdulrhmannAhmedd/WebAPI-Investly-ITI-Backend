@@ -127,7 +127,7 @@ namespace Investly.PL.BL
                 {
                     return -2;
                 }
-                if (LoggedInUser != notification.CreatedBy)
+                if (LoggedInUser != notification.CreatedBy && LoggedInUser != notification.UserIdTo)
                 {
                     return -3;
                 }
@@ -136,6 +136,7 @@ namespace Investly.PL.BL
                 notification.UpdatedAt = DateTime.Now;
                 _unitOfWork.NotificationRepo.Update(notification);
                 var res= _unitOfWork.Save();
+              
                 return res;
             }
             catch (Exception ex)
@@ -162,8 +163,7 @@ namespace Investly.PL.BL
         }
         #endregion
 
-        #region Founder
-        public int getFounderNotificationUnreadCount(int loggedInUserId)
+        public int getUserNotificationUnreadCount(int loggedInUserId)
         {
             try
             {
@@ -177,14 +177,90 @@ namespace Investly.PL.BL
 
             }
         }
-
-        #endregion
         public async Task NotifyUser(string UserId)
         {
-            // int count = _unitOfWork.NotificationRepo.GetAll(n => n.IsRead != 0 && n.UserIdTo==int.Parse(UserId)).Count();
-            int count = 7;
+            int count = _unitOfWork.NotificationRepo.getCountUnRead(int.Parse(UserId));
+           // int count = 7;
             await _notifcationHubContext.Clients.User(UserId).SendAsync("RecieveNotificationCount", count);
 
+        }
+        public PaginatedNotificationsDto GetUserNotifications(NotificationSearchDto search, int userId)
+        {
+            try
+            {
+                var notifications = _unitOfWork.NotificationRepo.GetAll(n =>
+                    n.UserIdTo == userId &&
+                    (
+                        ((search.Status == null || search.Status == 0) && n.Status != (int)NotificationsStatus.Deleted) ||
+                        (search.Status != null && search.Status != 0 && n.Status == search.Status)
+                    )
+                    &&
+                    (search.isRead == null || n.IsRead == search.isRead)
+                    &&
+                    (
+                        string.IsNullOrEmpty(search.SearchInput)
+                        ||
+                        (
+                            (n.Title != null && n.Title.Contains(search.SearchInput)) ||
+                            (n.Body != null && n.Body.Contains(search.SearchInput))
+                        )
+                    ),
+                    includeProperties: "CreatedByNavigation,UpdatedByNavigation" 
+                )
+                .OrderByDescending(n => n.CreatedAt);
+
+                var paginatedData = notifications
+                    .Skip(((search.PageNumber > 0 ? search.PageNumber : 1) - 1) * (search.PageSize > 0 ? search.PageSize : 5))
+                    .Take(search.PageSize > 0 ? search.PageSize : 5)
+                    .ToList();
+
+                var notificationPaginated = new PaginatedNotificationsDto
+                {
+                    notifications = _mapper.Map<List<NotificationDto>>(paginatedData),
+                    CurrentPage = (search.PageNumber > 0) ? search.PageNumber : 1,
+                    PageSize = (search.PageSize > 0) ? search.PageSize : 5,
+                    TotalCount = notifications.Count(),
+                };
+                return notificationPaginated;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+          public async Task<int> MarkAllUserNotificationsAsRead(int userId)
+        {
+            try
+            {
+                var unreadNotifications = _unitOfWork.NotificationRepo
+                    .GetAll(n => n.UserIdTo == userId && n.IsRead == 0 && n.Status == (int)NotificationsStatus.Active)
+                    .ToList();
+
+                if (!unreadNotifications.Any())
+                {
+                    return 0; 
+                }
+
+                foreach (var notification in unreadNotifications)
+                {
+                    notification.IsRead = 1;
+                    _unitOfWork.NotificationRepo.Update(notification);
+                }
+
+                var res = _unitOfWork.Save(); 
+
+                if (res > 0)
+                {
+                    await NotifyUser(userId.ToString());
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in MarkAllUserNotificationsAsRead: {ex.Message}");
+                return -1;
+            }
         }
     }
 }
