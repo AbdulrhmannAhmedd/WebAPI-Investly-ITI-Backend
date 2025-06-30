@@ -81,7 +81,7 @@ namespace Investly.PL.Controllers.Founder
                     StatusCode = StatusCodes.Status400BadRequest
                 });
             }
-            var standards = _standardService.GetStandardsByCategory(businessDto.CategoryId);
+            var standards = _standardService.GetStandardsCategories(businessDto.CategoryId);
             if (standards == null || standards.Count == 0)
             {
                 return BadRequest(new ResponseDto<string>
@@ -93,54 +93,59 @@ namespace Investly.PL.Controllers.Founder
             }
             
 
-            string ExtractedTxt;
-            using (var ms = new MemoryStream())
-            {
-                await businessDto.IdeaFile.CopyToAsync(ms);
-                ExtractedTxt = _helper.ExtractTxtFromFile(ms.ToArray(), businessDto.IdeaFile.FileName);
+            //string ExtractedTxt;
+            //using (var ms = new MemoryStream())
+            //{
+            //    await businessDto.IdeaFile.CopyToAsync(ms);
+            //    ExtractedTxt = _helper.ExtractTxtFromFile(ms.ToArray(), businessDto.IdeaFile.FileName);
 
-            }
+            //}
             // var aiResponse = await _aiService.EvaluateIdea(ExtractedTxt, standards);
             var aiResponse = @"
-{
+ {
   ""standards"": [
     {
+      ""standardCategoryId"": 3,
       ""name"": ""What makes your tourism destination attractive to visitors?"",
-      ""weight"": 20,
+      ""weight"": 15,
       ""achievementScore"": 70,
-      ""weightedContribution"": 14,
+      ""weightedContribution"": 10.5,
       ""feedback"": ""The destination has unique features but lacks promotional visibility.""
     },
     {
+      ""standardCategoryId"": 4,
       ""name"": ""How do you ensure a positive and enjoyable experience for your guests?"",
-      ""weight"": 30,
+      ""weight"": 20,
       ""achievementScore"": 90,
-      ""weightedContribution"": 27,
+      ""weightedContribution"": 18,
       ""feedback"": ""Excellent focus on customer service and feedback mechanisms.""
     },
     {
+      ""standardCategoryId"": 5,
       ""name"": ""Describe the accommodation and facilities you provide."",
-      ""weight"": 20,
+      ""weight"": 25,
       ""achievementScore"": 40,
-      ""weightedContribution"": 8,
+      ""weightedContribution"": 10,
       ""feedback"": ""Accommodation is basic with room for improvement in amenities.""
     },
     {
+      ""standardCategoryId"": 6,
       ""name"": ""How accessible is your destination via transportation?"",
-      ""weight"": 10,
+      ""weight"": 25,
       ""achievementScore"": 60,
-      ""weightedContribution"": 6,
+      ""weightedContribution"": 15,
       ""feedback"": ""Transport is available but could be more convenient for tourists.""
     },
     {
+      ""standardCategoryId"": 7,
       ""name"": ""How does your project incorporate local culture and community?"",
-      ""weight"": 20,
+      ""weight"": 15,
       ""achievementScore"": 80,
-      ""weightedContribution"": 16,
+      ""weightedContribution"": 12,
       ""feedback"": ""Strong integration with local traditions and community support.""
     }
   ],
-  ""totalWeightedScore"": 71
+  ""totalWeightedScore"": 65.5
 }";
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 

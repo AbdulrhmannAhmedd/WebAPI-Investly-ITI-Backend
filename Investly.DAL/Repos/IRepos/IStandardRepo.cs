@@ -9,5 +9,6 @@ namespace Investly.DAL.Repos.IRepos
 {
     public interface IStandardRepo:IRepo<Standard>
     {
+        public List<CategoryStandard> categoryStandards(int CategoryId);
     }
 }

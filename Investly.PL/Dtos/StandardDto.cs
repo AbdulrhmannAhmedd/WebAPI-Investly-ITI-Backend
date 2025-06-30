@@ -6,7 +6,7 @@ namespace Investly.PL.Dtos
     {
         public int Id { get; set; }
 
-        public string Name { get; set; } 
+        public string Name { get; set; }
 
         public string? FormQuestion { get; set; }
 
@@ -20,13 +20,21 @@ namespace Investly.PL.Dtos
 
         public DateTime? UpdatedAt { get; set; }
 
-        public  ICollection<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
+        public ICollection<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
 
-        public  UserDto? CreatedByNavigation { get; set; }
+        public UserDto? CreatedByNavigation { get; set; }
 
-        public  UserDto? UpdatedByNavigation { get; set; }
+        public UserDto? UpdatedByNavigation { get; set; }
     }
+    public class StandardCategoryDto
+    {
+        public int Id { get; set; }
+        public string? StandardName { get; set; }
+        public string? Question { get; set; }
+        public int StandardId { get; set; }
+        public int StandardCategoryWeight { get; set; }
 
+    }
 
 
 }

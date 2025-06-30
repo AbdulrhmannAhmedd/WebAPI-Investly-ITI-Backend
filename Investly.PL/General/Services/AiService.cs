@@ -17,7 +17,7 @@ namespace Investly.PL.General.Services
 
         }
 
-        public async Task<string> EvaluateIdea(string ideaText, List<StandardDto> standards)
+        public async Task<string> EvaluateIdea(string ideaText, List<StandardCategoryDto> standards)
         {
             string prompt = BuildPrompt(ideaText, standards);
             return await CallOpenAiAsync(prompt);
@@ -26,14 +26,15 @@ namespace Investly.PL.General.Services
 
         }
 
-    
-            private string BuildPrompt(string ideaTxt, List<StandardDto> standards)
+
+        private string BuildPrompt(string ideaTxt, List<StandardCategoryDto> standards)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("You are a business idea evaluator AI assistant.");
             sb.AppendLine("Assess the following business idea based on the provided standards.");
             sb.AppendLine("Each standard has a predefined weight representing its importance.");
             sb.AppendLine("For each standard, determine how much the idea accomplished as a percentage (Achievement Score), and calculate the weighted contribution as: (Achievement Score × Weight) ÷ 100.");
+            sb.AppendLine("Each standard also has a unique 'standardCategoryId' which you must include in the JSON response to help us link feedback to our system.");
 
             sb.AppendLine("\nBusiness Idea Description:\n");
             sb.AppendLine(ideaTxt);
@@ -41,7 +42,7 @@ namespace Investly.PL.General.Services
             sb.AppendLine("\nEvaluation Standards:");
             foreach (var s in standards)
             {
-                sb.AppendLine($"- \"{s.FormQuestion}\" ({s.CategoryStandardWeight}% weight)");
+                sb.AppendLine($"- \"{s.Question}\" ({s.StandardCategoryWeight}% weight) [standardCategoryId: {s.Id}]");
             }
 
             sb.AppendLine("\nProvide the evaluation strictly in the following valid JSON format:");
@@ -49,6 +50,7 @@ namespace Investly.PL.General.Services
 {
   ""standards"": [
     {
+      ""standardCategoryId"": 3,           // The provided unique ID for this standard
       ""name"": ""Standard Name Here"",
       ""weight"": 20,                      // Predefined weight in percentage
       ""achievementScore"": 70,            // How well the user met this standard (0 to 100%)
@@ -60,9 +62,8 @@ namespace Investly.PL.General.Services
 }
 ");
 
-            sb.AppendLine("Do not add any text outside the JSON block. Ensure the JSON is valid and properly formatted to be Deserialized.");
+            sb.AppendLine("Do not add any text outside the JSON block. Ensure the JSON is valid and properly formatted for deserialization.");
 
-            
             return sb.ToString();
         }
 
