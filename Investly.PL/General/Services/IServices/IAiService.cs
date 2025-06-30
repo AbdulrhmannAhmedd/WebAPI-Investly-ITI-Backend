@@ -4,6 +4,6 @@ namespace Investly.PL.General.Services.IServices
 {
     public interface IAiService
     {
-        Task<string>EvaluateIdea(string ideaText, List<StandardCategoryDto> standards);
+        Task<string>EvaluateIdea(List<BusinessStandardAnswerDto> businessStandardAnswers , List<StandardCategoryDto> standards);
     }
 }

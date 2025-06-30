@@ -61,4 +61,8 @@ namespace Investly.PL.Dtos
         public int TotalRejected { get; set; }
         public int TotalPending { get; set; }
     }
+
+
+  
+
 }

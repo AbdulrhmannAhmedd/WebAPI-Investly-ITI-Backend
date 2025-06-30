@@ -33,8 +33,132 @@ namespace Investly.PL.Controllers.Founder
             _standardService = standardService;
             _aiService = aiService;
         }
+
+        [HttpPost("evaluate")]
+
+        public async Task<IActionResult> EvaluateBusinessIdea([FromForm] BusinessDto businessDto)
+        {
+            if (businessDto == null)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid business idea data.",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            var standards = _standardService.GetStandardsCategories(businessDto.CategoryId);
+            if (standards == null || standards.Count == 0)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    Message = "No standards found for the selected category.",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+
+            // var aiResponse = await _aiService.EvaluateIdea(businessDto.BusinessStandardAnswers, standards);
+            var aiResponse = @"
+{
+  ""standards"": [
+    {
+      ""standardCategoryId"": 3,
+      ""name"": ""Attraction & Destination Appeal"",
+      ""weight"": 15,
+      ""achievementScore"": 0,
+      ""weightedContribution"": 0,
+      ""feedback"": ""Your answer effectively highlights the unique features of your destination, including natural landscapes, cultural heritage, and hospitality. To enhance it further, consider adding specific examples of festivals or local cuisine to make it even more appealing.""
+    },
+    {
+      ""standardCategoryId"": 4,
+      ""name"": ""Customer Experience & Satisfaction"",
+      ""weight"": 20,
+      ""achievementScore"": 0,
+      ""weightedContribution"": 0,
+      ""feedback"": ""Your response is insufficient as it only contains 'ttt'. Please provide detailed strategies or practices you implement to ensure a positive experience for your guests, such as customer service training, feedback mechanisms, or personalized services.""
+    },
+    {
+      ""standardCategoryId"": 5,
+      ""name"": ""Accommodation & Facilities"",
+      ""weight"": 25,
+      ""achievementScore"": 0,
+      ""weightedContribution"": 0,
+      ""feedback"": ""Your answer is lacking as it only contains 'ttt'. Please describe the types of accommodations you offer, their amenities, and any unique facilities that enhance the guest experience.""
+    },
+    {
+      ""standardCategoryId"": 6,
+      ""name"": ""Transportation & Accessibility"",
+      ""weight"": 25,
+      ""achievementScore"": 0,
+      ""weightedContribution"": 0,
+      ""feedback"": ""Your response is inadequate as it only contains 'tt'. Please elaborate on the transportation options available, such as public transport, shuttle services, or proximity to major transport hubs, to demonstrate accessibility for visitors.""
+    },
+    {
+      ""standardCategoryId"": 7,
+      ""name"": ""Cultural & Local Engagement"",
+      ""weight"": 15,
+      ""achievementScore"": 0,
+      ""weightedContribution"": 0,
+      ""feedback"": ""Your answer is insufficient as it only contains 'ttt'. Please provide specific examples of how your project incorporates local culture and engages the community, such as partnerships with local artists or cultural events.""
+    }
+  ],
+  ""totalWeightedScore"": 0,
+  ""generalFeedback"": ""Your strengths lie in the appeal of your destination, but significant improvements are needed in the areas of customer experience, accommodation, transportation, and cultural engagement. Focus on providing detailed and specific information in your responses to enhance your overall evaluation.""
+}";
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+            var aiResultJson = JsonSerializer.Deserialize<AiBusinessEvaluationDto>(aiResponse, options);
+
+            return Ok(new ResponseDto<AiBusinessEvaluationDto>
+            {
+                Data = aiResultJson,
+                IsSuccess = true,
+                Message = "Business idea evaluated successfully.",
+                StatusCode = StatusCodes.Status200OK
+            });
+
+
+        }
+
+        [HttpPost("add-ai-evaluation")]
+        public async Task<IActionResult> AddAiBusinessEvaluation([FromBody] AiBusinessEvaluationDto aiEvaluationResult)
+        {
+            if (aiEvaluationResult == null)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid AI evaluation data.",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            int res = _businessService.AddBusinessIdeaAiEvaluation(aiEvaluationResult, User.GetUserId()??0);
+            if (res > 0)
+            {
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    Message = "AI evaluation result added successfully.",
+                    StatusCode = StatusCodes.Status200OK
+
+
+                });
+            }
+            else
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to add AI evaluation result.",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                });
+            }
+
+        }
+
         [HttpPost]
-        public async Task<IActionResult> AddBusinessIdeaByFile([FromForm] BusinessDto BusinessIdea)
+        public async Task<IActionResult> AddBusinessIdea([FromForm] BusinessDto BusinessIdea)
         {
 
             if (BusinessIdea.IdeaFile != null)
@@ -66,100 +190,6 @@ namespace Investly.PL.Controllers.Founder
                 };
                 return Ok(response);
             }
-        }
-
-        [HttpPost("evaluate")]
-
-        public async Task<IActionResult> EvaluateBusinessIdea([FromForm] BusinessDto businessDto)
-        {
-            if (businessDto == null)
-            {
-                return BadRequest(new ResponseDto<string>
-                {
-                    IsSuccess = false,
-                    Message = "Invalid business idea data.",
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-            var standards = _standardService.GetStandardsCategories(businessDto.CategoryId);
-            if (standards == null || standards.Count == 0)
-            {
-                return BadRequest(new ResponseDto<string>
-                {
-                    IsSuccess = false,
-                    Message = "No standards found for the selected category.",
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-            
-
-            //string ExtractedTxt;
-            //using (var ms = new MemoryStream())
-            //{
-            //    await businessDto.IdeaFile.CopyToAsync(ms);
-            //    ExtractedTxt = _helper.ExtractTxtFromFile(ms.ToArray(), businessDto.IdeaFile.FileName);
-
-            //}
-            // var aiResponse = await _aiService.EvaluateIdea(ExtractedTxt, standards);
-            var aiResponse = @"
- {
-  ""standards"": [
-    {
-      ""standardCategoryId"": 3,
-      ""name"": ""What makes your tourism destination attractive to visitors?"",
-      ""weight"": 15,
-      ""achievementScore"": 70,
-      ""weightedContribution"": 10.5,
-      ""feedback"": ""The destination has unique features but lacks promotional visibility.""
-    },
-    {
-      ""standardCategoryId"": 4,
-      ""name"": ""How do you ensure a positive and enjoyable experience for your guests?"",
-      ""weight"": 20,
-      ""achievementScore"": 90,
-      ""weightedContribution"": 18,
-      ""feedback"": ""Excellent focus on customer service and feedback mechanisms.""
-    },
-    {
-      ""standardCategoryId"": 5,
-      ""name"": ""Describe the accommodation and facilities you provide."",
-      ""weight"": 25,
-      ""achievementScore"": 40,
-      ""weightedContribution"": 10,
-      ""feedback"": ""Accommodation is basic with room for improvement in amenities.""
-    },
-    {
-      ""standardCategoryId"": 6,
-      ""name"": ""How accessible is your destination via transportation?"",
-      ""weight"": 25,
-      ""achievementScore"": 60,
-      ""weightedContribution"": 15,
-      ""feedback"": ""Transport is available but could be more convenient for tourists.""
-    },
-    {
-      ""standardCategoryId"": 7,
-      ""name"": ""How does your project incorporate local culture and community?"",
-      ""weight"": 15,
-      ""achievementScore"": 80,
-      ""weightedContribution"": 12,
-      ""feedback"": ""Strong integration with local traditions and community support.""
-    }
-  ],
-  ""totalWeightedScore"": 65.5
-}";
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-            var aiResultJson = JsonSerializer.Deserialize<AiIdeaEvaluationResult>(aiResponse, options);
-
-            return Ok(new ResponseDto<AiIdeaEvaluationResult>
-            {
-                Data = aiResultJson,
-                IsSuccess = true,
-                Message = "Business idea evaluated successfully.",
-                StatusCode = StatusCodes.Status200OK
-            });
-
-
         }
     }
 }

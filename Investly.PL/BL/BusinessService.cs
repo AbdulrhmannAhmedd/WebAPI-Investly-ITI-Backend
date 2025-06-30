@@ -211,5 +211,55 @@ namespace Investly.PL.BL
                 return -1;
             }
         }
+
+        public int AddBusinessIdeaAiEvaluation(AiBusinessEvaluationDto dto, int LoggedInUser)
+        {
+            try
+            {
+                List<AiBusinessStandardsEvaluation> aiBusinessStandardsEvaluations = new List<AiBusinessStandardsEvaluation>();
+                var business = _unitOfWork.BusinessRepo.GetById(dto.BusinessId??0);
+                if (business == null)
+                {
+                    return -3; // Business not found
+                }
+
+                foreach (var answer in dto.Standards)
+                {
+                    var standardAnswer = new AiBusinessStandardsEvaluation
+                    {
+                        BusinessId = dto.BusinessId??0,
+                        CategoryStandardId = answer.StandardCategoryId,
+                        AchievementScore = answer.AchievementScore,
+                        CreatedBy = LoggedInUser,
+                        CreatedAt = DateTime.UtcNow,
+                        Weight = answer.Weight,
+                        WeightedContribution = answer.WeightedContribution
+                    };
+                    aiBusinessStandardsEvaluations.Add(standardAnswer);
+                }
+                _unitOfWork.AiBusinessEvaluationRepo.AddRange(aiBusinessStandardsEvaluations);
+                int res= _unitOfWork.Save();
+                if (res > 0)
+                {
+                    business.Airate = dto.TotalWeightedScore;
+                    business.GeneralAiFeedback=dto.GeneralFeedback;
+                    business.UpdatedAt = DateTime.UtcNow;
+                    business.UpdatedBy = LoggedInUser;
+                    _unitOfWork.BusinessRepo.Update(business);
+                   return _unitOfWork.Save();
+                 
+                }
+                else
+                {
+                    return 0; // No changes saved
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return -1;
+            }
+        }
     }
 }

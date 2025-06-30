@@ -42,6 +42,7 @@ public partial class Business
 
     public int? DesiredInvestmentType { get; set; }
     public string? Images { get; set; }
+    public string? GeneralAiFeedback { get; set; }
     public virtual ICollection<BusinessStandardAnswer> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswer>();
 
     public virtual Category Category { get; set; } = null!;

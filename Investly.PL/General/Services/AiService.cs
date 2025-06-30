@@ -17,9 +17,9 @@ namespace Investly.PL.General.Services
 
         }
 
-        public async Task<string> EvaluateIdea(string ideaText, List<StandardCategoryDto> standards)
+        public async Task<string> EvaluateIdea(List<BusinessStandardAnswerDto> businessStandardAnswers, List<StandardCategoryDto> standards)
         {
-            string prompt = BuildPrompt(ideaText, standards);
+            string prompt = BuildPrompt(businessStandardAnswers, standards);
             return await CallOpenAiAsync(prompt);
 
 
@@ -27,22 +27,26 @@ namespace Investly.PL.General.Services
         }
 
 
-        private string BuildPrompt(string ideaTxt, List<StandardCategoryDto> standards)
+        private string BuildPrompt(List<BusinessStandardAnswerDto> businessStandardAnswers, List<StandardCategoryDto> standards)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("You are a business idea evaluator AI assistant.");
-            sb.AppendLine("Assess the following business idea based on the provided standards.");
-            sb.AppendLine("Each standard has a predefined weight representing its importance.");
-            sb.AppendLine("For each standard, determine how much the idea accomplished as a percentage (Achievement Score), and calculate the weighted contribution as: (Achievement Score × Weight) ÷ 100.");
-            sb.AppendLine("Each standard also has a unique 'standardCategoryId' which you must include in the JSON response to help us link feedback to our system.");
+            sb.AppendLine("You will assess the provided user answers for each business evaluation standard.");
+            sb.AppendLine("Each standard has a predefined weight representing its importance (integer percentage, no decimals).");
+            sb.AppendLine("For each standard:");
+            sb.AppendLine("- Analyze the user's answer.");
+            sb.AppendLine("- Determine how well the answer meets the standard as an integer percentage (Achievement Score, from 0 to 100).");
+            sb.AppendLine("- Calculate the weighted contribution as: (Achievement Score × Weight) ÷ 100, then round the result to the nearest whole number (integer, no decimals).");
+            sb.AppendLine("- Provide specific, actionable feedback for each standard.");
+            sb.AppendLine("- Include the 'standardCategoryId' and 'name' in the JSON response. The 'name' refers to the Standard Name provided for each standard.");
 
-            sb.AppendLine("\nBusiness Idea Description:\n");
-            sb.AppendLine(ideaTxt);
+            sb.AppendLine("\nStandards and User Answers:");
 
-            sb.AppendLine("\nEvaluation Standards:");
             foreach (var s in standards)
             {
-                sb.AppendLine($"- \"{s.Question}\" ({s.StandardCategoryWeight}% weight) [standardCategoryId: {s.Id}]");
+                var answer = businessStandardAnswers.FirstOrDefault(x => x.StandardId == s.StandardId);
+                sb.AppendLine($"- \"{s.Question}\" ({s.StandardCategoryWeight}% weight) [standardCategoryId: {s.Id}] [name: \"{s.StandardName}\"]");
+                sb.AppendLine($"  User Answer: \"{answer?.Answer ?? "No answer provided"}\"");
             }
 
             sb.AppendLine("\nProvide the evaluation strictly in the following valid JSON format:");
@@ -50,23 +54,23 @@ namespace Investly.PL.General.Services
 {
   ""standards"": [
     {
-      ""standardCategoryId"": 3,           // The provided unique ID for this standard
+      ""standardCategoryId"": 3,
       ""name"": ""Standard Name Here"",
-      ""weight"": 20,                      // Predefined weight in percentage
-      ""achievementScore"": 70,            // How well the user met this standard (0 to 100%)
-      ""weightedContribution"": 14,        // (achievementScore × weight) ÷ 100
-      ""feedback"": ""Short constructive feedback.""
+      ""weight"": 20,                       
+      ""achievementScore"": 70,            
+      ""weightedContribution"": 14,        
+      ""feedback"": ""Specific, actionable feedback.""
     }
   ],
-  ""totalWeightedScore"": 71              // Sum of all weighted contributions
+  ""totalWeightedScore"": 71,              
+  ""generalFeedback"": ""Overall assessment and improvement suggestions.""
 }
 ");
 
-            sb.AppendLine("Do not add any text outside the JSON block. Ensure the JSON is valid and properly formatted for deserialization.");
+            sb.AppendLine("Ensure 'weight', 'achievementScore', 'weightedContribution', and 'totalWeightedScore' are all integers with no decimals. Do not include any text outside the JSON block. Ensure valid JSON formatting for deserialization.");
 
             return sb.ToString();
         }
-
 
         private async Task<string> CallOpenAiAsync(string prompt)
         {
