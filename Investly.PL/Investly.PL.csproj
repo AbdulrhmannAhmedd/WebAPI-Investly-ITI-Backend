@@ -25,6 +25,8 @@
   <ItemGroup>
     <Folder Include="NewFolder\" />
     <Folder Include="wwwroot\uploads\founder\IdeaFile\" />
+    <Folder Include="wwwroot\uploads\founder\nationalIdPic\" />
+    <Folder Include="wwwroot\uploads\founder\profilePic\" />
   </ItemGroup>
 
 </Project>

@@ -2,10 +2,11 @@
 using Investly.PL.Extentions;
 using Investly.PL.General;
 using Investly.PL.IBL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Investly.PL.Controllers.Founder
+namespace Investly.PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -62,7 +63,7 @@ namespace Investly.PL.Controllers.Founder
             var userId = User.GetUserId();
             if (userId == null)
             {
-                return new ResponseDto<object> 
+                return new ResponseDto<object>
                 {
                     IsSuccess = false,
                     Message = "Unauthorized: User ID not found in token claims.",
@@ -94,6 +95,54 @@ namespace Investly.PL.Controllers.Founder
                 };
             }
         }
+
+        [Authorize]
+        [HttpGet("notification-unread-num")]
+        public ResponseDto<object> GetCountUnreadNotification()
+        {
+            var userId = User.GetUserId();
+            if (userId == null)
+            {
+                return new ResponseDto<object>
+                {
+                    IsSuccess = false,
+                    Message = "Unauthorized: user ID not found in claims.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+            var res = _notificationService.getUserNotificationUnreadCount(userId.Value);
+            if (res >= 0)
+            {
+                return new ResponseDto<object>
+                {
+                    Data = res,
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "data retreived successfully"
+                };
+
+            }
+            else
+            {
+                return new ResponseDto<object>
+                {
+                    Data = res,
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "something went wrong"
+                };
+
+            }
+        }
+
+        [HttpPost("send")]
+        public async Task<IActionResult> SendNotification([FromQuery] int count)
+        {
+            await _notificationService.NotifyUser("14");
+            return Ok(count);
+        }
+
 
         [HttpPut("mark-all-as-read")]
         public async Task<IActionResult> MarkAllAsRead()
@@ -133,7 +182,8 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
         }
-        [HttpPut("{id}/soft-delete")] 
+
+        [HttpPut("{id}/soft-delete")]
         public IActionResult SoftDeleteNotification(int id)
         {
             var loggedInUserId = User.GetUserId();
