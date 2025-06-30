@@ -3,8 +3,11 @@ using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
 using Investly.PL.General;
+using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Investly.PL.BL
 {
@@ -12,10 +15,20 @@ namespace Investly.PL.BL
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public FounderService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IUserService _userService;
+        private readonly IHelper _helper;
+
+        public FounderService(
+            IUnitOfWork unitOfWork, 
+            IMapper mapper,
+            IUserService userService,
+            IHelper helper
+            )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _userService = userService;
+            _helper = helper;
         }
         public int ChangeFounderStatus(int Id, int Status,int ?LoggedInUser)
         {
@@ -134,7 +147,7 @@ namespace Investly.PL.BL
                 {
                     return 0; // Invalid input
                 }
-                var existedUser = _unitOfWork.UserRepo.GetAll(u => u.Email == founder.User.Email).FirstOrDefault();
+                var existedUser = _unitOfWork.UserRepo.GetAll(u => (u.Email == founder.User.Email || u.NationalId==founder.User.NationalId)&&u.Status!=(int)UserStatus.Deleted).FirstOrDefault();
                 if (existedUser != null)
                 {
                     return -1; // User already exists
@@ -186,6 +199,158 @@ namespace Investly.PL.BL
 
             }
         }
+
+        public Tuple<bool, FounderDto> UpdateFounderData(string email, UpdateFounderDto founderDto)
+        {
+            var founder = _unitOfWork.FounderRepo.FirstOrDefault(f => f.User.Email == email, includeProperties: "User");
+            if (founder == null)
+                throw new KeyNotFoundException("No Founder Found");
+
+            var currentDto = founder.ToUpdateDto();
+            if (founderDto.Equals(currentDto))
+                return new Tuple<bool, FounderDto>(false, _mapper.Map<FounderDto>(founder));
+
+            if (!string.IsNullOrWhiteSpace(founderDto.PhoneNumber))
+            {
+                var existingUser = _unitOfWork.UserRepo.FirstOrDefault(u =>
+                    u.PhoneNumber == founderDto.PhoneNumber &&
+                    u.Id != founder.User.Id);
+
+                if (existingUser != null)
+                    throw new ArgumentException("Phone number must be unique.");
+            }
+
+            if (founderDto.DateOfBirth.HasValue)
+            {
+                var dob = founderDto.DateOfBirth.Value;
+                var today = DateOnly.FromDateTime(DateTime.Today);
+                int age = today.Year - dob.Year;
+                if (today < dob.AddYears(age))
+                    age--;
+
+                if (age < 21)
+                    throw new ArgumentException("Age must be at least 21 years.");
+            }
+
+            var user = founder.User;
+
+            user.FirstName = founderDto.FirstName;
+            user.LastName = founderDto.LastName;
+            user.PhoneNumber = founderDto.PhoneNumber;
+            user.Gender = founderDto.Gender;
+            user.GovernmentId = founderDto.GovernmentId;
+            user.CityId = founderDto.CityId;
+            user.Address = founderDto.Address;
+            user.DateOfBirth = founderDto.DateOfBirth;
+            user.Status = (int)UserStatus.Pending;
+            _unitOfWork.Save();
+
+            return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));
+        }
+
+        public bool ChangePassword(ChangePasswordDto model)
+        {
+            var user = _unitOfWork.UserRepo.FirstOrDefault(user => user.Email == model.email);
+
+            if (user == null)
+                throw new KeyNotFoundException("User not found");
+
+            if (!BCrypt.Net.BCrypt.Verify(model.CurrentPassword, user.HashedPassword))
+                throw new ArgumentException("Current password is incorrect");
+
+            user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+
+            _unitOfWork.UserRepo.Update(user);
+
+            _unitOfWork.Save();
+            return true;
+        }
+
+        public bool UpdateProfilePicture(UpdateProfilePicDto model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Email))
+                throw new ArgumentException("Email is required.");
+
+            var user = _unitOfWork.UserRepo.FirstOrDefault(user => user.Email == model.Email);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+
+            user.ProfilePicPath = HandleImageUpload(
+                model.PicFile,
+                user.ProfilePicPath,
+                "profilePic"
+            );
+
+            _unitOfWork.UserRepo.Update(user);
+            _unitOfWork.Save();
+
+            return true;
+        }
+
+
+        public UpdateNationalIdResponseDto UpdateNationalIdImages(UpdateNationalIdDto model)
+        {
+            var user = _unitOfWork.UserRepo.FirstOrDefault(u => u.Email == model.Email);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+
+            if (model.FrontIdFile != null)
+            {
+                user.FrontIdPicPath = HandleImageUpload(
+                    model.FrontIdFile,
+                    user.FrontIdPicPath,
+                    "nationalIdPic"
+                );
+            }
+
+            if (model.BackIdFile != null)
+            {
+                user.BackIdPicPath = HandleImageUpload(
+                    model.BackIdFile,
+                    user.BackIdPicPath,
+                    "nationalIdPic"
+                );
+            }
+
+            _unitOfWork.UserRepo.Update(user);
+            _unitOfWork.Save();
+
+            UpdateNationalIdResponseDto res = new UpdateNationalIdResponseDto()
+            {
+                FrontIdPicPath = user.FrontIdPicPath,
+                BackIdPicPath = user.BackIdPicPath
+            };
+
+            return res;
+
+        }
+
+
+        private string HandleImageUpload(IFormFile file, string? oldPath, string folderName)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("Image file is required.");
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(file.FileName);
+
+            if (string.IsNullOrWhiteSpace(extension) ||
+                !allowedExtensions.Contains(extension.ToLowerInvariant()))
+            {
+                throw new ArgumentException("Only JPG and PNG files are allowed.");
+            }
+
+            var path = _helper.UploadFile(file, "founder", folderName);
+            if (string.IsNullOrWhiteSpace(path))
+                throw new InvalidOperationException("Failed to upload image.");
+
+            if (!string.IsNullOrWhiteSpace(oldPath))
+                _helper.DeleteFile(oldPath);
+
+            return path;
+        }
+
+
 
 
     }

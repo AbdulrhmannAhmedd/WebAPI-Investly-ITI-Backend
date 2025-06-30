@@ -1,6 +1,4 @@
-﻿// File: Investly.PL/BL/FeedbackService.cs
-
-using AutoMapper;
+﻿using AutoMapper;
 using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
@@ -92,7 +90,7 @@ namespace Investly.PL.BL
             }
         }
 
-        public int DeleteFeedback(int feedbackId, int? loggedUserId, string actionType)
+        public int DeleteFeedback(int feedbackId, int? loggedUserId, int actionType)
         {
             try
             {
@@ -102,25 +100,14 @@ namespace Investly.PL.BL
                     return -1;
                 }
 
-                int newStatus;
-                if (actionType.ToLower() == "inactive")
-                {
-                    newStatus = (int)UserStatus.Inactive; 
-                }
-                else if (actionType.ToLower() == "deleted")
-                {
-                    newStatus = (int)UserStatus.Deleted;
-                }
-                else if (actionType.ToLower() == "active")
-                {
-                    newStatus = (int)UserStatus.Active;
-                }
-                else
+                UserStatus newStatus = (UserStatus)actionType;
+
+                if (newStatus != UserStatus.Inactive && newStatus != UserStatus.Deleted && newStatus != UserStatus.Active)
                 {
                     return -2;
                 }
 
-                feedback.Status = newStatus;
+                feedback.Status = actionType;
                 feedback.UpdatedAt = DateTime.UtcNow;
                 feedback.UpdatedBy = loggedUserId;
 
@@ -130,10 +117,9 @@ namespace Investly.PL.BL
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in SoftDeleteFeedback: {ex.Message}");
-                return -3; 
+                return -3;
             }
         }
-
         public FeedbackCountsDto GetFeedbackStatisticsCounts()
         {
             try

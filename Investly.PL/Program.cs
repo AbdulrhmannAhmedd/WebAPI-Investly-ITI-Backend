@@ -78,8 +78,9 @@ namespace Investly.PL
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-           
+
             #region General services registeration
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IJWTService, JWTService>();
             builder.Services.AddScoped<IHelper, Helper>();
             builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));

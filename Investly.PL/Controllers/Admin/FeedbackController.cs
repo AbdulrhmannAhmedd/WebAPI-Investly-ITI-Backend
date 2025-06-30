@@ -31,8 +31,8 @@ namespace Investly.PL.Controllers.Admin
             };
         }
 
-        [HttpPut("{id}/status-update")] 
-        public ResponseDto<object> UpdateFeedbackStatus(int id, [FromQuery] string actionType)
+        [HttpPut("{id}/status-update")]
+        public ResponseDto<object> UpdateFeedbackStatus(int id, [FromQuery] int actionType)
         {
             int? loggedUserId = null;
             var userIdClaim = User.FindFirst("id");
@@ -41,12 +41,28 @@ namespace Investly.PL.Controllers.Admin
                 loggedUserId = parsedUserId;
             }
 
+            if (!Enum.IsDefined(typeof(UserStatus), actionType))
+            {
+                return new ResponseDto<object>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid action type provided. Please use a valid status code.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
             var result = _feedbackService.DeleteFeedback(id, loggedUserId, actionType);
             ResponseDto<object> response;
 
             if (result > 0)
             {
-                string message = actionType.ToLower() == "inactive" ? "Feedback marked as inactive successfully." : "Feedback marked as deleted successfully.";
+                UserStatus statusForMessage = (UserStatus)actionType;
+                string message = statusForMessage == UserStatus.Inactive ? "Feedback marked as inactive successfully." :
+                                 statusForMessage == UserStatus.Deleted ? "Feedback marked as deleted successfully." :
+                                 statusForMessage == UserStatus.Active ? "Feedback marked as active successfully." :
+                                 "Feedback status updated successfully.";
+
                 response = new ResponseDto<object>
                 {
                     IsSuccess = true,
@@ -65,12 +81,12 @@ namespace Investly.PL.Controllers.Admin
                     StatusCode = StatusCodes.Status404NotFound
                 };
             }
-            else if (result == -2) 
+            else if (result == -2)
             {
                 response = new ResponseDto<object>
                 {
                     IsSuccess = false,
-                    Message = "Invalid action type provided.",
+                    Message = "Invalid action type provided or not allowed for this operation.",
                     Data = null,
                     StatusCode = StatusCodes.Status400BadRequest
                 };
@@ -87,7 +103,7 @@ namespace Investly.PL.Controllers.Admin
             }
             return response;
         }
-  
+
         [HttpGet("statistics-counts")]
         public ResponseDto<FeedbackCountsDto> GetFeedbackStatisticsCounts()
         {
