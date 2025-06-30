@@ -301,6 +301,8 @@ namespace Investly.PL.BL
                     user.FrontIdPicPath,
                     "nationalIdPic"
                 );
+                 user.Status = (int)UserStatus.Pending;
+
             }
 
             if (model.BackIdFile != null)
@@ -310,6 +312,8 @@ namespace Investly.PL.BL
                     user.BackIdPicPath,
                     "nationalIdPic"
                 );
+                user.Status = (int)UserStatus.Pending;
+
             }
 
             _unitOfWork.UserRepo.Update(user);

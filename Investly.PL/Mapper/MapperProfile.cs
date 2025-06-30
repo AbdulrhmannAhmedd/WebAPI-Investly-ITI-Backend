@@ -12,7 +12,7 @@ namespace Investly.PL.Mapper
             CreateMap<UserDto, User>().ReverseMap();
 
             CreateMap<UserDto, User>().ReverseMap();
-            CreateMap<InvestorDto, Investor>().ReverseMap();
+            CreateMap<InvestorDto, Investor>().ReverseMap(); 
             CreateMap<Business, BusinessDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.FounderName, opt => opt.MapFrom(src =>
@@ -91,6 +91,7 @@ namespace Investly.PL.Mapper
                 .ForMember(dest => dest.UserToName, opt => opt.MapFrom(src => src.UserIdToNavigation != null ? $"{src.UserIdToNavigation.FirstName} {src.UserIdToNavigation.LastName}" : null))
                 .ForMember(dest => dest.UserFromName, opt => opt.MapFrom(src => src.CreatedByNavigation != null ? $"{src.CreatedByNavigation.FirstName} {src.CreatedByNavigation.LastName}" : null)) // New mapping
                 .ReverseMap();
+
         }
 
     }
