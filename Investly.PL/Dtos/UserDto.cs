@@ -39,6 +39,7 @@ namespace Investly.PL.Dtos
         public IFormFile? BackIdPicFile { get; set; }
         public int? TokenVersion { get; set; }
         public int NotificationCountUnRead { get; set; }
+        public string? CountryCode { get; set; }
         public  GovernmentDto? Government { get; set; }
         public  CityDto? City { get; set; }
 
