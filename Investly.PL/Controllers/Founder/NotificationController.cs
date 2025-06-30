@@ -71,7 +71,7 @@ namespace Investly.PL.Controllers.Founder
                 };
             }
 
-            var res = _notificationService.getFounderNotificationUnreadCount(userId.Value);
+            var res = _notificationService.getUserNotificationUnreadCount(userId.Value);
 
             if (res >= 0)
             {

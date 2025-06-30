@@ -163,8 +163,7 @@ namespace Investly.PL.BL
         }
         #endregion
 
-        #region Founder
-        public int getFounderNotificationUnreadCount(int loggedInUserId)
+        public int getUserNotificationUnreadCount(int loggedInUserId)
         {
             try
             {
@@ -178,12 +177,10 @@ namespace Investly.PL.BL
 
             }
         }
-
-        #endregion
         public async Task NotifyUser(string UserId)
         {
-            // int count = _unitOfWork.NotificationRepo.GetAll(n => n.IsRead != 0 && n.UserIdTo==int.Parse(UserId)).Count();
-            int count = 7;
+            int count = _unitOfWork.NotificationRepo.getCountUnRead(int.Parse(UserId));
+           // int count = 7;
             await _notifcationHubContext.Clients.User(UserId).SendAsync("RecieveNotificationCount", count);
 
         }

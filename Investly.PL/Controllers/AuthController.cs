@@ -266,7 +266,7 @@ namespace Investly.PL.Controllers
         [HttpGet("notification-unread-num")]
         public ResponseDto<object> GetCountUnreadNotification()
         {
-            var res = _notificationService.getFounderNotificationUnreadCount(User.GetUserId() ?? 0);
+            var res = _notificationService.getUserNotificationUnreadCount(User.GetUserId() ?? 0);
             if (res >= 0)
             {
                 return new ResponseDto<object>

@@ -11,15 +11,9 @@ namespace Investly.PL.IBL
         public int ChnageStatus(int NotificationId,int Status, int? LoggedInUser);
         public NotifcationsTotalActiveDeletedDto GetTotalNotificationsActiveDeleted();
         #endregion
-
-        #region Founder
-
-        public int getFounderNotificationUnreadCount(int loggedInUserId);
-
-        #endregion
+        public int getUserNotificationUnreadCount(int loggedInUserId);
         public PaginatedNotificationsDto GetUserNotifications(NotificationSearchDto search, int userId);
         public Task<int> MarkAllUserNotificationsAsRead(int userId);
-
         public Task NotifyUser(string UserId);
     }
 }
