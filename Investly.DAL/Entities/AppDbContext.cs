@@ -42,6 +42,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Standard> Standards { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<AiBusinessStandardsEvaluation> AiBusinessStandardsEvaluations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

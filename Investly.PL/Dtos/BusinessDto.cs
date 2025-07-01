@@ -27,15 +27,18 @@ namespace Investly.PL.Dtos
         public DateTime? UpdatedAt { get; set; }
         public IFormFile? IdeaFile { get; set; }
         public int? GovernmentId { get; set; }
-
+        public string? Images { get; set; }
+        public List<IFormFile>? ImageFiles { get; set; } = new List<IFormFile>();
         public int? CityId { get; set; }
         public string? Description { get; set; }
         public int? DesiredInvestmentType { get; set; }
         public string? DesiredInvestmentTypeName { get; set; }
-        public  List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
         public CategoryForListDto Category { get; set; } 
         public  CityDto? City { get; set; }
         public  GovernmentDto? Government { get; set; }
+        public AiBusinessEvaluationDto? AiBusinessEvaluations { get; set; }
+        public  List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
+
 
     }
 
@@ -61,4 +64,8 @@ namespace Investly.PL.Dtos
         public int TotalRejected { get; set; }
         public int TotalPending { get; set; }
     }
+
+
+  
+
 }

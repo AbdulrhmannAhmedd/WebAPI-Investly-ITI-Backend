@@ -1,4 +1,5 @@
 ﻿using Investly.PL.General.Services.IServices;
+using System.Text;
 
 namespace Investly.PL.General.Services
 {
@@ -41,6 +42,35 @@ namespace Investly.PL.General.Services
             {
                 return 0;
             }
+        }
+
+        public string ExtractTxtFromFile(byte[] fileBytes, string fileName)
+        {
+
+            string ext = Path.GetExtension(fileName).ToLower();
+
+            return ext switch
+            {
+                ".txt" => System.Text.Encoding.UTF8.GetString(fileBytes),
+                ".pdf" => ExtractTextFromPdf(fileBytes),
+               // ".docx" => ExtractTextFromDocx(fileBytes),
+                _ => throw new NotSupportedException("File format not supported")
+            };
+        }
+
+        private string ExtractTextFromPdf(byte[] fileBytes)
+        {
+            using var pdfReader = new iText.Kernel.Pdf.PdfReader(new MemoryStream(fileBytes));
+            using var pdfDocument = new iText.Kernel.Pdf.PdfDocument(pdfReader);
+            var strategy = new iText.Kernel.Pdf.Canvas.Parser.Listener.SimpleTextExtractionStrategy();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= pdfDocument.GetNumberOfPages(); i++)
+            {
+                var text = iText.Kernel.Pdf.Canvas.Parser.PdfTextExtractor.GetTextFromPage(pdfDocument.GetPage(i), strategy);
+                sb.AppendLine(text);
+            }
+            return sb.ToString();
         }
 
     }

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Investly.DAL.Repos.IRepos
 {
-    public interface IStandardRepo:IRepo<Standard>
+    public interface IAiBusinessEvaluationRepo:IRepo<AiBusinessStandardsEvaluation>
     {
-        public List<CategoryStandard> categoryStandards(int CategoryId);
+
     }
 }

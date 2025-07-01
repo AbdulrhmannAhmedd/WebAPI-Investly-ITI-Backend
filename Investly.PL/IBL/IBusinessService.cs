@@ -6,11 +6,15 @@ namespace Investly.PL.IBL
 {
     public interface IBusinessService
     {
+        #region Admin
         public BusinessListDto GetAllBusinesses(BusinessSearchDto searchDto);
         public int SoftDeleteBusiness(int businessId, int? loggedUserId);
         public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId,string? rejectedReason = null);
         public BusinessCountsDto GetBusinessIdeasCounts();
+        #endregion
+
         public int AddBusinessIdea(BusinessDto BusinessIdea,int? LoggedInUser);
+        public int AddBusinessIdeaAiEvaluation(AiBusinessEvaluationDto dto, int LoggedInUser);
 
     }
 }
