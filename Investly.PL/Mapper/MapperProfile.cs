@@ -92,6 +92,18 @@ namespace Investly.PL.Mapper
                 .ForMember(dest => dest.UserFromName, opt => opt.MapFrom(src => src.CreatedByNavigation != null ? $"{src.CreatedByNavigation.FirstName} {src.CreatedByNavigation.LastName}" : null)) // New mapping
                 .ReverseMap();
 
+
+            CreateMap<AiBusinessStandardsEvaluation, AiStandardsEvaluationDto>()
+                .ForMember(dest => dest.StandardCategoryId, opt => opt.MapFrom(src => src.CategoryStandardId))
+                .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback))
+                .ForMember(des=>des.Name,opt=>opt.MapFrom(src=>src.CategoryStandard.Standard.Name))
+                .ForMember(des=>des.FormQuestion,opt=>opt.MapFrom(src=>src.CategoryStandard.Standard.FormQuestion))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AchievementScore, opt => opt.MapFrom(src => src.AchievementScore))
+                .ForMember(dest => dest.WeightedContribution, opt => opt.MapFrom(src => src.WeightedContribution))
+                .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
+                .ReverseMap();
+
         }
 
     }

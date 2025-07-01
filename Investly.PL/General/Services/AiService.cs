@@ -22,8 +22,6 @@ namespace Investly.PL.General.Services
             string prompt = BuildPrompt(businessStandardAnswers, standards);
             return await CallOpenAiAsync(prompt);
 
-
-
         }
 
 
