@@ -35,5 +35,29 @@ namespace Investly.PL.BL
                 return null;
             }
         }
+        public List<StandardCategoryDto> GetStandardsCategories(int CategoryId)
+        {
+
+            try
+            {
+                if (CategoryId < 0) {
+                    return null;
+                }
+                var res = _unitOfWork.StandardRepo.categoryStandards(CategoryId).Select(s=>new StandardCategoryDto
+                {
+                    Id=s.Id,
+                    StandardId=s.Standard.Id,
+                    StandardName = s.Standard.Name,
+                    Question = s.Standard.FormQuestion,
+                    StandardCategoryWeight = s.Weight
+                });
+                return res.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

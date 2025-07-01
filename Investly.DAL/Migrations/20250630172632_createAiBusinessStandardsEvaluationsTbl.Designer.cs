@@ -4,6 +4,7 @@ using Investly.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Investly.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250630172632_createAiBusinessStandardsEvaluationsTbl")]
+    partial class createAiBusinessStandardsEvaluationsTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -108,9 +111,6 @@ namespace Investly.DAL.Migrations
                     b.Property<int>("FounderId")
                         .HasColumnType("int");
 
-                    b.Property<string>("GeneralAiFeedback")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("GovernmentId")
                         .HasColumnType("int");
 
@@ -142,9 +142,6 @@ namespace Investly.DAL.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<int?>("UpdatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ViewsCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id")
@@ -785,7 +782,7 @@ namespace Investly.DAL.Migrations
             modelBuilder.Entity("Investly.DAL.Entities.AiBusinessStandardsEvaluation", b =>
                 {
                     b.HasOne("Investly.DAL.Entities.Business", "Business")
-                        .WithMany("AiBusinessStandardsEvaluations")
+                        .WithMany()
                         .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1120,8 +1117,6 @@ namespace Investly.DAL.Migrations
 
             modelBuilder.Entity("Investly.DAL.Entities.Business", b =>
                 {
-                    b.Navigation("AiBusinessStandardsEvaluations");
-
                     b.Navigation("BusinessStandardAnswers");
 
                     b.Navigation("InvestorContactRequests");

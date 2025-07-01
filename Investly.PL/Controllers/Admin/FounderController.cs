@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
-    //[TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
     [ApiController]
     public class FounderController : Controller
     {
