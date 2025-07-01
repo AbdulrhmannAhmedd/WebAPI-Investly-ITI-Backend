@@ -166,6 +166,20 @@ namespace Investly.PL.Controllers.Founder
                 var Filepath = _helper.UploadFile(BusinessIdea.IdeaFile, "founder", "IdeaFile");
                 BusinessIdea.FilePath = Filepath;
             }
+            if (BusinessIdea.ImageFiles?.Count() > 0)
+            {
+                var imagePaths = new List<string>();
+                foreach (var imageFile in BusinessIdea.ImageFiles)
+                {
+                    var imagePath = _helper.UploadFile(imageFile, "founder", "BusinessImages");
+                    if (!string.IsNullOrEmpty(imagePath))
+                    {
+                        imagePaths.Add(imagePath);
+                    }
+                }
+                BusinessIdea.Images = string.Join(";", imagePaths);
+
+            }
 
             int res = _businessService.AddBusinessIdea(BusinessIdea, User.GetUserId());
             if (res > 0)

@@ -12,7 +12,7 @@ namespace Investly.PL.Mapper
             CreateMap<UserDto, User>().ReverseMap();
 
             CreateMap<UserDto, User>().ReverseMap();
-            CreateMap<InvestorDto, Investor>().ReverseMap(); 
+            CreateMap<InvestorDto, Investor>().ReverseMap();
             CreateMap<Business, BusinessDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.FounderName, opt => opt.MapFrom(src =>
@@ -23,7 +23,16 @@ namespace Investly.PL.Mapper
                     ? ((DesiredInvestmentType)src.DesiredInvestmentType.Value).ToString()
                     : null
                 ))
-                .ReverseMap();
+              .ForMember(dest => dest.AiBusinessEvaluations, opt => opt.MapFrom(src => new AiBusinessEvaluationDto
+              {
+                  TotalWeightedScore = src.Airate.HasValue ? (int)src.Airate.Value : 0,
+                  GeneralFeedback = src.GeneralAiFeedback,
+
+              }))
+               //.ForMember(dest => dest.AiBusinessEvaluations, opt => opt.MapFrom(src => src))
+               .ReverseMap();
+               // .ForMember(dest => dest.Airate, opt => opt.MapFrom(src => src.AiBusinessEvaluations != null ? src.AiBusinessEvaluations.TotalWeightedScore : 0))
+               //.ForMember(dest => dest.GeneralAiFeedback, opt => opt.MapFrom(src => src.AiBusinessEvaluations != null ? src.AiBusinessEvaluations.GeneralFeedback : null));
 
             CreateMap<Dtos.UserDto,User>().ReverseMap();   
             CreateMap<Dtos.InvestorDto, Investor>().ReverseMap();

@@ -169,9 +169,12 @@ namespace Investly.PL.BL
                     return -2;
                 }
                 var newIdea=_mapper.Map<Business>(BusinessIdea);
-               
+                newIdea.Airate=BusinessIdea.AiBusinessEvaluations?.TotalWeightedScore ;
+                newIdea.GeneralAiFeedback=BusinessIdea.AiBusinessEvaluations?.GeneralFeedback;
+                newIdea.AiBusinessStandardsEvaluations=_mapper.Map<List<AiBusinessStandardsEvaluation>>(BusinessIdea.AiBusinessEvaluations?.Standards);
                 newIdea.CreatedBy = LoggedInUser;
-               
+                newIdea.CreatedAt = DateTime.UtcNow;
+                newIdea.Category = null;
 
                 if (LoggedInUser != null)
                 {
@@ -191,8 +194,18 @@ namespace Investly.PL.BL
                         answer.CreatedAt = DateTime.Now;
                     }
                 }
-                newIdea.CreatedAt = DateTime.Now;
-                newIdea.Category = null;
+                if (newIdea.AiBusinessStandardsEvaluations != null)
+
+                {
+                    foreach (var standard in newIdea.AiBusinessStandardsEvaluations)
+                    {
+                        standard.CreatedBy = LoggedInUser;
+                        standard.CreatedAt = DateTime.Now;
+                        standard.CategoryStandard = null;
+                        
+                    }
+                }
+
                 newIdea.Status = (int)BusinessIdeaStatus.Pending;
                 _unitOfWork.BusinessRepo.Insert(newIdea);
                 var res = _unitOfWork.Save();
