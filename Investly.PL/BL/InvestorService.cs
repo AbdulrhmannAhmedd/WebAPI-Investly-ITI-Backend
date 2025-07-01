@@ -142,10 +142,16 @@ namespace Investly.PL.BL
                 existingInvestor.User.CityId = investorDto.User.CityId;
                 existingInvestor.User.DateOfBirth = investorDto.User.DateOfBirth;
                 existingInvestor.User.UpdatedAt = DateTime.UtcNow;
+                existingInvestor.User.CountryCode = investorDto.User.CountryCode;
                 existingInvestor.User.ProfilePicPath = investorDto.User.ProfilePicPath ?? existingInvestor.User.ProfilePicPath;
                 existingInvestor.User.FrontIdPicPath = investorDto.User.FrontIdPicPath ?? existingInvestor.User.FrontIdPicPath;
                 existingInvestor.User.BackIdPicPath = investorDto.User.BackIdPicPath ?? existingInvestor.User.BackIdPicPath;
-
+                existingInvestor.User.Status=investorDto.User.Status??existingInvestor.User.Status;
+                existingInvestor.InvestingType = investorDto.InvestingType ?? existingInvestor.InvestingType;
+                existingInvestor.InterestedBusinessStages = investorDto.InterestedBusinessStages ?? existingInvestor.InterestedBusinessStages;
+                existingInvestor.MaxFunding = investorDto.MaxFunding ?? existingInvestor.MaxFunding;
+                existingInvestor.MinFunding = investorDto.MinFunding ?? existingInvestor.MinFunding;
+        
                 _unitOfWork.InvestorRepo.Update(existingInvestor);
                 res = _unitOfWork.Save();
                 return res;
@@ -210,6 +216,105 @@ namespace Investly.PL.BL
                     Name = $"{i.User.FirstName} {i.User.LastName}"
                 }).ToListAsync();
         }
+        public InvestorDto GetInvestorByUserId(int? loggedInUser)
+        {
+            try
+            {
+                var investor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser, "User.Government,User.City");
+                var res = _mapper.Map<InvestorDto>(investor);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return null;
 
+            }
+        }
+
+        public int UpdateProfilePicture(string ProfilePicPath, int? loggedInUser)
+        {
+            int res = 0;
+            try
+            {
+
+                if (ProfilePicPath == null || loggedInUser <= 0)
+                {
+                    return 0; // Invalid input
+                }
+                var existingInvestor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser, includeProperties: "User");
+                if (existingInvestor == null)
+                {
+                    return -1; // Investor not found
+                }
+                // Update properties
+                existingInvestor.User.UpdatedBy = loggedInUser.Value;
+                existingInvestor.User.UpdatedAt = DateTime.Now;
+                existingInvestor.User.ProfilePicPath = ProfilePicPath;
+                _unitOfWork.InvestorRepo.Update(existingInvestor);
+                res = _unitOfWork.Save();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return -1; // Exception occurred    
+            }
+        }
+    
+     public int UpdateNationalId(string FrontIdPicPath, string BackIdPicPath, int? loggedInUser)
+        {
+            int res = 0;
+            try
+            {
+
+                if (loggedInUser <= 0)
+                {
+                    return 0; // Invalid input
+                }
+                var existingInvestor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser, includeProperties: "User");
+                if (existingInvestor == null)
+                {
+                    return -1; // Investor not found
+                }
+                // Update properties
+                existingInvestor.User.UpdatedBy = loggedInUser.Value;
+                existingInvestor.User.UpdatedAt = DateTime.Now;
+                existingInvestor.User.Status = (int)UserStatus.Pending;
+                existingInvestor.User.FrontIdPicPath = FrontIdPicPath;
+                existingInvestor.User.BackIdPicPath = BackIdPicPath;
+                _unitOfWork.InvestorRepo.Update(existingInvestor);
+                res = _unitOfWork.Save();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return -1; // Exception occurred    
+            }
+        }
+        public int ChangePassword(ChangePasswordDto passwordDto, int? loggedInUser)
+        {
+            try
+            {
+                var user = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser, "User");
+                if(user == null)
+                {
+                    return 0;
+                }
+                if(!BCrypt.Net.BCrypt.Verify(passwordDto.CurrentPassword,user.User.HashedPassword))
+                {
+                    return -2;
+                }
+                user.User.UpdatedBy=loggedInUser.Value;
+                user.User.UpdatedAt = DateTime.Now;
+                user.User.HashedPassword = BCrypt.Net.BCrypt.HashPassword(passwordDto.NewPassword);
+                _unitOfWork.InvestorRepo.Update(user);
+             var res=_unitOfWork.Save();
+                return res;
+
+            }
+            catch (Exception ex)
+            {
+                return -1; // Exception occurred    
+            }
+        }
     }
 }
