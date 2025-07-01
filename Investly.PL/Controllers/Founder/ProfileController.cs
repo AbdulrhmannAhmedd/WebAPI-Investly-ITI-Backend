@@ -11,7 +11,7 @@ namespace Investly.PL.Controllers.Founder
 {
     [Route("api/founder/[controller]")]
     [ApiController]
-    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
+    //[TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
 
     public class ProfileController : ControllerBase
     {
@@ -70,7 +70,7 @@ namespace Investly.PL.Controllers.Founder
                     Data = null
                 };
 
-                return BadRequest(response); // StatusCode 400
+                return BadRequest(response); 
             }
 
             try
@@ -80,13 +80,13 @@ namespace Investly.PL.Controllers.Founder
                 var response = new ResponseDto<string>
                 {
                     IsSuccess = true,
-                    StatusCode = isUpdated ? 200 : 304,
+                    StatusCode = 200,
                     Message = isUpdated ? "Update successful" : "No changes detected",
                     Data = "Update successful",
-                    RefreshTokenRequired=isUpdated?true:false
+                    RefreshTokenRequired=isUpdated
                 };
 
-                return StatusCode(response.StatusCode, response); // Either 200 or 304
+                return Ok(response); 
             }
             catch (ArgumentException ex)
             {
