@@ -148,7 +148,35 @@ namespace Investly.PL.BL
             _unitOfWork.Save();
         }
 
+        public List<InvestorContactRequestDto> GetContactRequestsByInvestor(int? LoggedInUser)
+        {
+            try
+            {
+                var request=_unitOfWork.InvestorContactRequestRepo.GetAll(b=>b.Investor.UserId== LoggedInUser&&b.Status!=(int)ContactRequestStatus.Deleted,
+                    "Investor.User,Business.Founder.User,Business.City,Business.Government,Business.Category").OrderByDescending(b=>b.CreatedAt);
+                var InvestorRequests = _mapper.Map<List<InvestorContactRequestDto>>(request);
+                return InvestorRequests;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
 
+        public CountContactRequestDto GetContactRequestsCountByInvestor(int? LoggedInUser)
+        {
+            try
+            {
+                var count = _unitOfWork.InvestorContactRequestRepo.GetAll(b => b.Investor.UserId == LoggedInUser && b.Status != (int)ContactRequestStatus.Deleted,"Investor").Count();
+                CountContactRequestDto res = new CountContactRequestDto { TotalContactRequestCount = count };
+            
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 
 }
