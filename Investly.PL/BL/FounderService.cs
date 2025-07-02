@@ -232,7 +232,14 @@ namespace Investly.PL.BL
                     throw new ArgumentException("Age must be at least 21 years.");
             }
 
+
+            if ((founderDto.PhoneNumber != null) ^ (founderDto.CountryCode != null)) 
+            {
+                throw new ArgumentException("PhoneNumber and CountryCode must be provided together.");
+            }
+
             var user = founder.User;
+
 
             user.FirstName = founderDto.FirstName;
             user.LastName = founderDto.LastName;
@@ -243,6 +250,7 @@ namespace Investly.PL.BL
             user.Address = founderDto.Address;
             user.DateOfBirth = founderDto.DateOfBirth;
             user.Status = (int)UserStatus.Pending;
+            user.CountryCode = founderDto.CountryCode;
             _unitOfWork.Save();
 
             return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));
