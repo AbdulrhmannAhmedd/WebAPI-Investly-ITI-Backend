@@ -6,12 +6,14 @@ namespace Investly.DAL.Entities;
 public partial class Feedback
 {
     public int Id { get; set; }
+    public string Subject { get; set; }
 
     public string? Description { get; set; }
 
-    public int UserTypeFrom { get; set; }
+    //public int UserTypeFrom { get; set; }
 
-    public int UserTypeTo { get; set; }
+    //public int UserTypeTo { get; set; }
+    public int FeedbackType { get; set; }
 
     public int UserIdTo { get; set; }
 
