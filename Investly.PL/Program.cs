@@ -12,6 +12,7 @@ using Investly.PL.IBL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Investly.PL
@@ -143,15 +144,24 @@ namespace Investly.PL
                     app.UseSwaggerUI();
                 }
 
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads")),
+                RequestPath = "/uploads",
+                OnPrepareResponse = ctx =>
+                {
+                    ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "http://localhost:4200");
+                }
+            });
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
 
             app.MapControllers();
-            app.UseCors("AllowAllOrigins");
             app.MapHub<NotificationHub>("/notificationHub");
+            app.UseCors("AllowAllOrigins");
 
             app.Run();
         }

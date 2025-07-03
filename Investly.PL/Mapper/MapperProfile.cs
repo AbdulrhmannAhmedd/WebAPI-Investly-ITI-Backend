@@ -23,26 +23,35 @@ namespace Investly.PL.Mapper
                     ? ((DesiredInvestmentType)src.DesiredInvestmentType.Value).ToString()
                     : null
                 ))
-              .ForMember(dest => dest.AiBusinessEvaluations, opt => opt.MapFrom(src => new AiBusinessEvaluationDto
-              {
-                  TotalWeightedScore = src.Airate.HasValue ? (int)src.Airate.Value : 0,
-                  GeneralFeedback = src.GeneralAiFeedback,
-
-              }))
-               //.ForMember(dest => dest.AiBusinessEvaluations, opt => opt.MapFrom(src => src))
+             .ForMember(dest => dest.AiBusinessEvaluations, opt => opt.MapFrom(src => new AiBusinessEvaluationDto
+             {
+                 TotalWeightedScore = src.Airate.HasValue ? (int)src.Airate.Value : 0,
+                 GeneralFeedback = src.GeneralAiFeedback,
+                 Standards = src.AiBusinessStandardsEvaluations != null
+        ? src.AiBusinessStandardsEvaluations.Select(evaluation => new AiStandardsEvaluationDto
+        {
+            Id = evaluation.Id,
+            StandardCategoryId = evaluation.CategoryStandardId,
+            AchievementScore = evaluation.AchievementScore,
+            Weight = evaluation.Weight,
+            WeightedContribution = evaluation.WeightedContribution,
+            Feedback = evaluation.Feedback,
+            Name = evaluation.CategoryStandard != null ? evaluation.CategoryStandard.Standard.Name : null,
+            FormQuestion = evaluation.CategoryStandard != null ? evaluation.CategoryStandard.Standard.FormQuestion : null,
+        }).ToList()
+        : new List<AiStandardsEvaluationDto>()
+             }))
                .ReverseMap();
-               // .ForMember(dest => dest.Airate, opt => opt.MapFrom(src => src.AiBusinessEvaluations != null ? src.AiBusinessEvaluations.TotalWeightedScore : 0))
-               //.ForMember(dest => dest.GeneralAiFeedback, opt => opt.MapFrom(src => src.AiBusinessEvaluations != null ? src.AiBusinessEvaluations.GeneralFeedback : null));
-
-            CreateMap<Dtos.UserDto,User>().ReverseMap();   
+           
+            CreateMap<Dtos.UserDto, User>().ReverseMap();
             CreateMap<Dtos.InvestorDto, Investor>().ReverseMap();
             CreateMap<GovernmentDto, Government>().ReverseMap();
             CreateMap<CityDto, City>().ReverseMap();
             CreateMap<NotificationDto, Notification>().ReverseMap();
-         
-            CreateMap <Dtos.FounderDto,Founder>().ReverseMap();
+
+            CreateMap<Dtos.FounderDto, Founder>().ReverseMap();
             CreateMap<BusinessStandardAnswer, BusinessStandardAnswerDto>()
-                           .ForMember(dest => dest.StandardQuestion, opt => opt.MapFrom(src => src.Standard != null ? src.Standard.Name : null)) // <--- NEW: Add this line
+                           .ForMember(dest => dest.StandardQuestion, opt => opt.MapFrom(src => src.Standard != null ? src.Standard.FormQuestion : null)) // <--- NEW: Add this line
                            .ReverseMap(); CreateMap<StandardDto, Standard>().ReverseMap();
 
             CreateMap<InvestorContactRequest, InvestorContactRequestDto>()
@@ -64,7 +73,7 @@ namespace Investly.PL.Mapper
                 opt => opt.MapFrom(src => src.Business.Founder.Id))
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => (ContactRequestStatus)src.Status));
-            CreateMap<CategoryForListDto,Category>().ReverseMap();
+            CreateMap<CategoryForListDto, Category>().ReverseMap();
 
 
 
@@ -105,17 +114,36 @@ namespace Investly.PL.Mapper
                 .ForMember(dest => dest.UserFromName, opt => opt.MapFrom(src => src.CreatedByNavigation != null ? $"{src.CreatedByNavigation.FirstName} {src.CreatedByNavigation.LastName}" : null)) // New mapping
                 .ReverseMap();
 
-
+            // Entity → DTO (For reads, include nav props)
             CreateMap<AiBusinessStandardsEvaluation, AiStandardsEvaluationDto>()
                 .ForMember(dest => dest.StandardCategoryId, opt => opt.MapFrom(src => src.CategoryStandardId))
                 .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback))
-                .ForMember(des=>des.Name,opt=>opt.MapFrom(src=>src.CategoryStandard.Standard.Name))
-                .ForMember(des=>des.FormQuestion,opt=>opt.MapFrom(src=>src.CategoryStandard.Standard.FormQuestion))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.CategoryStandard.Standard.Name))
+                .ForMember(dest => dest.FormQuestion, opt => opt.MapFrom(src => src.CategoryStandard.Standard.FormQuestion))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.AchievementScore, opt => opt.MapFrom(src => src.AchievementScore))
                 .ForMember(dest => dest.WeightedContribution, opt => opt.MapFrom(src => src.WeightedContribution))
+                .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight));
+
+            // DTO → Entity (For inserts/updates, avoid nav props to prevent tracking/FK issues)
+            CreateMap<AiStandardsEvaluationDto, AiBusinessStandardsEvaluation>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CategoryStandardId, opt => opt.MapFrom(src => src.StandardCategoryId))
+                .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback))
+                .ForMember(dest => dest.AchievementScore, opt => opt.MapFrom(src => src.AchievementScore))
+                .ForMember(dest => dest.WeightedContribution, opt => opt.MapFrom(src => src.WeightedContribution))
                 .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
-                .ReverseMap();
+                .ForMember(dest => dest.CategoryStandard, opt => opt.Ignore())
+                .ForMember(dest => dest.Business, opt => opt.Ignore());
+
+            //CreateMap<Business, AiBusinessEvaluationDto>()
+            //.ForMember(dest => dest.BusinessId, opt => opt.MapFrom(src => src.Id))
+            //.ForMember(dest => dest.TotalWeightedScore, opt => opt.MapFrom(src => src.Airate.HasValue ? (int)src.Airate.Value : 0))
+            //.ForMember(dest => dest.GeneralFeedback, opt => opt.MapFrom(src => src.GeneralAiFeedback))
+            //.ForMember(dest => dest.Standards, opt => opt.MapFrom(src => src.AiBusinessStandardsEvaluations))
+            //.ReverseMap();
+
+
 
         }
 
