@@ -154,7 +154,6 @@ namespace Investly.PL
                     ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "http://localhost:4200");
                 }
             });
-            app.UseCors("AllowAllOrigins");
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
@@ -162,6 +161,7 @@ namespace Investly.PL
 
             app.MapControllers();
             app.MapHub<NotificationHub>("/notificationHub");
+            app.UseCors("AllowAllOrigins");
 
             app.Run();
         }
