@@ -18,7 +18,8 @@ namespace Investly.PL.General.Services
             {
                 Directory.CreateDirectory(folderPath); 
             }
-            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var ext=file.FileName.Split('.').LastOrDefault()?.ToLower();
+            var fileName = $"{Guid.NewGuid()}.{ext}";
             var filePath = Path.Combine(folderPath, fileName);
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
