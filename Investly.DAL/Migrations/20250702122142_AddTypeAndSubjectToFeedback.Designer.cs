@@ -4,6 +4,7 @@ using Investly.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Investly.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250702122142_AddTypeAndSubjectToFeedback")]
+    partial class AddTypeAndSubjectToFeedback
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -411,14 +414,8 @@ namespace Investly.DAL.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("FeedbackType")
                         .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Status")
                         .HasColumnType("int");
@@ -433,7 +430,7 @@ namespace Investly.DAL.Migrations
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserIdTo")
+                    b.Property<int>("UserIdTo")
                         .HasColumnType("int");
 
                     b.HasKey("Id")
@@ -987,6 +984,7 @@ namespace Investly.DAL.Migrations
                     b.HasOne("Investly.DAL.Entities.User", "UserIdToNavigation")
                         .WithMany("FeedbackUserIdToNavigations")
                         .HasForeignKey("UserIdTo")
+                        .IsRequired()
                         .HasConstraintName("FK__Feedback__UserId__6B24EA82");
 
                     b.Navigation("CreatedByNavigation");

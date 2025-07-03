@@ -55,4 +55,12 @@
         Declined = 3
     }
 
+    public enum FeedbackTargetType
+    {
+        System = 1,
+        Investor = 2,
+        Founder = 3
+    }
+
+
 }
