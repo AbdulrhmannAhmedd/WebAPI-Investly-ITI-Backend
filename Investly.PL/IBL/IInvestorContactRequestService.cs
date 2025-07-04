@@ -20,6 +20,8 @@ namespace Investly.PL.IBL
 
         public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model);
         public InvestorContactRequestDto GetContactRequestById(int contactId);
+        public List<InvestorContactRequestDto> GetContactRequestsByInvestor( int? LoggedInUser);
+        public CountContactRequestDto GetContactRequestsCountByInvestor(int? LoggedInUser);
 
 
     }

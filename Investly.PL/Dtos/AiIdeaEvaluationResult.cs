@@ -4,7 +4,7 @@
     public class AiBusinessEvaluationDto
     {
         public int? BusinessId { get; set; }
-        public int TotalWeightedScore { get; set; }
+        public int? TotalWeightedScore { get; set; }
         public string? GeneralFeedback { get; set; }
         public List<AiStandardsEvaluationDto> Standards { get; set; } = new List<AiStandardsEvaluationDto>();
     }

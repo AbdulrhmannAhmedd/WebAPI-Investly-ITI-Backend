@@ -6,6 +6,8 @@ using Investly.PL.IBL;
 using Investly.PL.General;
 using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.AspNetCore.Mvc;
+using Investly.PL.General.Services.IServices;
 
 namespace Investly.PL.BL
 {
@@ -13,11 +15,13 @@ namespace Investly.PL.BL
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IHelper _helper;
 
-        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper, IHelper helper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _helper = helper;
         }
 
         public BusinessListDto GetAllBusinesses(BusinessSearchDto searchDto)
@@ -272,6 +276,128 @@ namespace Investly.PL.BL
             {
 
                 return -1;
+            }
+        }
+
+        public int UpdateBusinessIdea(BusinessDto BusinessIdea, int? LoggedInUser)
+        {
+            try
+            {
+                if (BusinessIdea == null || BusinessIdea.Id <= 0)
+                {
+                    return -2; // Invalid input
+                }
+                var existingBusiness = _unitOfWork.BusinessRepo.GetById(BusinessIdea.Id);
+               
+                if (existingBusiness == null)
+                {
+                    return -3; // Business not found
+                }
+
+                //update files 
+                this.HandleBusinessIdeaFiles(BusinessIdea, existingBusiness.FilePath, existingBusiness.Images);
+
+
+                //remove previous data
+                _unitOfWork.BusinessRepo.RemoveRangeStandardAnswers(BusinessIdea.Id);
+                _unitOfWork.BusinessRepo.RemoveRangAiStandardEvaluations(BusinessIdea.Id);
+
+                int? createdBy = existingBusiness.CreatedBy;
+                DateTime? createdAt = existingBusiness.CreatedAt;
+
+                existingBusiness = _mapper.Map(BusinessIdea,existingBusiness);
+                existingBusiness.Category = null;
+                existingBusiness.Airate = BusinessIdea.AiBusinessEvaluations.TotalWeightedScore;
+                existingBusiness.GeneralAiFeedback = BusinessIdea.AiBusinessEvaluations.GeneralFeedback;
+                existingBusiness.AiBusinessStandardsEvaluations = _mapper.Map<List<AiBusinessStandardsEvaluation>>(BusinessIdea.AiBusinessEvaluations.Standards);
+                existingBusiness.Status = (int)BusinessIdeaStatus.Pending;
+                existingBusiness.UpdatedBy = LoggedInUser;
+                existingBusiness.UpdatedAt = DateTime.UtcNow;
+                existingBusiness.CreatedBy = createdBy;
+                existingBusiness.CreatedAt = createdAt;
+                _unitOfWork.BusinessRepo.Update(existingBusiness);
+                var result = _unitOfWork.Save();
+
+                return result; // Indicate success
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateBusinessIdea: {ex.Message}");
+                return -1; // Indicate an error occurred
+            }
+
+        }
+        public List<BusinessDto> GetFounderBusinessIdeas(int LoggedInUserIdFounder)
+        {
+            try
+            {
+                var founder = _unitOfWork.FounderRepo.FirstOrDefault(u=>u.UserId==LoggedInUserIdFounder);
+                if (founder == null)
+                {
+                    return new List<BusinessDto>(); // Return an empty list if FounderId is invalid
+                }
+
+                var businessIdeas = _unitOfWork.BusinessRepo.GetAll(
+                    b => b.Founder.UserId == LoggedInUserIdFounder && b.Status != (int)BusinessIdeaStatus.Deleted,
+                    "Founder,Category,InvestorContactRequests,AiBusinessStandardsEvaluations.CategoryStandard.Standard,Government,City,BusinessStandardAnswers"
+                ).ToList();
+
+                if (businessIdeas == null || !businessIdeas.Any())
+                {
+                    return new List<BusinessDto>(); // Return an empty list if no business ideas are found
+                }
+
+                return _mapper.Map<List<BusinessDto>>(businessIdeas);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetFounderBusinessIdeas: {ex.Message}");
+                return new List<BusinessDto>(); // Return an empty list in case of an error
+            }
+        }
+
+
+
+
+
+        private void HandleBusinessIdeaFiles(BusinessDto businessDto, string? existingFilePath = null, string? existingImages = null)
+        {
+            // Handle Idea File
+            if (businessDto.IdeaFile != null)
+            {
+                if (!string.IsNullOrEmpty(existingFilePath))
+                {
+                    _helper.DeleteFile(existingFilePath);
+                }
+
+                var filePath = _helper.UploadFile(businessDto.IdeaFile, "founder", "IdeaFile");
+                businessDto.FilePath = filePath;
+            }
+
+            // Handle Image Files
+            if (businessDto.ImageFiles?.Any() == true)
+            {
+                if (!string.IsNullOrEmpty(existingImages))
+                {
+                    var oldImagePaths = existingImages.Split(';');
+                    foreach (var oldImagePath in oldImagePaths)
+                    {
+                        _helper.DeleteFile(oldImagePath);
+                    }
+                }
+
+                var imagePaths = new List<string>();
+                foreach (var imageFile in businessDto.ImageFiles)
+                {
+                    var imagePath = _helper.UploadFile(imageFile, "founder", "BusinessImages");
+                    if (!string.IsNullOrEmpty(imagePath))
+                    {
+                        imagePaths.Add(imagePath);
+                    }
+                }
+
+                businessDto.Images = string.Join(";", imagePaths);
             }
         }
     }

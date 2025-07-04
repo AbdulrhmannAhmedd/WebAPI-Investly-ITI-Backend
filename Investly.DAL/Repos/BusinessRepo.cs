@@ -28,5 +28,29 @@ namespace Investly.DAL.Repos
 
             return new Tuple<int, int, int, int>(totalActive, totalInactive, totalRejected, totalPending);
         }
+        public int RemoveRangAiStandardEvaluations(int businessId)
+        {
+            var evaluations = _db.AiBusinessStandardsEvaluations
+                                 .Where(e => e.BusinessId == businessId)
+                                 .ToList();
+            if (evaluations.Count > 0)
+            {
+                _db.AiBusinessStandardsEvaluations.RemoveRange(evaluations);
+                return _db.SaveChanges();
+            }
+            return 0;
+        }
+        public int RemoveRangeStandardAnswers(int businessId)
+        {
+            var standardAnswers = _db.BusinessStandardAnswers
+                                     .Where(sa => sa.BusinessId == businessId)
+                                     .ToList();
+            if (standardAnswers.Count > 0)
+            {
+                _db.BusinessStandardAnswers.RemoveRange(standardAnswers);
+                return _db.SaveChanges();
+            }
+            return 0;
+        }
     }
 }
