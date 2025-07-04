@@ -61,6 +61,10 @@ namespace Investly.PL.Mapper
                 opt => opt.MapFrom(src => src.Business.Title))
             .ForMember(dest => dest.FounderName,
                 opt => opt.MapFrom(src => $"{src.Business.Founder.User.FirstName} {src.Business.Founder.User.LastName}"))
+              .ForMember(dest => dest.FounderEmail,
+                opt => opt.MapFrom(src => $"{src.Business.Founder.User.Email} "))
+                .ForMember(dest => dest.FounderPhoneNumber,
+                opt => opt.MapFrom(src => $"{src.Business.Founder.User.PhoneNumber} "))
             .ForMember(dest => dest.BusinessId,
                 opt => opt.MapFrom(src => src.Business.Id))
             .ForMember(dest => dest.InvestorId,
