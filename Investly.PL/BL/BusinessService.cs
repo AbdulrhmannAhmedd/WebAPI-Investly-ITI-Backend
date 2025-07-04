@@ -340,7 +340,7 @@ namespace Investly.PL.BL
 
                 var businessIdeas = _unitOfWork.BusinessRepo.GetAll(
                     b => b.Founder.UserId == LoggedInUserIdFounder && b.Status != (int)BusinessIdeaStatus.Deleted,
-                    "Founder,Category,InvestorContactRequests,AiBusinessStandardsEvaluations.CategoryStandard.Standard,Government,City,BusinessStandardAnswers"
+                    "Founder,Category,InvestorContactRequests.Investor.User,AiBusinessStandardsEvaluations.CategoryStandard.Standard,Government,City,BusinessStandardAnswers"
                 ).ToList();
 
                 if (businessIdeas == null || !businessIdeas.Any())

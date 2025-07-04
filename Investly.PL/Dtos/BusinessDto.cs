@@ -38,6 +38,48 @@ namespace Investly.PL.Dtos
         public  GovernmentDto? Government { get; set; }
         public AiBusinessEvaluationDto? AiBusinessEvaluations { get; set; }
         public  List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
+        public List<InvestorContactRequestDto> InvestorContactRequests { get; set; } = new List<InvestorContactRequestDto>();
+
+
+    }
+
+
+
+
+    public class BusinessDtoSeconadary
+    {
+        public int Id { get; set; }
+        public int FounderId { get; set; }
+        public string? FounderName { get; set; }
+        public int CategoryId { get; set; }
+        public string? CategoryName { get; set; }
+        public string Title { get; set; } = null!;
+        public decimal? Airate { get; set; }
+        public int? Stage { get; set; }
+        public string? Location { get; set; }
+        public decimal? Capital { get; set; }
+        public bool IsDrafted { get; set; }
+        public string? FilePath { get; set; }
+        public int? Status { get; set; }
+        public string? RejectedReason { get; set; }
+
+        public DateTime? CreatedAt { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? UpdatedBy { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public IFormFile? IdeaFile { get; set; }
+        public int? GovernmentId { get; set; }
+        public string? Images { get; set; }
+        public List<IFormFile>? ImageFiles { get; set; } = new List<IFormFile>();
+        public int? CityId { get; set; }
+        public string? Description { get; set; }
+        public int? DesiredInvestmentType { get; set; }
+        public string? DesiredInvestmentTypeName { get; set; }
+        public CategoryForListDto Category { get; set; }
+        public CityDto? City { get; set; }
+        public GovernmentDto? Government { get; set; }
+        public AiBusinessEvaluationDto? AiBusinessEvaluations { get; set; }
+        public List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
 
 
     }

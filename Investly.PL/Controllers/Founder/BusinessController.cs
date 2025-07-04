@@ -13,7 +13,7 @@ namespace Investly.PL.Controllers.Founder
 {
     [Route("api/founder/[controller]")]
     //[Authorize]
-    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
+   // [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
 
     public class BusinessController : Controller
     {
@@ -244,25 +244,16 @@ namespace Investly.PL.Controllers.Founder
         public IActionResult GetFouderIdeas()
         {
             var result = _businessService.GetFounderBusinessIdeas(User.GetUserId() ?? 0);
-            if (result.Count > 0)
+
+            return Ok(new ResponseDto<List<BusinessDto>>
             {
-                return Ok(new ResponseDto<List<BusinessDto>>
-                {
-                    Data = result,
-                    IsSuccess = true,
-                    Message = "Business ideas retrieved successfully.",
-                    StatusCode = StatusCodes.Status200OK
-                });
-            }
-            else
-            {
-                return NotFound(new ResponseDto<string>
-                {
-                    IsSuccess = false,
-                    Message = "No business ideas found.",
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
+                Data = result,
+                IsSuccess = result.Count > 0,
+                Message = result.Count > 0
+                    ? "Business ideas retrieved successfully."
+                    : "No business ideas found.",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
 
         [HttpPut("{Id}")]
