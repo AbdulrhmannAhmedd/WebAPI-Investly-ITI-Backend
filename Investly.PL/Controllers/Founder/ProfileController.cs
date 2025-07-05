@@ -11,7 +11,7 @@ namespace Investly.PL.Controllers.Founder
 {
     [Route("api/founder/[controller]")]
     [ApiController]
-    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
+    //[TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
 
     public class ProfileController : ControllerBase
     {
@@ -309,7 +309,34 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
         }
+        [HttpGet("dropdown")]
+        public async Task<ResponseDto<List<DropdownDto>>> GetFoundersForDropdown()
+        {
+            ResponseDto<List<DropdownDto>> response;
+            try
+            {
+                var founders = await _founderService.GetFoundersForDropdownAsync();
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = true,
+                    Data = founders,
+                    StatusCode = StatusCodes.Status200OK
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response = new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = false,
+                    Data = null,
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "An unexpected error occurred ."
+                };
+                return response;
+            }
 
+        }
 
 
     }
