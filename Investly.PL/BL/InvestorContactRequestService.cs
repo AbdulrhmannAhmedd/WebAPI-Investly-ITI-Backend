@@ -44,6 +44,7 @@ namespace Investly.PL.BL
 
 
             Expression<Func<InvestorContactRequest, bool>> criteria = request =>
+                (request.Status != (int)ContactRequestStatus.Deleted) &&  // First exclude deleted
                 (!investorIdFilter.HasValue || request.InvestorId == investorIdFilter) &&
                 (!founderIdFilter.HasValue || request.Business.FounderId == founderIdFilter) &&
                 (!statusFilterValue.HasValue || request.Status == statusFilterValue) &&
