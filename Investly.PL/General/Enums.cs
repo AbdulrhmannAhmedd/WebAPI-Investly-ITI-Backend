@@ -54,5 +54,13 @@
         Accepted = 2,
         Declined = 3
     }
+    public enum TimeframeType
+    {
+        LastMonth = 1,
+        Last3Months = 2,
+        Last6Months = 3,
+        LastYear = 4,
+        AllTime = 5
+    }
 
 }
