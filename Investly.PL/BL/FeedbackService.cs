@@ -54,12 +54,12 @@ namespace Investly.PL.BL
 
                 if (searchDto.UserTypeFromFilter.HasValue && searchDto.UserTypeFromFilter.Value > 0)
                 {
-                    feedbacksQuery = feedbacksQuery.Where(f => f.UserTypeFrom == searchDto.UserTypeFromFilter.Value);
+                    //feedbacksQuery = feedbacksQuery.Where(f => f.UserTypeFrom == searchDto.UserTypeFromFilter.Value);
                 }
 
                 if (searchDto.UserTypeToFilter.HasValue && searchDto.UserTypeToFilter.Value > 0)
                 {
-                    feedbacksQuery = feedbacksQuery.Where(f => f.UserTypeTo == searchDto.UserTypeToFilter.Value);
+                    //feedbacksQuery = feedbacksQuery.Where(f => f.UserTypeTo == searchDto.UserTypeToFilter.Value);
                 }
 
                 int totalCount = feedbacksQuery.Count();

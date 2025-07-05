@@ -14,7 +14,10 @@ namespace Investly.PL.IBL
         #endregion
 
         public int AddBusinessIdea(BusinessDto BusinessIdea,int? LoggedInUser);
+        public int UpdateBusinessIdea(BusinessDto BusinessIdea, int? LoggedInUser);
         public int AddBusinessIdeaAiEvaluation(AiBusinessEvaluationDto dto, int LoggedInUser);
+        public List<BusinessDto> GetFounderBusinessIdeas(int LoggedInUserIdFounder );
+
 
     }
 }

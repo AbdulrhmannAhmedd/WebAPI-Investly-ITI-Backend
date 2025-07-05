@@ -61,7 +61,8 @@ namespace Investly.PL.Dtos
         public string? Gender { get; set; }
 
         [Required(ErrorMessage = "Government is required.")]
-        public int? GovernmentId { get; set; }  
+        public int? GovernmentId { get; set; }
+        public string? CountryCode { get; set; }
 
         [Required(ErrorMessage = "City is required.")]
         public int? CityId { get; set; }
@@ -83,7 +84,8 @@ namespace Investly.PL.Dtos
                    GovernmentId == other.GovernmentId &&
                    CityId == other.CityId &&
                    Address == other.Address &&
-                   DateOfBirth == other.DateOfBirth;
+                   DateOfBirth == other.DateOfBirth &&
+                   CountryCode == other.CountryCode;
         }
 
         public override bool Equals(object? obj) => Equals(obj as UpdateFounderDto);
@@ -99,6 +101,7 @@ namespace Investly.PL.Dtos
             hash.Add(CityId);
             hash.Add(Address);
             hash.Add(DateOfBirth);
+            hash.Add(CountryCode);
             return hash.ToHashCode();
 
         }
@@ -161,7 +164,8 @@ namespace Investly.PL.Dtos
                 GovernmentId = founder.User.GovernmentId,
                 CityId = founder.User.CityId,
                 Address = founder.User.Address,
-                DateOfBirth = founder.User.DateOfBirth
+                DateOfBirth = founder.User.DateOfBirth,
+                CountryCode = founder.User.CountryCode,
             };
         }
     }

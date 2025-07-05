@@ -52,7 +52,8 @@
     {
         Pending = 1,
         Accepted = 2,
-        Declined = 3
+        Declined = 3,
+        Deleted=4
     }
     public enum TimeframeType
     {
@@ -62,5 +63,13 @@
         LastYear = 4,
         AllTime = 5
     }
+
+    public enum FeedbackTargetType
+    {
+        System = 1,
+        Investor = 2,
+        Founder = 3
+    }
+
 
 }
