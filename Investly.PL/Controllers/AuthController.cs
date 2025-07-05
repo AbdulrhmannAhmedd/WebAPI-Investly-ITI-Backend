@@ -64,6 +64,16 @@ namespace Investly.PL.Controllers
                 // Generate JWT token for the new investor
                 var investor = _investorService.GetById(result);
                 var token = _jWTService.GenerateToken(investor.User);
+                NotificationDto notification = new NotificationDto
+                {
+                    Title = "New Investor Registration",
+                    Body = $"New investor {investorDto.User.FirstName} {investorDto.User.LastName} has just registered an account.",
+                    UserTypeTo = (int)UserType.Staff,
+                    UserIdTo = 3,
+                 
+                };
+                _notificationService.SendNotification(notification,investor.UserId, (int)UserType.Investor);
+          
 
                 return Ok(new ResponseDto<string>
                 {
@@ -114,7 +124,16 @@ namespace Investly.PL.Controllers
             var result = _founderService.Add(userDto,null);
             if (result > 0)
             {
+                NotificationDto notification = new NotificationDto
+                {
+                    Title = "New Foudner Registration",
+                    Body = $"New Founder {userDto.User.FirstName} {userDto.User.LastName} has just registered an account.",
+                    UserTypeTo = (int)UserType.Staff,
+                    UserIdTo = 3,
 
+                };
+                _notificationService.SendNotification(notification, result, (int)UserType.Founder);
+               
                 return Ok(new ResponseDto<object>
                 {
                     IsSuccess = true,

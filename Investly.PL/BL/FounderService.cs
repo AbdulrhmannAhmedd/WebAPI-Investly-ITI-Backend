@@ -17,18 +17,21 @@ namespace Investly.PL.BL
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IHelper _helper;
+        private readonly INotficationService _notificationService;
 
         public FounderService(
             IUnitOfWork unitOfWork, 
             IMapper mapper,
             IUserService userService,
-            IHelper helper
+            IHelper helper,
+             INotficationService notificationService
             )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
             _helper = helper;
+            _notificationService= notificationService;
         }
         public int ChangeFounderStatus(int Id, int Status,int ?LoggedInUser)
         {
@@ -52,6 +55,16 @@ namespace Investly.PL.BL
                    var res= _unitOfWork.Save();
                     if(res>0)
                     {
+                        
+                        NotificationDto notification = new NotificationDto
+                        {
+                            Title = "Account Status Modification.",
+                            Body = $"Your Account has been {(UserStatus)Status}.",
+                            UserTypeTo = (int)UserType.Founder,
+                            UserIdTo = founder.UserId,
+
+                        };
+                        _notificationService.SendNotification(notification, LoggedInUser, (int)UserType.Staff);
                         return 1;
                     }else
                     {
@@ -162,7 +175,7 @@ namespace Investly.PL.BL
                 int res = _unitOfWork.Save();
                 if (res > 0)
                 {
-                    return newFounder.Id;
+                    return newFounder.UserId;
                 }
                 return res;
 
