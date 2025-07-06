@@ -112,11 +112,19 @@ namespace Investly.PL.Mapper
                 .ForMember(dest => dest.TokenVersion, opt => opt.Ignore());
 
             CreateMap<Feedback, FeedbackDto>()
-                //.ForMember(dest => dest.UserTypeFromName, opt => opt.MapFrom(src => ((UserType)src.UserTypeFrom).ToString()))
-                //.ForMember(dest => dest.UserTypeToName, opt => opt.MapFrom(src => ((UserType)src.UserTypeTo).ToString()))
-                .ForMember(dest => dest.UserToName, opt => opt.MapFrom(src => src.UserIdToNavigation != null ? $"{src.UserIdToNavigation.FirstName} {src.UserIdToNavigation.LastName}" : null))
-                .ForMember(dest => dest.UserFromName, opt => opt.MapFrom(src => src.CreatedByNavigation != null ? $"{src.CreatedByNavigation.FirstName} {src.CreatedByNavigation.LastName}" : null)) // New mapping
-                .ReverseMap();
+               .ForMember(dest => dest.UserFromName, opt => opt.MapFrom(src =>
+                   src.CreatedByNavigation != null ? $"{src.CreatedByNavigation.FirstName} {src.CreatedByNavigation.LastName}" : null))
+               .ForMember(dest => dest.UserToName, opt => opt.MapFrom(src =>
+                   src.UserIdToNavigation != null ? $"{src.UserIdToNavigation.FirstName} {src.UserIdToNavigation.LastName}" : null))
+               .ForMember(dest => dest.UserTypeFromName, opt => opt.MapFrom(src =>
+                   src.CreatedByNavigation != null
+                       ? ((UserType)src.CreatedByNavigation.UserType).ToString() 
+                       : null))
+               .ForMember(dest => dest.UserTypeToName, opt => opt.MapFrom(src =>
+                   src.UserIdToNavigation != null
+                       ? ((UserType)src.UserIdToNavigation.UserType).ToString()
+                       : null))
+               .ReverseMap();
 
             // Entity → DTO (For reads, include nav props)
             CreateMap<AiBusinessStandardsEvaluation, AiStandardsEvaluationDto>()

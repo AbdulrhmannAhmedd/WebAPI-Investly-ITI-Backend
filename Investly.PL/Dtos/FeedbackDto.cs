@@ -6,16 +6,13 @@ namespace Investly.PL.Dtos
     public class FeedbackDto
     {
         public int Id { get; set; }
+        public string Subject { get; set; }
         public string? Description { get; set; }
-        public int UserTypeFrom { get; set; }
-        public int UserTypeTo { get; set; }
         public int UserIdTo { get; set; }
         public int? Status { get; set; }
         public DateTime? CreatedAt { get; set; }
-
-        // Optionally, include names for display:
-        public string? UserTypeFromName { get; set; } // e.g., "Founder"
-        public string? UserTypeToName { get; set; }   // e.g., "Investor"
+        public string? UserTypeFromName { get; set; } 
+        public string? UserTypeToName { get; set; } 
         public string? UserToName { get; set; }
         public string? UserFromName { get; set; }
 
@@ -30,10 +27,10 @@ namespace Investly.PL.Dtos
     {
         public int PageSize { get; set; } = 10;
         public int PageNumber { get; set; } = 1;
-        public string? SearchInput { get; set; } // e.g., search by description
-        public int? StatusFilter { get; set; } // Filter by specific status (Active, Inactive, Deleted)
-        public int? UserTypeFromFilter { get; set; } // Filter by who gave feedback
-        public int? UserTypeToFilter { get; set; }   // Filter by who received feedback
+        public string? SearchInput { get; set; } 
+        public int? StatusFilter { get; set; } 
+        public int? UserTypeFromFilter { get; set; } 
+        public int? UserTypeToFilter { get; set; }   
     }
 
     public class FeedbackCountsDto
