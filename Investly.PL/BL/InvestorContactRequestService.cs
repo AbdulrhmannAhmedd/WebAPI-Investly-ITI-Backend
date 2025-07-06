@@ -6,6 +6,8 @@ using Investly.PL.Dtos;
 using Investly.PL.General;
 using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
+using iText.Forms.Xfdf;
+using System.Diagnostics.Metrics;
 using System.Linq.Expressions;
 
 namespace Investly.PL.BL
@@ -15,16 +17,19 @@ namespace Investly.PL.BL
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IQueryService<InvestorContactRequest> _queryService;
+        private readonly INotficationService _notficationService;
 
         public InvestorContactRequestService(
             IUnitOfWork unitOfWork, 
             IMapper mapper,
-            IQueryService<InvestorContactRequest> queryService
+            IQueryService<InvestorContactRequest> queryService,
+            INotficationService notficationService
             )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _queryService = queryService;
+            _notficationService = notficationService;
         }
         public async Task<PaginatedResultDto<InvestorContactRequestDto>> GetContactRequestsAsync(
             int? pageNumber = 1,
@@ -113,9 +118,9 @@ namespace Investly.PL.BL
             return _mapper.Map<InvestorContactRequestDto>(contact);
         }
 
-        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model)
+        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model,int? LoggedInUser)
         {
-            var contact = _unitOfWork.InvestorContactRequestRepo.GetById(model.ContactRequestId);
+            var contact = _unitOfWork.InvestorContactRequestRepo.FirstOrDefault(c=>c.Id==model.ContactRequestId, "Investor.User,Business.Founder");
             if (contact == null)
                 throw new KeyNotFoundException($"Contact with ID {model.ContactRequestId} not found.");
 
@@ -140,13 +145,36 @@ namespace Investly.PL.BL
             {
                 throw new ArgumentException("DeclineReason is required when status is set to Declined.");
             }
-
+        
             // Update status and reason (clear DeclineReason if not Declined)
             contact.Status = (int)model.NewStatus;
             contact.DeclineReason = model.NewStatus == ContactRequestStatus.Declined ? model.DeclineReason : null;
             contact.UpdatedAt = DateTime.UtcNow;
 
             _unitOfWork.Save();
+            var investorId = contact.Investor.UserId;
+            var founderId = contact.Business.Founder.UserId;
+            if (model.NewStatus == ContactRequestStatus.Accepted)
+            {
+                NotificationDto FounderNotification = new NotificationDto
+                {
+                    Title = "Contact Request Status.",
+                    Body = $"You have received a new contact request. The investor will reach out to you shortly.",
+                    UserTypeTo = (int)UserType.Founder,
+                    UserIdTo = founderId,
+
+                };
+                _notficationService.SendNotification(FounderNotification, LoggedInUser, (int)UserType.Staff);
+            }
+            NotificationDto InvestorNotification = new NotificationDto
+            {
+                Title = "Contact Request Status.",
+                Body = $"Your Contact Request has been {(ContactRequestStatus)model.NewStatus}.",
+                UserTypeTo = (int)UserType.Investor,
+                UserIdTo = investorId,
+
+            };
+            _notficationService.SendNotification(InvestorNotification, LoggedInUser, (int)UserType.Staff);
         }
 
         public List<InvestorContactRequestDto> GetContactRequestsByInvestor(int? LoggedInUser)

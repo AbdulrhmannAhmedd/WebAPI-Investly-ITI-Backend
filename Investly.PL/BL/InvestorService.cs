@@ -15,11 +15,12 @@ namespace Investly.PL.BL
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-
-        public InvestorService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly INotficationService _notificationService;
+        public InvestorService(IUnitOfWork unitOfWork, IMapper mapper, INotficationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
         public int Add(InvestorDto investor, int? loggedInUser)
         {
@@ -192,11 +193,21 @@ namespace Investly.PL.BL
                 {
                     return -1; // Investor not found
                 }
+                NotificationDto notification = new NotificationDto
+                {
+                    Title = "Account Status Modification.",
+                    Body = $"Your Account has been {(UserStatus)status}.",
+                    UserTypeTo = (int)UserType.Investor,
+                    UserIdTo = investor.UserId,
+
+                };
+                _notificationService.SendNotification(notification, loggedUser, (int)UserType.Staff);
                 investor.User.Status = status;
                 investor.User.UpdatedAt = DateTime.UtcNow;
                 investor.User.UpdatedBy = loggedUser;
                 investor.User.TokenVersion= status == (int)UserStatus.Inactive ? (investor.User.TokenVersion ?? 0) + 1 : investor.User.TokenVersion;
                 _unitOfWork.InvestorRepo.Update(investor);
+              
                 return _unitOfWork.Save();
 
             }

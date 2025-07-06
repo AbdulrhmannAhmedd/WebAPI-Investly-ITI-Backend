@@ -1,7 +1,10 @@
 ﻿
 using Azure;
+using Investly.DAL.Entities;
 using Investly.PL.Attributes;
+using Investly.PL.BL;
 using Investly.PL.Dtos;
+using Investly.PL.Extentions;
 using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Http;
@@ -16,10 +19,12 @@ namespace Investly.PL.Controllers.Admin
     public class InvestorContactController : ControllerBase
     {
         private readonly IInvestorContactRequestService _investorContactRequestService;
+      
 
         public InvestorContactController(IInvestorContactRequestService investorContactRequestService)
         {
             _investorContactRequestService = investorContactRequestService;
+          
         }
 
         [HttpGet]
@@ -112,8 +117,7 @@ namespace Investly.PL.Controllers.Admin
 
             try
             {
-                _investorContactRequestService.UpdateContactRequestStatus(model);
-
+                _investorContactRequestService.UpdateContactRequestStatus(model,User.GetUserId());
                 response.IsSuccess = true;
                 response.Message = "Contact request status updated successfully.";
                 response.StatusCode = StatusCodes.Status200OK;

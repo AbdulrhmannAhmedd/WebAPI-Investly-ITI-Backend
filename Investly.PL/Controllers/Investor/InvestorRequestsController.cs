@@ -93,7 +93,7 @@ namespace Investly.PL.Controllers.Investor
 
             try
             {
-                _contactRequestService.UpdateContactRequestStatus(model);
+                _contactRequestService.UpdateContactRequestStatus(model,User.GetUserId());
 
                 response.IsSuccess = true;
                 response.Message = "Contact request status updated successfully.";
