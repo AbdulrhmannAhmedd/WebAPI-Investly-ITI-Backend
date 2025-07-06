@@ -93,6 +93,8 @@ namespace Investly.PL
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IBusinessRepo, BusinessRepo>();
             builder.Services.AddScoped<IFeedbackRepo, FeedbackRepo>();
+            builder.Services.AddScoped<IAnalysisRepo, AnalysisRepo>();
+            builder.Services.AddScoped<ICategoryRepo,CategroyRepo>();
 
             #endregion
 
@@ -108,7 +110,8 @@ namespace Investly.PL
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IStandardService, StandardService>();
-            builder.Services.AddScoped<IFeedbackService, FeedbackService>(); 
+            builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+            builder.Services.AddScoped<IAnalysisService, AnalysisService>();
 
             #endregion
 
