@@ -2,6 +2,7 @@
 using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
+using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -87,7 +88,7 @@ namespace Investly.PL.BL
             {
 
                 return await _unitOfWork.InvestorContactRequestRepo.FindAll()
-                    .Where(icr => icr.Status == 2 && 
+                    .Where(icr => icr.Status == (int)ContactRequestStatus.Accepted&& 
                                  icr.Business.Founder.UserId == userId)
                     .Select(icr => new DropdownDto
                     {
@@ -100,7 +101,7 @@ namespace Investly.PL.BL
             else if (userType.UserType == 2) 
             {
                 return await _unitOfWork.InvestorContactRequestRepo.FindAll()
-                    .Where(icr => icr.Status == 2 && 
+                    .Where(icr => icr.Status == (int)ContactRequestStatus.Accepted && 
                                  icr.Investor.UserId == userId)
                     .Select(icr => new DropdownDto
                     {
