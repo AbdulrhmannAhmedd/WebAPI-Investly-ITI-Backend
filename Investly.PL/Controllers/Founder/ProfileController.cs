@@ -310,7 +310,5 @@ namespace Investly.PL.Controllers.Founder
             }
         }
 
-
-
     }
 }

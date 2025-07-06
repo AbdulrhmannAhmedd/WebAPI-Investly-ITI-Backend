@@ -55,6 +55,12 @@ namespace Investly.DAL.Repos
           return res;
         }
 
+        public async Task<int> SaveAsync ()
+        {
+            int res = await _db.SaveChangesAsync();
+            return res;
+        }
+
         public void Dispose()
         {
             _db.Dispose();

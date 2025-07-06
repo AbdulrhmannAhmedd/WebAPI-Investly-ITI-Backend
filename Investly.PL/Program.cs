@@ -10,6 +10,8 @@ using Investly.PL.General.Services.IServices;
 using Investly.PL.Hubs;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -160,6 +162,7 @@ namespace Investly.PL
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
 
 
             app.MapControllers();

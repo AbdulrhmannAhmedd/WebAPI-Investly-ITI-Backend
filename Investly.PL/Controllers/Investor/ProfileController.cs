@@ -243,6 +243,6 @@ namespace Investly.PL.Controllers.Investor
         }
     }
 
-   
-    }
+
+}
 

@@ -22,6 +22,8 @@ namespace Investly.DAL.Repos.IRepos
         public IAiBusinessEvaluationRepo AiBusinessEvaluationRepo { get; }
         public IAnalysisRepo AnalysisRepo { get; }
         public int Save();
+        public Task<int> SaveAsync();
+
         public void Dispose();
 
         public IInvestorContactRequestRepo InvestorContactRequestRepo { get; }

@@ -55,10 +55,21 @@ namespace Investly.DAL.Repos
             return entity;
         }
 
+        public async Task<T> GetByIdAsync(int id)
+        {
+            T entity = await dbSet.FindAsync(id);
+            return entity;
+        }
+
         public void Insert(T entity)
         {
             dbSet.Add(entity);
         }
+        public async Task InsertAsync(T entity)
+        {
+            await dbSet.AddAsync(entity);
+        }
+
 
         public T FirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
