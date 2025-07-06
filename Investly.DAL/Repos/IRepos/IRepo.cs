@@ -22,6 +22,7 @@ namespace Investly.DAL.Repos.IRepos
         public void AddRange(IEnumerable<T> entites);
 
         public IQueryable<T> FindAll(Expression<Func<T, bool>>? filter = null, string? properties = null);
+        public Task<T> GetByIdAsync(int id);
 
 
     }

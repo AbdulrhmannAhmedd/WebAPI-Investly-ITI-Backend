@@ -9,6 +9,7 @@ using Investly.PL.IBL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -262,6 +263,62 @@ namespace Investly.PL.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
+
+
+        [HttpGet("appropriate-feedback-users")]
+        [Authorize]
+        public async Task<IActionResult> GetAppropiateUsersForFeedback()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst("id");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized(new ResponseDto<string>
+                    {
+                        IsSuccess = false,
+                        StatusCode = 401,
+                        Message = "User ID not found in claims",
+                        Data = "User ID not found in claims"
+                    });
+                }
+
+                var users = await _userService.GetAppropiateUserForFeedback(userId);
+
+                return Ok(new ResponseDto<List<DropdownDto>>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "Appropriate users retrieved successfully",
+                    Data = users
+                });
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "Database error occurred",
+                    Data = "Database error occurred"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred",
+                    Data = "An unexpected error occurred"
+                });
+            }
+        }
+
+
+
+
 
     }
 }

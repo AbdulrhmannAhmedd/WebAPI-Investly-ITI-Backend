@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Investly.PL.Controllers.Investor
 {
     [Route("api/investor/[controller]")]
-    //[TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Investor })]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Investor })]
     public class ProfileController : Controller
     {
         private readonly IInvestorService _investorService;
@@ -241,39 +241,6 @@ namespace Investly.PL.Controllers.Investor
             }
             return response;
         }
-
-        [HttpGet("dropdown")]
-        public async Task<ResponseDto<List<DropdownDto>>> GetInvestorsForDropdown()
-        {
-            ResponseDto<List<DropdownDto>> response;
-            try
-            {
-                var investors = await _investorService.GetInvestorsForDropdownAsync();
-                response = new ResponseDto<List<DropdownDto>>
-                {
-                    IsSuccess = true,
-                    Data = investors,
-                    StatusCode = StatusCodes.Status200OK
-                };
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response = new ResponseDto<List<DropdownDto>>
-                {
-                    IsSuccess = false,
-                    Data = null,
-                    StatusCode = StatusCodes.Status200OK,
-                    Message = "An unexpected error occurred ."
-                };
-                return response;
-            }
-
-        }
-
-
-
-
     }
 
 
