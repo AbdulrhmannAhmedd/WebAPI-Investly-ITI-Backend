@@ -19,7 +19,7 @@ namespace Investly.PL.Dtos
         public ContactRequestStatus Status { get; set; }
         public string? DeclineReason { get; set; }
         public DateTime? CreatedAt { get; set; }
-        public  BusinessDto Business { get; set; } 
+        public  BusinessDtoSeconadary Business { get; set; } 
     }
 
     public class UpdateContactRequestStatusDto
