@@ -98,7 +98,6 @@ namespace Investly.PL
             builder.Services.AddScoped<IAnalysisRepo, AnalysisRepo>();
             builder.Services.AddScoped<ICategoryRepo,CategroyRepo>();
 
-
             #endregion
 
             #region Business services registeration

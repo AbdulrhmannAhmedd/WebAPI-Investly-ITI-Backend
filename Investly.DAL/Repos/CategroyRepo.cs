@@ -10,10 +10,19 @@ namespace Investly.DAL.Repos
 {
     public class CategroyRepo : Repo<Category>, ICategoryRepo
     {
-        AppDbContext db;
-        public CategroyRepo(AppDbContext _db) : base(_db)
+        private readonly AppDbContext _db;
+        public CategroyRepo(AppDbContext db) : base(db)
         {
-            db= _db;
+            _db = db;
         }
+
+        public Tuple<int, int> GetTotalActiveInactive(int activeStatus, int inactiveStatus)
+        {
+            var allCategories = _db.Categories.AsQueryable();
+            var totalActive = allCategories.Count(c => c.Status == activeStatus);
+            var totalInactive = allCategories.Count(c => c.Status == inactiveStatus);
+            return new Tuple<int, int>(totalActive, totalInactive);
+        }
+
     }
 }

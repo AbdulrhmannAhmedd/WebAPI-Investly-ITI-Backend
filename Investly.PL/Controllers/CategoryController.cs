@@ -1,4 +1,6 @@
-﻿using Investly.PL.Dtos;
+﻿using Investly.PL.BL;
+using Investly.PL.Dtos;
+using Investly.PL.Extentions;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -6,18 +8,19 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Investly.PL.Controllers
 {
     [Route("api/[controller]")]
-    public class CategoryController : Controller
+    [ApiController]
+    public class CategoryController : ControllerBase
     {
         private ICategoryService _categoryService;
-       public CategoryController(ICategoryService categoryService)
+        public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
         [HttpGet]
         public IActionResult GetAllCatgeories()
         {
-            var res=_categoryService.GetAllCategories();
-            if(res!=null)
+            var res = _categoryService.GetAllCategories();
+            if (res != null)
                 return Ok(new ResponseDto<List<CategoryForListDto>>
                 {
                     IsSuccess = true,
@@ -26,7 +29,7 @@ namespace Investly.PL.Controllers
                     StatusCode = StatusCodes.Status200OK
                 });
 
-            else 
+            else
                 return NotFound(new ResponseDto<List<CategoryForListDto>>
                 {
                     IsSuccess = false,

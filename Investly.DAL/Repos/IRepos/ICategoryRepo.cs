@@ -9,5 +9,7 @@ namespace Investly.DAL.Repos.IRepos
 {
     public interface ICategoryRepo:IRepo<Category>
     {
+        public Tuple<int, int> GetTotalActiveInactive(int activeStatus, int inactiveStatus);
+
     }
 }

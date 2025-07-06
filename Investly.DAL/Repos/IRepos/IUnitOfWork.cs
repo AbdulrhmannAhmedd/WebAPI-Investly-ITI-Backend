@@ -27,7 +27,6 @@ namespace Investly.DAL.Repos.IRepos
         public void Dispose();
 
         public IInvestorContactRequestRepo InvestorContactRequestRepo { get; }
-
-
+        public ICategoryStandardRepo CategoryStandardRepo { get; }
     }
 }

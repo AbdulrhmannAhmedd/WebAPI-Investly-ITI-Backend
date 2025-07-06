@@ -14,3 +14,4 @@ Investly.PL/appSettings.json
 Investly.PL/appSettings.*.json
 
 /Investly.PL/Properties/
+/Investly.PL/wwwroot/uploads/founder/profilePic

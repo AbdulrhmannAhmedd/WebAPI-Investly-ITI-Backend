@@ -71,5 +71,19 @@
         Founder = 3
     }
 
+    public enum CategoryStatus
+    {
+        Active = 1,
+        Inactive = 2,
+        deleted = 3
+    }
+
+    public enum StandardStatus
+    {
+        Active = 1,
+        Inactive = 2,
+        deleted = 3
+    }
+
 
 }

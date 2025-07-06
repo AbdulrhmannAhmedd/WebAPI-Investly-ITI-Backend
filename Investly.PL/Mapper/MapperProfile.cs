@@ -77,7 +77,27 @@ namespace Investly.PL.Mapper
                 opt => opt.MapFrom(src => src.Business.Founder.Id))
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => (ContactRequestStatus)src.Status));
+
             CreateMap<CategoryForListDto, Category>().ReverseMap();
+            CreateMap<Category, CategoryDto>()
+                .AfterMap((src, dest) =>
+                {
+                        dest.standardCategoryDto = src.CategoryStandards
+                        .Where(cs => cs.Standard != null)
+                        .Select(cs => new StandardCategoryDto
+                        {
+                            Id = cs.Id,
+                            StandardName = cs.Standard.Name,
+                            Question = cs.Standard.FormQuestion,
+                            StandardId = cs.StandardId,
+                            StandardCategoryWeight = cs.Weight
+                        }).ToList();
+                }).ReverseMap();
+
+            CreateMap<AddCategoryWithStandardsDto, Category>().ReverseMap();
+
+            CreateMap<UpdateCategoryWithStandardsDto, Category>().ReverseMap();
+
 
 
 
