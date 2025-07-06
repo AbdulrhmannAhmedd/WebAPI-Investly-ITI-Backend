@@ -199,7 +199,7 @@ namespace Investly.PL.Controllers
                 return NotFound(new ResponseDto<object>
                 {
                     IsSuccess = false,
-                    Message = "Category not found.",
+                    Message = "Category not found",
                     Data = null,
                     StatusCode = StatusCodes.Status404NotFound
                 });
