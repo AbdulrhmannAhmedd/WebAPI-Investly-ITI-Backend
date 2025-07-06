@@ -28,7 +28,7 @@ namespace Investly.PL.BL
             {
                 IQueryable<Feedback> feedbacksQuery = _unitOfWork.FeedbackRepo.GetAll(
                     filter: null,
-                    includeProperties: "UserIdToNavigation"
+                    includeProperties: "UserIdToNavigation,CreatedByNavigation"
                 ).AsQueryable();
 
                 if (searchDto.StatusFilter.HasValue && searchDto.StatusFilter.Value > 0)
@@ -37,7 +37,6 @@ namespace Investly.PL.BL
                 }
                 else
                 {
-    
                     feedbacksQuery = feedbacksQuery.Where(f => f.Status != (int)UserStatus.Deleted);
                 }
 
@@ -50,28 +49,36 @@ namespace Investly.PL.BL
                             f.UserIdToNavigation.FirstName.ToLower().Contains(searchLower) ||
                             f.UserIdToNavigation.LastName.ToLower().Contains(searchLower) ||
                             (f.UserIdToNavigation.FirstName + " " + f.UserIdToNavigation.LastName).ToLower().Contains(searchLower)
+                        )) ||
+                        (f.CreatedByNavigation != null && ( 
+                            f.CreatedByNavigation.FirstName.ToLower().Contains(searchLower) ||
+                            f.CreatedByNavigation.LastName.ToLower().Contains(searchLower) ||
+                            (f.CreatedByNavigation.FirstName + " " + f.CreatedByNavigation.LastName).ToLower().Contains(searchLower)
                         ))
                     );
                 }
 
                 if (searchDto.UserTypeFromFilter.HasValue && searchDto.UserTypeFromFilter.Value > 0)
                 {
-                    //feedbacksQuery = feedbacksQuery.Where(f => f.UserTypeFrom == searchDto.UserTypeFromFilter.Value);
+                    feedbacksQuery = feedbacksQuery.Where(f =>
+                        f.CreatedByNavigation != null && f.CreatedByNavigation.UserType == searchDto.UserTypeFromFilter.Value);
                 }
 
                 if (searchDto.UserTypeToFilter.HasValue && searchDto.UserTypeToFilter.Value > 0)
                 {
-                    //feedbacksQuery = feedbacksQuery.Where(f => f.UserTypeTo == searchDto.UserTypeToFilter.Value);
+                    feedbacksQuery = feedbacksQuery.Where(f =>
+                        f.UserIdToNavigation != null && f.UserIdToNavigation.UserType == searchDto.UserTypeToFilter.Value);
                 }
+
 
                 int totalCount = feedbacksQuery.Count();
 
                 int skip = (searchDto.PageNumber - 1) * searchDto.PageSize;
                 var paginatedFeedbacks = feedbacksQuery
-                                            .OrderByDescending(f => f.CreatedAt)
-                                            .Skip(skip)
-                                            .Take(searchDto.PageSize)
-                                            .ToList();
+                                                 .OrderByDescending(f => f.CreatedAt)
+                                                 .Skip(skip)
+                                                 .Take(searchDto.PageSize)
+                                                 .ToList();
 
                 var feedbackDtos = _mapper.Map<List<FeedbackDto>>(paginatedFeedbacks);
 
@@ -99,14 +106,14 @@ namespace Investly.PL.BL
                 var feedback = _unitOfWork.FeedbackRepo.GetById(feedbackId);
                 if (feedback == null)
                 {
-                    return -1;
+                    return -1; 
                 }
 
                 UserStatus newStatus = (UserStatus)actionType;
 
                 if (newStatus != UserStatus.Inactive && newStatus != UserStatus.Deleted && newStatus != UserStatus.Active)
                 {
-                    return -2;
+                    return -2; 
                 }
 
                 feedback.Status = actionType;
@@ -114,14 +121,15 @@ namespace Investly.PL.BL
                 feedback.UpdatedBy = loggedUserId;
 
                 _unitOfWork.FeedbackRepo.Update(feedback);
-                return _unitOfWork.Save();
+                return _unitOfWork.Save(); 
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in SoftDeleteFeedback: {ex.Message}");
-                return -3;
+                return -3; 
             }
         }
+
         public FeedbackCountsDto GetFeedbackStatisticsCounts()
         {
             try
