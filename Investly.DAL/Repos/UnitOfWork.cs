@@ -16,7 +16,7 @@ namespace Investly.DAL.Repos
         private IBusinessRepo _BusinessRepo;
         private IFounderRepo _FounderRepo;
         private IBusinessStandardAnswerRepo _BusinessAnswerRepo;
-        private InvestorContactRequestRepo _InvestorContactRequestRepo;
+        private IInvestorContactRequestRepo _InvestorContactRequestRepo;
         private ICategoryRepo _CategoryRepo;
         private IStandardRepo _StandardRepo;
 
@@ -25,6 +25,8 @@ namespace Investly.DAL.Repos
         private INotificationRepo _NotificationRepo;
         private IFeedbackRepo _FeedbackRepo;
         private IAiBusinessEvaluationRepo _AiBusinessEvaluationRepo;
+        private ICategoryStandardRepo _CategoryStandardRepo;
+
         public IInvestorRepo InvestorRepo => _InvestorRepo ??= new InvestorRepo(_db);
         public IUserRepo UserRepo => _UserRepo ??= new UserRepo(_db);
         public IGovernmentRepo GovernmentRepo => _GovernmentRepo ??= new GovermentRepo(_db);
@@ -40,6 +42,8 @@ namespace Investly.DAL.Repos
         public ICategoryRepo CategoryRepo=>_CategoryRepo??=new CategroyRepo(_db);
         public IStandardRepo StandardRepo=>_StandardRepo??new StandardRepo(_db);
         public IAiBusinessEvaluationRepo AiBusinessEvaluationRepo => _AiBusinessEvaluationRepo ??= new AiBusinessEvaluationRepo(_db);
+        public ICategoryStandardRepo CategoryStandardRepo => _CategoryStandardRepo ??= new CategoryStandardRepo(_db);
+
         public UnitOfWork(AppDbContext db)
         {
             _db = db;
