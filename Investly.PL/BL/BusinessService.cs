@@ -8,6 +8,7 @@ using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.AspNetCore.Mvc;
 using Investly.PL.General.Services.IServices;
+using System.Diagnostics.Metrics;
 
 namespace Investly.PL.BL
 {
@@ -16,12 +17,14 @@ namespace Investly.PL.BL
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHelper _helper;
+        private readonly INotficationService _notficationService;
 
-        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper, IHelper helper)
+        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper, IHelper helper,INotficationService notficationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _helper = helper;
+            _notficationService = notficationService;
         }
 
         public BusinessListDto GetAllBusinesses(BusinessSearchDto searchDto)
@@ -105,8 +108,8 @@ namespace Investly.PL.BL
         {
             try
             {
-                var business = _unitOfWork.BusinessRepo.GetById(businessId);
-                if (business == null)
+                var business = _unitOfWork.BusinessRepo.FirstOrDefault(b=>b.Id==businessId,"Founder");
+                        if (business == null)
                 {
                     return -1;
                 }
@@ -123,12 +126,21 @@ namespace Investly.PL.BL
                 {
                     business.RejectedReason = null;
                 }
+                NotificationDto notification = new NotificationDto
+                {
+                    Title = "Idea Status.",
+                    Body = $"Your Idea has been {(UserStatus)newStatus}.",
+                    UserTypeTo = (int)UserType.Founder,
+                    UserIdTo = business.Founder.UserId,
 
+                };
+                _notficationService.SendNotification(notification, loggedUserId, (int)UserType.Staff);
                 business.Status = (int)newStatus;
                 business.UpdatedAt = DateTime.UtcNow;
                 business.UpdatedBy = loggedUserId;
 
                 _unitOfWork.BusinessRepo.Update(business);
+               
                 return _unitOfWork.Save();
             }
             catch (Exception ex)

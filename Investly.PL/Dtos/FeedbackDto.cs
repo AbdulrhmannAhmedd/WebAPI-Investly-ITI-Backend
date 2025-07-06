@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Investly.PL.General;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Investly.PL.Dtos
 {
@@ -38,4 +40,19 @@ namespace Investly.PL.Dtos
         public int TotalActive { get; set; }
         public int TotalInactive { get; set; }
     }
+
+    public class FeedbackCreateDto
+    {
+        public string? Email { get; set; }
+        [Required]
+        public string Subject { get; set; }
+        [Required]
+        public string Description { get; set; }
+        [Required]
+        public FeedbackTargetType FeedbackType { get; set; }
+        public int? UserIdTo { get; set; }
+        public int? Status { get; set; }
+        public int? CreatedBy { get; set; }
+    }
+    
 }

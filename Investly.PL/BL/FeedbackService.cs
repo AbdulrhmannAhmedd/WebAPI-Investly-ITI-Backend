@@ -6,6 +6,8 @@ using Investly.PL.IBL;
 using System;
 using System.Linq;
 using Investly.PL.General;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace Investly.PL.BL
 {
@@ -148,6 +150,65 @@ namespace Investly.PL.BL
                 Console.WriteLine($"Error in GetFeedbackStatisticsCounts: {ex.Message}");
                 return new FeedbackCountsDto();
             }
+
+
+
+
+
+         }
+        public async Task CreateFeedbackAsync(FeedbackCreateDto dto, int? currentUserId)
+        {
+            
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                throw new ValidationException("Email is required.");
+
+            // Validation based on Feedback Type
+            switch (dto.FeedbackType)
+            {
+                case FeedbackTargetType.System:
+                    if (dto.UserIdTo != null)
+                        throw new ValidationException("UserIdTo must be null for system feedback.");
+                    break;
+
+                case FeedbackTargetType.Founder:
+                case FeedbackTargetType.Investor:
+                    if (dto.UserIdTo == null)
+                        throw new ValidationException("UserIdTo is required when targeting a Founder or Investor.");
+                    break;
+
+                default:
+                    throw new ValidationException("Invalid feedback type.");
+            }
+
+            // Authenticated User
+            if (currentUserId != null)
+            {
+                dto.CreatedBy = currentUserId;
+            }
+
+            bool isAnonymous = currentUserId == null;
+
+            if (isAnonymous && dto.FeedbackType != FeedbackTargetType.System)
+            {
+                throw new ValidationException("Anonymous users can only submit feedback to the system.");
+            }
+
+
+            // Mapping to Entity
+            var feedback = new Feedback
+            {
+                Email = dto.Email,
+                Subject = dto.Subject,
+                Description = dto.Description,
+                FeedbackType = (int)dto.FeedbackType,
+                UserIdTo = dto.UserIdTo,
+                CreatedBy = dto.CreatedBy,
+                Status = dto.Status
+            };
+
+            await _unitOfWork.FeedbackRepo.InsertAsync(feedback);
+            await _unitOfWork.SaveAsync();
         }
+
     }
 }

@@ -2,7 +2,10 @@
 using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
+using Investly.PL.General;
 using Investly.PL.IBL;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Investly.PL.BL
 {
@@ -74,6 +77,42 @@ namespace Investly.PL.BL
             {
               return res;
             }
+        }
+
+
+        public async Task<List<DropdownDto>> GetAppropiateUserForFeedback(int userId)
+        {
+            var userType = await _unitOfWork.UserRepo.GetByIdAsync(userId);
+
+            if (userType.UserType == 3) 
+            {
+
+                return await _unitOfWork.InvestorContactRequestRepo.FindAll()
+                    .Where(icr => icr.Status == (int)ContactRequestStatus.Accepted&& 
+                                 icr.Business.Founder.UserId == userId)
+                    .Select(icr => new DropdownDto
+                    {
+                        Id = icr.Investor.User.Id,
+                        Name = $"{icr.Investor.User.FirstName} {icr.Investor.User.LastName}"
+                    })
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else if (userType.UserType == 2) 
+            {
+                return await _unitOfWork.InvestorContactRequestRepo.FindAll()
+                    .Where(icr => icr.Status == (int)ContactRequestStatus.Accepted && 
+                                 icr.Investor.UserId == userId)
+                    .Select(icr => new DropdownDto
+                    {
+                        Id = icr.Business.Founder.User.Id,
+                        Name = $"{icr.Business.Founder.User.FirstName} {icr.Business.Founder.User.LastName}"
+                    })
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            return new List<DropdownDto>();
         }
 
 

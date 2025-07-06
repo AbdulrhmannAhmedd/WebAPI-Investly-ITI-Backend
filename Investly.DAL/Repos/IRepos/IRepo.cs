@@ -13,6 +13,8 @@ namespace Investly.DAL.Repos.IRepos
         public IEnumerable<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
         public T GetById(int id);
         public void Insert(T entity);
+        public Task InsertAsync(T entity);
+
         public void Remove(int id);
         public void RemoveRange(IEnumerable<T> entites);
         public T FirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null);
@@ -20,6 +22,7 @@ namespace Investly.DAL.Repos.IRepos
         public void AddRange(IEnumerable<T> entites);
 
         public IQueryable<T> FindAll(Expression<Func<T, bool>>? filter = null, string? properties = null);
+        public Task<T> GetByIdAsync(int id);
 
 
     }

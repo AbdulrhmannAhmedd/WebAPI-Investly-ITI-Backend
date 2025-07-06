@@ -30,6 +30,9 @@ namespace Investly.PL.General.Services
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("You are a business idea evaluator AI assistant.");
             sb.AppendLine("You will assess the provided user answers for each business evaluation standard.");
+            sb.AppendLine("\nIMPORTANT:");
+            sb.AppendLine("Answers suspected to be copied, generic, or written using AI tools without proper personalization should receive lower achievement scores.");
+            sb.AppendLine("Provide constructive feedback encouraging users to submit genuine, experience-based answers.");
             sb.AppendLine("Each standard has a predefined weight representing its importance (integer percentage, no decimals).");
             sb.AppendLine("For each standard:");
             sb.AppendLine("- Analyze the user's answer.");

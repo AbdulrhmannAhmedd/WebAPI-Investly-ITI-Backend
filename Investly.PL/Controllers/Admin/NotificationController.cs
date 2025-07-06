@@ -82,6 +82,22 @@ namespace Investly.PL.Controllers.Admin
             { IsSuccess = true, Data = data, Message = "Notifactions By Status Retrived Sucssfullyy", StatusCode = StatusCodes.Status200OK };
             return Ok(res);
         }
+        [HttpGet("UnreadNotifications")]
+        public IActionResult GetUnreadNotifications()
+        {
+            var data = _notificationService.GetUnreadNotifications(User.GetUserId());
+            if (data!=null)
+            {
+                ResponseDto<List<NotificationDto>> res = new ResponseDto<List<NotificationDto>>
+                { IsSuccess = true, Data = data, Message = "Unread Notifactions Retrived Sucssfullyy", StatusCode = StatusCodes.Status200OK };
+                return Ok(res);
+            }else
+            {
+                ResponseDto<List<NotificationDto>> res = new ResponseDto<List<NotificationDto>>
+                { IsSuccess = false, Data = null, Message = "Unread Notifactions Retrived Failed", StatusCode = StatusCodes.Status400BadRequest };
+                return BadRequest(res);
+            }
+        }
 
     }
 }

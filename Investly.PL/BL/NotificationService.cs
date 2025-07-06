@@ -9,12 +9,12 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Investly.PL.BL
 {
-    public class NotificationService: INotficationService
+    public class NotificationService : INotficationService
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHubContext<NotificationHub> _notifcationHubContext;
-        public NotificationService(IMapper mapper, IUnitOfWork unitOfWork,IHubContext<NotificationHub> hubContext)
+        public NotificationService(IMapper mapper, IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -80,16 +80,16 @@ namespace Investly.PL.BL
             }
         }
 
-        public async Task<int> SendNotification(NotificationDto notification,int? LoggedInUser,int LoggedInUserType)
+        public async Task<int> SendNotification(NotificationDto notification, int? LoggedInUser, int LoggedInUserType)
         {
-           try
+            try
             {
                 int res = 0;
                 if (notification == null)
                 {
                     return -1;
                 }
-                var newnotification=_mapper.Map < Notification>( notification);
+                var newnotification = _mapper.Map<Notification>(notification);
                 newnotification.CreatedBy = LoggedInUser;
                 newnotification.UserTypeFrom = LoggedInUserType;
                 newnotification.UserTypeTo = notification.UserTypeTo;
@@ -99,15 +99,15 @@ namespace Investly.PL.BL
                 newnotification.Title = notification.Title;
                 newnotification.IsRead = 0;
                 newnotification.Status = (int)NotificationsStatus.Active;
-               _unitOfWork.NotificationRepo.Insert(newnotification);
+                _unitOfWork.NotificationRepo.Insert(newnotification);
                 res = _unitOfWork.Save();
                 if (res > 0)
                 {
-                   await this.NotifyUser(notification.UserIdTo.ToString());
+                    await this.NotifyUser(notification.UserIdTo.ToString());
                 }
                 return res;
 
-             }
+            }
             catch (Exception ex)
             {
 
@@ -118,12 +118,12 @@ namespace Investly.PL.BL
         {
             try
             {
-                if(NotificationId<=0||Status<=0)
+                if (NotificationId <= 0 || Status <= 0)
                 {
                     return -1;
                 }
                 var notification = _unitOfWork.NotificationRepo.GetById(NotificationId);
-                if(notification == null)
+                if (notification == null)
                 {
                     return -2;
                 }
@@ -135,8 +135,8 @@ namespace Investly.PL.BL
                 notification.UpdatedBy = LoggedInUser;
                 notification.UpdatedAt = DateTime.Now;
                 _unitOfWork.NotificationRepo.Update(notification);
-                var res= _unitOfWork.Save();
-              
+                var res = _unitOfWork.Save();
+
                 return res;
             }
             catch (Exception ex)
@@ -147,13 +147,13 @@ namespace Investly.PL.BL
 
         public NotifcationsTotalActiveDeletedDto GetTotalNotificationsActiveDeleted()
         {
-           try
+            try
             {
                 var notifications = _unitOfWork.NotificationRepo.GetAll().ToList();
                 int ActiveNotifications = notifications.Count(n => n.Status == (int)NotificationsStatus.Active);
                 int DeletedNotifications = notifications.Count(n => n.Status == (int)NotificationsStatus.Deleted);
-                NotifcationsTotalActiveDeletedDto res  = new NotifcationsTotalActiveDeletedDto
-                    { TotalActive = ActiveNotifications, TotalDeleted =DeletedNotifications };
+                NotifcationsTotalActiveDeletedDto res = new NotifcationsTotalActiveDeletedDto
+                { TotalActive = ActiveNotifications, TotalDeleted = DeletedNotifications };
                 return res;
             }
             catch (Exception ex)
@@ -180,7 +180,7 @@ namespace Investly.PL.BL
         public async Task NotifyUser(string UserId)
         {
             int count = _unitOfWork.NotificationRepo.getCountUnRead(int.Parse(UserId));
-           // int count = 7;
+            // int count = 7;
             await _notifcationHubContext.Clients.User(UserId).SendAsync("RecieveNotificationCount", count);
 
         }
@@ -205,7 +205,7 @@ namespace Investly.PL.BL
                             (n.Body != null && n.Body.Contains(search.SearchInput))
                         )
                     ),
-                    includeProperties: "CreatedByNavigation,UpdatedByNavigation" 
+                    includeProperties: "CreatedByNavigation,UpdatedByNavigation"
                 )
                 .OrderByDescending(n => n.CreatedAt);
 
@@ -228,7 +228,7 @@ namespace Investly.PL.BL
                 return null;
             }
         }
-          public async Task<int> MarkAllUserNotificationsAsRead(int userId)
+        public async Task<int> MarkAllUserNotificationsAsRead(int userId)
         {
             try
             {
@@ -238,7 +238,7 @@ namespace Investly.PL.BL
 
                 if (!unreadNotifications.Any())
                 {
-                    return 0; 
+                    return 0;
                 }
 
                 foreach (var notification in unreadNotifications)
@@ -247,7 +247,7 @@ namespace Investly.PL.BL
                     _unitOfWork.NotificationRepo.Update(notification);
                 }
 
-                var res = _unitOfWork.Save(); 
+                var res = _unitOfWork.Save();
 
                 if (res > 0)
                 {
@@ -260,6 +260,23 @@ namespace Investly.PL.BL
             {
                 Console.WriteLine($"Error in MarkAllUserNotificationsAsRead: {ex.Message}");
                 return -1;
+            }
+        }
+        public List<NotificationDto> GetUnreadNotifications(int? loggedinuser)
+        {
+            try
+            {
+                var notifcations = _unitOfWork.NotificationRepo.GetAll(n => n.UserIdTo == loggedinuser && n.IsRead == 0).OrderByDescending(n=>n.CreatedAt).Take(3);
+                var res = _mapper.Map<List<NotificationDto>>(notifcations);
+              
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                {
+                    return null;
+                }
             }
         }
     }
