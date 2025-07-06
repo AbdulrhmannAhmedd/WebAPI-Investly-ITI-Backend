@@ -60,7 +60,7 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
 
-            // var aiResponse = await _aiService.EvaluateIdea(businessDto.BusinessStandardAnswers, standards);
+            //var aiResponse = await _aiService.EvaluateIdea(businessDto.BusinessStandardAnswers, standards);
             var aiResponse = @"
 {
   ""standards"": [
