@@ -1,4 +1,5 @@
-﻿using Investly.PL.Attributes;
+﻿using Investly.DAL.Entities;
+using Investly.PL.Attributes;
 using Investly.PL.BL;
 using Investly.PL.Dtos;
 using Investly.PL.Extentions;
@@ -60,7 +61,7 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
 
-            //var aiResponse = await _aiService.EvaluateIdea(businessDto.BusinessStandardAnswers, standards);
+         //   var aiResponse = await _aiService.EvaluateIdea(businessDto.BusinessStandardAnswers, standards);
             var aiResponse = @"
 {
   ""standards"": [
@@ -111,7 +112,7 @@ namespace Investly.PL.Controllers.Founder
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
             var aiResultJson = JsonSerializer.Deserialize<AiBusinessEvaluationDto>(aiResponse, options);
-
+           
             return Ok(new ResponseDto<AiBusinessEvaluationDto>
             {
                 Data = aiResultJson,
