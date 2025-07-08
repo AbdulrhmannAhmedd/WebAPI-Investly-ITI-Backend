@@ -277,7 +277,7 @@ namespace Investly.PL.BL
             return true;
         }
 
-        public int SoftDeleteBusiness(int businessId, int? loggedUserId)
+        public int SoftDeleteBusiness(int businessId, int? loggedUserId, string? loggedInEmail)
         {
             return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId, loggedInEmail);
         }
