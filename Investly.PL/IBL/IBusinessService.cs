@@ -8,8 +8,8 @@ namespace Investly.PL.IBL
     {
         #region Admin
         public BusinessListDto GetAllBusinesses(BusinessSearchDto searchDto);
-        public int SoftDeleteBusiness(int businessId, int? loggedUserId);
-        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId,string? rejectedReason = null);
+        public int SoftDeleteBusiness(int businessId, int? loggedUserId, string? loggedInEmail);
+        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId,string? loggedInEmail=null, string? rejectedReason = null);
         public BusinessCountsDto GetBusinessIdeasCounts();
         #endregion
 

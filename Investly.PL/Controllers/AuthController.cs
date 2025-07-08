@@ -125,12 +125,13 @@ namespace Investly.PL.Controllers
             var result = _founderService.Add(userDto,null);
             if (result > 0)
             {
+                var superAdmin = _userService.GetByEmail("SuperAdmin@gmail.com");
                 NotificationDto notification = new NotificationDto
                 {
                     Title = "New Foudner Registration",
                     Body = $"New Founder {userDto.User.FirstName} {userDto.User.LastName} has just registered an account.",
                     UserTypeTo = (int)UserType.Staff,
-                    UserIdTo = 3,
+                    UserIdTo = superAdmin.Id,
 
                 };
                 _notificationService.SendNotification(notification, result, (int)UserType.Founder);

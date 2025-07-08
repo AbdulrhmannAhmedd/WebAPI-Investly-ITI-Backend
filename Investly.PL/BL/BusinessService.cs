@@ -99,12 +99,12 @@ namespace Investly.PL.BL
                 };
             }
         }
-        public int SoftDeleteBusiness(int businessId, int? loggedUserId)
+        public int SoftDeleteBusiness(int businessId, int? loggedUserId,string? loggedInEmail)
         {
-            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId);
+            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId, loggedInEmail);
         }
 
-        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId, string? rejectedReason = null)
+        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId,string? loggedInEmail=null, string? rejectedReason = null )
         {
             try
             {
@@ -133,7 +133,7 @@ namespace Investly.PL.BL
 
                 _unitOfWork.BusinessRepo.Update(business);
                 var res = _unitOfWork.Save();
-                if(res>0&&loggedUserId==3)
+                if(res>0&&loggedInEmail=="SuperAdmin@gmail.com")
                 {
                     NotificationDto notification = new NotificationDto
                     {
@@ -184,6 +184,7 @@ namespace Investly.PL.BL
         {
            try
             {
+                Founder founder=null;
                 if (BusinessIdea == null)
                 {
                     return -2;
@@ -196,9 +197,10 @@ namespace Investly.PL.BL
                 newIdea.CreatedAt = DateTime.UtcNow;
                 newIdea.Category = null;
 
+
                 if (LoggedInUser != null)
                 {
-                    var founder = _unitOfWork.FounderRepo.FirstOrDefault(f=>f.UserId==LoggedInUser.Value);
+                     founder = _unitOfWork.FounderRepo.FirstOrDefault(f=>f.UserId==LoggedInUser.Value,"User");
                     if (founder != null)
                     {
                       
@@ -233,13 +235,13 @@ namespace Investly.PL.BL
                 {
                     if (BusinessIdea.AiBusinessEvaluations?.TotalWeightedScore>50&&BusinessIdea.IsDrafted==false)
                     {
-                        var founder = _unitOfWork.UserRepo.GetById(LoggedInUser.Value);
+                        var superAdmin = _unitOfWork.UserRepo.FirstOrDefault(u=>u.Email=="SuperAdmin@gmail.com");
                         NotificationDto notification = new NotificationDto
                         {
                             Title = "New Idea",
-                            Body = $"Founder {founder.FirstName} {founder.LastName}  Wants to Add Idea '{BusinessIdea.Title}'.",
+                            Body = $"Founder {founder.User.FirstName} {founder.User.LastName}  Wants to Add Idea '{BusinessIdea.Title}'.",
                             UserTypeTo = (int)UserType.Staff,
-                            UserIdTo = 3,
+                            UserIdTo =superAdmin.Id ,
 
                         };
                         _notificationService.SendNotification(notification, LoggedInUser, (int)UserType.Founder);
@@ -350,12 +352,13 @@ namespace Investly.PL.BL
                 if (result>0&&BusinessIdea.AiBusinessEvaluations?.TotalWeightedScore > 50 && BusinessIdea.IsDrafted == false)
                 {
                     var founder = _unitOfWork.UserRepo.GetById(LoggedInUser.Value);
+                    var superAdmin= _unitOfWork.UserRepo.FirstOrDefault(u=>u.Email=="SuperAdmin@gmail.com");
                     NotificationDto notification = new NotificationDto
                     {
                         Title = "Idea Update Request",
                         Body = $"Founder {founder.FirstName} {founder.LastName}  Wants to Update Idea '{BusinessIdea.Title}'.",
                         UserTypeTo = (int)UserType.Staff,
-                        UserIdTo = 3,
+                        UserIdTo = superAdmin.Id,
 
                     };
                     _notificationService.SendNotification(notification, LoggedInUser, (int)UserType.Founder);
