@@ -18,14 +18,14 @@ namespace Investly.PL.BL
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHelper _helper;
-        private readonly INotficationService _notficationService;
+        private readonly INotficationService _notificationService;
 
-        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper, IHelper helper,INotficationService notficationService)
+        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper, IHelper helper,INotficationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _helper = helper;
-            _notficationService = notficationService;
+            _notificationService = notificationService;
         }
 
         public BusinessListDto GetAllBusinesses(BusinessSearchDto searchDto)
@@ -279,10 +279,10 @@ namespace Investly.PL.BL
 
         public int SoftDeleteBusiness(int businessId, int? loggedUserId)
         {
-            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId);
+            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId, loggedInEmail);
         }
 
-        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId, string? rejectedReason = null)
+        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId,string? loggedInEmail=null, string? rejectedReason = null )
         {
             try
             {
@@ -304,22 +304,26 @@ namespace Investly.PL.BL
                 {
                     business.RejectedReason = null;
                 }
-                NotificationDto notification = new NotificationDto
-                {
-                    Title = "Idea Status.",
-                    Body = $"Your Idea has been {(UserStatus)newStatus}.",
-                    UserTypeTo = (int)UserType.Founder,
-                    UserIdTo = business.Founder.UserId,
-
-                };
-                _notficationService.SendNotification(notification, loggedUserId, (int)UserType.Staff);
+               
                 business.Status = (int)newStatus;
                 business.UpdatedAt = DateTime.UtcNow;
                 business.UpdatedBy = loggedUserId;
 
                 _unitOfWork.BusinessRepo.Update(business);
-               
-                return _unitOfWork.Save();
+                var res = _unitOfWork.Save();
+                if(res>0&&loggedInEmail=="SuperAdmin@gmail.com")
+                {
+                    NotificationDto notification = new NotificationDto
+                    {
+                        Title = "Idea Status.",
+                        Body = $"Your Idea '{business.Title}' has been {(UserStatus)newStatus}.",
+                        UserTypeTo = (int)UserType.Founder,
+                        UserIdTo = business.Founder.UserId,
+
+                    };
+                    _notificationService.SendNotification(notification, loggedUserId, (int)UserType.Staff);
+                }
+                return res;
             }
             catch (Exception ex)
             {
@@ -358,6 +362,7 @@ namespace Investly.PL.BL
         {
            try
             {
+                Founder founder=null;
                 if (BusinessIdea == null)
                 {
                     return -2;
@@ -370,9 +375,10 @@ namespace Investly.PL.BL
                 newIdea.CreatedAt = DateTime.UtcNow;
                 newIdea.Category = null;
 
+
                 if (LoggedInUser != null)
                 {
-                    var founder = _unitOfWork.FounderRepo.FirstOrDefault(f=>f.UserId==LoggedInUser.Value);
+                     founder = _unitOfWork.FounderRepo.FirstOrDefault(f=>f.UserId==LoggedInUser.Value,"User");
                     if (founder != null)
                     {
                       
@@ -405,6 +411,19 @@ namespace Investly.PL.BL
                 var res = _unitOfWork.Save();
                 if (res>0)
                 {
+                    if (BusinessIdea.AiBusinessEvaluations?.TotalWeightedScore>50&&BusinessIdea.IsDrafted==false)
+                    {
+                        var superAdmin = _unitOfWork.UserRepo.FirstOrDefault(u=>u.Email=="SuperAdmin@gmail.com");
+                        NotificationDto notification = new NotificationDto
+                        {
+                            Title = "New Idea",
+                            Body = $"Founder {founder.User.FirstName} {founder.User.LastName}  Wants to Add Idea '{BusinessIdea.Title}'.",
+                            UserTypeTo = (int)UserType.Staff,
+                            UserIdTo =superAdmin.Id ,
+
+                        };
+                        _notificationService.SendNotification(notification, LoggedInUser, (int)UserType.Founder);
+                    }
                     return 1;
                 }else
                 {
@@ -507,7 +526,21 @@ namespace Investly.PL.BL
                 existingBusiness.CreatedAt = createdAt;
                 _unitOfWork.BusinessRepo.Update(existingBusiness);
                 var result = _unitOfWork.Save();
+              
+                if (result>0&&BusinessIdea.AiBusinessEvaluations?.TotalWeightedScore > 50 && BusinessIdea.IsDrafted == false)
+                {
+                    var founder = _unitOfWork.UserRepo.GetById(LoggedInUser.Value);
+                    var superAdmin= _unitOfWork.UserRepo.FirstOrDefault(u=>u.Email=="SuperAdmin@gmail.com");
+                    NotificationDto notification = new NotificationDto
+                    {
+                        Title = "Idea Update Request",
+                        Body = $"Founder {founder.FirstName} {founder.LastName}  Wants to Update Idea '{BusinessIdea.Title}'.",
+                        UserTypeTo = (int)UserType.Staff,
+                        UserIdTo = superAdmin.Id,
 
+                    };
+                    _notificationService.SendNotification(notification, LoggedInUser, (int)UserType.Founder);
+                }
                 return result; // Indicate success
             }
 

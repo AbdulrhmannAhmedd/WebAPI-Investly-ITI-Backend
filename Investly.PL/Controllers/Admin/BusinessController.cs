@@ -51,13 +51,14 @@ namespace Investly.PL.Controllers.Admin
         public ResponseDto<object> SoftDeleteBusiness(int id)
         {
             int? loggedUserId = null;
-            var userIdClaim = User.FindFirst("id"); 
+            var userIdClaim = User.FindFirst("id");
+            var userEmailClam = User.FindFirst("email");
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
             {
                 loggedUserId = parsedUserId;
             }
 
-            var result = _businessService.SoftDeleteBusiness(id, loggedUserId);
+            var result = _businessService.SoftDeleteBusiness(id, loggedUserId,userEmailClam?.Value);
             ResponseDto<object> response;
 
             if (result > 0)
@@ -98,12 +99,13 @@ namespace Investly.PL.Controllers.Admin
       {
            int? loggedUserId = null;
            var userIdClaim = User.FindFirst("id");
+            var userEmailClam = User.FindFirst(ClaimTypes.Email);  
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
             {
                 loggedUserId = parsedUserId;
             }
 
-    var result = _businessService.UpdateBusinessStatus(id, newStatus, loggedUserId, rejectedReason);
+    var result = _businessService.UpdateBusinessStatus(id, newStatus, loggedUserId,userEmailClam?.Value, rejectedReason);
     ResponseDto<object> response;
 
     if (result > 0)
