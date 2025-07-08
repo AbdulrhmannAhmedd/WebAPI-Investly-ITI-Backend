@@ -9,6 +9,8 @@ namespace Investly.PL.Controllers.Admin
 {
     [Route("api/admin/[controller]")]
     [ApiController]
+    [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Staff })]
+
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackService _feedbackService;
