@@ -50,7 +50,7 @@ namespace Investly.PL.BL
                             f.UserIdToNavigation.LastName.ToLower().Contains(searchLower) ||
                             (f.UserIdToNavigation.FirstName + " " + f.UserIdToNavigation.LastName).ToLower().Contains(searchLower)
                         )) ||
-                        (f.CreatedByNavigation != null && ( 
+                        (f.CreatedByNavigation != null && (
                             f.CreatedByNavigation.FirstName.ToLower().Contains(searchLower) ||
                             f.CreatedByNavigation.LastName.ToLower().Contains(searchLower) ||
                             (f.CreatedByNavigation.FirstName + " " + f.CreatedByNavigation.LastName).ToLower().Contains(searchLower)
@@ -66,19 +66,28 @@ namespace Investly.PL.BL
 
                 if (searchDto.UserTypeToFilter.HasValue && searchDto.UserTypeToFilter.Value > 0)
                 {
-                    feedbacksQuery = feedbacksQuery.Where(f =>
-                        f.UserIdToNavigation != null && f.UserIdToNavigation.UserType == searchDto.UserTypeToFilter.Value);
+                    var targetType = (FeedbackTargetType)searchDto.UserTypeToFilter.Value;
+
+                    if (targetType == FeedbackTargetType.System)
+                    {
+                        feedbacksQuery = feedbacksQuery.Where(f => f.FeedbackType == (int)FeedbackTargetType.System);
+                    }
+                    else if (targetType == FeedbackTargetType.Investor || targetType == FeedbackTargetType.Founder)
+                    {
+                        feedbacksQuery = feedbacksQuery.Where(f =>
+                            f.UserIdToNavigation != null &&
+                            f.UserIdToNavigation.UserType == (int)targetType &&
+                            f.FeedbackType == (int)targetType);
+                    }
                 }
-
-
                 int totalCount = feedbacksQuery.Count();
 
                 int skip = (searchDto.PageNumber - 1) * searchDto.PageSize;
                 var paginatedFeedbacks = feedbacksQuery
-                                                 .OrderByDescending(f => f.CreatedAt)
-                                                 .Skip(skip)
-                                                 .Take(searchDto.PageSize)
-                                                 .ToList();
+                                                     .OrderByDescending(f => f.CreatedAt)
+                                                     .Skip(skip)
+                                                     .Take(searchDto.PageSize)
+                                                     .ToList();
 
                 var feedbackDtos = _mapper.Map<List<FeedbackDto>>(paginatedFeedbacks);
 
