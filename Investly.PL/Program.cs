@@ -93,10 +93,7 @@ namespace Investly.PL
 
             #region Unit of work  registeration
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IBusinessRepo, BusinessRepo>();
-            builder.Services.AddScoped<IFeedbackRepo, FeedbackRepo>();
-            builder.Services.AddScoped<IAnalysisRepo, AnalysisRepo>();
-            builder.Services.AddScoped<ICategoryRepo,CategroyRepo>();
+
 
             #endregion
 
@@ -106,7 +103,6 @@ namespace Investly.PL
             builder.Services.AddScoped<IBusinessService, BusinessService>();
             builder.Services.AddScoped<IGovernementService,GovernmentService>();
             builder.Services.AddScoped<IFounderService, FounderService>();
-
             builder.Services.AddScoped<IGovernementService,GovernmentService>();
             builder.Services.AddScoped<INotficationService,NotificationService>();
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
@@ -151,7 +147,7 @@ namespace Investly.PL
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads")),
+                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads")),
                 RequestPath = "/uploads",
                 OnPrepareResponse = ctx =>
                 {
