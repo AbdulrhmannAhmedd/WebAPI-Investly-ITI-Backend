@@ -1,4 +1,6 @@
-﻿using Investly.PL.Attributes;
+﻿using Investly.DAL.Entities;
+using Investly.PL.Attributes;
+using Investly.PL.BL;
 using Investly.PL.Dtos;
 using Investly.PL.Extentions;
 using Investly.PL.General;
@@ -57,6 +59,7 @@ namespace Investly.PL.Controllers.Investor
             ResponseDto<InvestorDto> response;
             if (result > 0)
             {
+
                 response = new ResponseDto<InvestorDto>
                 {
                     IsSuccess = true,

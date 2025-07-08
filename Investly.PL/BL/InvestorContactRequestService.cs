@@ -151,30 +151,33 @@ namespace Investly.PL.BL
             contact.DeclineReason = model.NewStatus == ContactRequestStatus.Declined ? model.DeclineReason : null;
             contact.UpdatedAt = DateTime.UtcNow;
 
-            _unitOfWork.Save();
-            var investorId = contact.Investor.UserId;
-            var founderId = contact.Business.Founder.UserId;
-            if (model.NewStatus == ContactRequestStatus.Accepted)
+         var res=   _unitOfWork.Save();
+            if (res > 0&&LoggedInUser==3)
             {
-                NotificationDto FounderNotification = new NotificationDto
+                var investorId = contact.Investor.UserId;
+                var founderId = contact.Business.Founder.UserId;
+                if (model.NewStatus == ContactRequestStatus.Accepted)
+                {
+                    NotificationDto FounderNotification = new NotificationDto
+                    {
+                        Title = "Contact Request Status.",
+                        Body = $"You have received a new contact request. The investor will reach out to you shortly.",
+                        UserTypeTo = (int)UserType.Founder,
+                        UserIdTo = founderId,
+
+                    };
+                    _notficationService.SendNotification(FounderNotification, LoggedInUser, (int)UserType.Staff);
+                }
+                NotificationDto InvestorNotification = new NotificationDto
                 {
                     Title = "Contact Request Status.",
-                    Body = $"You have received a new contact request. The investor will reach out to you shortly.",
-                    UserTypeTo = (int)UserType.Founder,
-                    UserIdTo = founderId,
+                    Body = $"Your Contact Request has been {(ContactRequestStatus)model.NewStatus}.",
+                    UserTypeTo = (int)UserType.Investor,
+                    UserIdTo = investorId,
 
                 };
-                _notficationService.SendNotification(FounderNotification, LoggedInUser, (int)UserType.Staff);
+                _notficationService.SendNotification(InvestorNotification, LoggedInUser, (int)UserType.Staff);
             }
-            NotificationDto InvestorNotification = new NotificationDto
-            {
-                Title = "Contact Request Status.",
-                Body = $"Your Contact Request has been {(ContactRequestStatus)model.NewStatus}.",
-                UserTypeTo = (int)UserType.Investor,
-                UserIdTo = investorId,
-
-            };
-            _notficationService.SendNotification(InvestorNotification, LoggedInUser, (int)UserType.Staff);
         }
 
         public List<InvestorContactRequestDto> GetContactRequestsByInvestor(int? LoggedInUser)
