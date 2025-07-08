@@ -206,6 +206,92 @@ namespace Investly.PL.BL
                 return null;
             }
         }
+
+        public int CreateContactRequest(int businessId, int? loggedInUser)
+        {
+            if (!loggedInUser.HasValue)
+            {
+                throw new UnauthorizedAccessException("User not authenticated.");
+            }
+
+            // Get investor details
+            var investor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser.Value);
+            if (investor == null)
+            {
+                throw new InvalidOperationException("Only investors can create contact requests.");
+            }
+
+            // Get business details
+            var business = _unitOfWork.BusinessRepo.FirstOrDefault(b => b.Id == businessId, "Founder");
+            if (business == null)
+            {
+                throw new KeyNotFoundException($"Business with ID {businessId} not found.");
+            }
+
+            // Check if business is active
+            if (business.Status != (int)BusinessIdeaStatus.Active)
+            {
+                throw new InvalidOperationException("Business is not active and cannot receive contact requests.");
+            }
+
+            // Check if contact request already exists
+            var existingRequest = _unitOfWork.InvestorContactRequestRepo.FirstOrDefault(
+                icr => icr.InvestorId == investor.Id &&
+                       icr.BusinessId == businessId &&
+                       icr.Status != (int)ContactRequestStatus.Deleted);
+
+            if (existingRequest != null)
+            {
+                throw new InvalidOperationException("A contact request for this business already exists.");
+            }
+
+            // Check if investor has more than 4 pending requests
+            var pendingRequestsCount = _unitOfWork.InvestorContactRequestRepo.GetAll(
+                icr => icr.InvestorId == investor.Id &&
+                        icr.Status == (int)ContactRequestStatus.Pending).Count();
+
+            if (pendingRequestsCount >= 4)
+            {
+                throw new InvalidOperationException("You cannot have more than 4 pending contact requests.");
+            }
+
+            // Create new contact request
+            var contactRequest = new InvestorContactRequest
+            {
+                InvestorId = investor.Id,
+                BusinessId = businessId,
+                Status = (int)ContactRequestStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = loggedInUser.Value
+            };
+
+            _unitOfWork.InvestorContactRequestRepo.Insert(contactRequest);
+            var result = _unitOfWork.Save();
+
+            if (result <= 0)
+            {
+                throw new InvalidOperationException("Failed to save contact request to database.");
+            }
+
+            try
+            {
+                NotificationDto adminNotification = new NotificationDto
+                {
+                    Title = "New Contact Request - Pending Approval",
+                    Body = $"A new contact request has been submitted by an investor for the business idea: {business.Title}",
+                    UserTypeTo = (int)UserType.Staff,
+                    UserIdTo = _unitOfWork.UserRepo.FirstOrDefault(u => u.UserType == (int)UserType.Staff && u.Status == (int)UserStatus.Active).Id,
+                };
+                _notficationService.SendNotification(adminNotification, loggedInUser, (int)UserType.Investor);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send notification: {ex.Message}"); // i don't want to stop the whole operation if notification failed to be sent
+            }
+
+            return contactRequest.Id;
+        }
+
     }
 
 }

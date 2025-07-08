@@ -1,4 +1,5 @@
-﻿using Investly.PL.Dtos;
+﻿using Investly.DAL.Entities;
+using Investly.PL.Dtos;
 using Investly.PL.General;
 using System.Collections.Generic;
 
@@ -17,7 +18,8 @@ namespace Investly.PL.IBL
         public int UpdateBusinessIdea(BusinessDto BusinessIdea, int? LoggedInUser);
         public int AddBusinessIdeaAiEvaluation(AiBusinessEvaluationDto dto, int LoggedInUser);
         public List<BusinessDto> GetFounderBusinessIdeas(int LoggedInUserIdFounder );
-
-
+        public Task<BusinessListDtoForExplore> GetAllBusinessesForExploreAsync(BusinessSeachForExploreDto searchDto, int? loggedInUser);
+        public BusinessSeachForExploreDto ApplyInvestorPreferences(BusinessSeachForExploreDto searchDto, Investor? investorDetails);
+        public bool ApplyStageFilter(BusinessSeachForExploreDto searchDto, Business item, Investor? investorDetails);
     }
 }
