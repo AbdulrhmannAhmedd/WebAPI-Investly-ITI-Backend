@@ -1,6 +1,7 @@
 ﻿using Investly.DAL.Entities;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations.Schema;
+using Investly.PL.General;
 
 namespace Investly.PL.Dtos
 {
@@ -107,7 +108,77 @@ namespace Investly.PL.Dtos
         public int TotalPending { get; set; }
     }
 
+    public class DisplayBusinessToExploreSectionDto
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public int Stage { get; set; }
+        public string FounderName { get; set; } = null!;
+        public string CategoryName { get; set; } = null!;
+        public string GovernmentName { get; set; } = null!;
+        public decimal Capital { get; set; }
+        public decimal Airate { get; set; }
+        public int DesiredInvestmentType { get; set; }
+        public List<string>? Images { get; set; } = new List<string>();
+        public ContactRequestStatus? ContactRequestStatus { get; set; } // nullable to allow for no contact request status (no request made yet)
+        public bool CanRequestContact { get; set; } = false;
+    }
 
-  
+    public class BusinessListDtoForExplore
+    {
+        public List<DisplayBusinessToExploreSectionDto> Businesses { get; set; } = new List<DisplayBusinessToExploreSectionDto>();
+        public int TotalCount { get; set; }
+        public InvestorPreferencesDto? InvestorPreferences { get; set; }
+        public int PageSize { get; set; }
+        public int CurrentPage { get; set; }
 
+    }
+
+    public class BusinessSeachForExploreDto
+    {
+        public int PageSize { get; set; } = 10;
+        public int PageNumber { get; set; } = 1;
+        public string? SearchInput { get; set; }
+        public int? CategoryId { get; set; }
+        public int? Stage { get; set; }
+        public int? GovernmentId { get; set; }
+        public int? MinCapital { get; set; }
+        public int? MaxCapital { get; set; }
+        public int? MinAiRate { get; set; }
+        public int? DesiredInvestmentType { get; set; }
+        public bool UseDefaultPreferences { get; set; } = true; // true on initial load, false when user interacts..
+
+    }
+
+    public class InvestorPreferencesDto
+    {
+        public string? InterestedBusinessStages { get; set; }
+        public int? MinFunding { get; set; }
+        public int? MaxFunding { get; set; }
+        public int InvestingType { get; set; }
+    }
+
+    public class BusinessDetailsDto
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public int Stage { get; set; }
+        public string FounderName { get; set; } = null!;
+        public string CategoryName { get; set; } = null!;
+        public string GovernmentName { get; set; } = null!;
+        public string CityName { get; set; } = null!;
+        public string Location { get; set; } = null!;
+        public decimal Capital { get; set; }
+        public decimal Airate { get; set; }
+        public int DesiredInvestmentType { get; set; }
+        public List<string>? Images { get; set; } = new List<string>();
+        public string? FilePath { get; set; }
+        public List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
+        public ContactRequestStatus? ContactRequestStatus { get; set; }
+        public bool CanRequestContact { get; set; } = false;
+        public int TotalContactRequests { get; set; }
+        public bool isInvestor { get; set; } = true;
+    }
 }

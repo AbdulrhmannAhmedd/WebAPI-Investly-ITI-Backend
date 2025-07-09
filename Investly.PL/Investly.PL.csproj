@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\uploads\founder\BusinessImages\" />
     <Folder Include="wwwroot\uploads\founder\IdeaFile\" />
     <Folder Include="wwwroot\uploads\founder\nationalIdPic\" />
     <Folder Include="wwwroot\uploads\founder\profilePic\" />

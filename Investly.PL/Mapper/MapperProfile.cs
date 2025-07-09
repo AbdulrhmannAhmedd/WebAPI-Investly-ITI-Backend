@@ -78,6 +78,55 @@ namespace Investly.PL.Mapper
             .ForMember(dest => dest.Status,
                 opt => opt.MapFrom(src => (ContactRequestStatus)src.Status));
 
+
+            CreateMap<Business, DisplayBusinessToExploreSectionDto>()
+            .ForMember(dest => dest.Stage, opt => opt.MapFrom(src => src.Stage ?? 0))
+            .ForMember(dest => dest.Airate, opt => opt.MapFrom(src => src.Airate ?? 0))
+            .ForMember(dest => dest.Capital, opt => opt.MapFrom(src => src.Capital ?? 0))
+            .ForMember(dest => dest.DesiredInvestmentType, opt => opt.MapFrom(src => src.DesiredInvestmentType ?? 0))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
+            .ForMember(dest => dest.FounderName, opt => opt.MapFrom(src =>
+                src.Founder != null && src.Founder.User != null
+                ? $"{src.Founder.User.FirstName} {src.Founder.User.LastName}"
+                : string.Empty)
+            )
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+            .ForMember(dest => dest.GovernmentName, opt => opt.MapFrom(src => src.Government != null ? src.Government.NameEn : string.Empty))
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src =>
+                !string.IsNullOrEmpty(src.Images)
+                ? src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(imagePath => $"https://localhost:7111/{imagePath}").ToList() : new List<string>())
+            );
+
+
+            CreateMap<Business, BusinessDetailsDto>()
+                .ForMember(dest => dest.Stage, opt => opt.MapFrom(src => src.Stage ?? 0))
+                .ForMember(dest => dest.Capital, opt => opt.MapFrom(src => src.Capital ?? 0))
+                .ForMember(dest => dest.Airate, opt => opt.MapFrom(src => src.Airate ?? 0))
+                .ForMember(dest => dest.DesiredInvestmentType, opt => opt.MapFrom(src => src.DesiredInvestmentType ?? 0))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title ?? string.Empty))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location ?? string.Empty))
+                .ForMember(dest => dest.FilePath, opt => opt.MapFrom(src => 
+                    !string.IsNullOrEmpty(src.FilePath) ? $"https://localhost:7111/{src.FilePath}" : null))
+                .ForMember(dest => dest.FounderName, opt => opt.MapFrom(src =>
+                    src.Founder != null && src.Founder.User != null
+                    ? $"{src.Founder.User.FirstName} {src.Founder.User.LastName}"
+                    : string.Empty))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
+                .ForMember(dest => dest.GovernmentName, opt => opt.MapFrom(src =>
+                    src.Government != null ? (src.Government.NameEn ?? src.Government.NameAr ?? string.Empty) : string.Empty))
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src =>
+                    src.City != null ? (src.City.NameEn ?? src.City.NameAr ?? string.Empty) : string.Empty))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src =>
+                    !string.IsNullOrEmpty(src.Images)
+                    ? src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(imagePath => $"https://localhost:7111/{imagePath}").ToList() : new List<string>()))
+                .ForMember(dest => dest.TotalContactRequests, opt => opt.MapFrom(src =>
+                    src.InvestorContactRequests != null
+                    ? src.InvestorContactRequests.Count(icr => icr.Status == (int)ContactRequestStatus.Accepted || icr.Status == (int)ContactRequestStatus.Pending) : 0)
+                );
+
+
+
             CreateMap<CategoryForListDto, Category>().ReverseMap();
             CreateMap<Category, CategoryDto>()
                 .AfterMap((src, dest) =>

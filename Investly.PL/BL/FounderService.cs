@@ -7,6 +7,7 @@ using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
 using System.Security.Claims;
 
 namespace Investly.PL.BL
@@ -264,7 +265,19 @@ namespace Investly.PL.BL
             user.DateOfBirth = founderDto.DateOfBirth;
             user.Status = (int)UserStatus.Pending;
             user.CountryCode = founderDto.CountryCode;
-            _unitOfWork.Save();
+         var res=   _unitOfWork.Save();
+            if (res > 0)
+            {
+                NotificationDto notification = new NotificationDto
+                {
+                    Title = "Founder Update Request",
+                    Body = $"Founder {founderDto.FirstName} {founderDto.LastName} Wants to Update Profile Data.",
+                    UserTypeTo = (int)UserType.Staff,
+                    UserIdTo = 3,
+
+                };
+                _notificationService.SendNotification(notification, founder.UserId, (int)UserType.Founder);
+            }
 
             return new Tuple<bool, FounderDto>(true, _mapper.Map<FounderDto>(founder));
         }
@@ -338,7 +351,7 @@ namespace Investly.PL.BL
             }
 
             _unitOfWork.UserRepo.Update(user);
-            _unitOfWork.Save();
+         var result=   _unitOfWork.Save();
 
             UpdateNationalIdResponseDto res = new UpdateNationalIdResponseDto()
             {
@@ -346,6 +359,19 @@ namespace Investly.PL.BL
                 BackIdPicPath = user.BackIdPicPath
             };
 
+            if (result > 0)
+            {
+                NotificationDto notification = new NotificationDto
+                {
+                    Title = "Founder Update Request",
+                    Body = $"Founder {user.FirstName} {user.LastName} Wants to Update Documents.",
+                    UserTypeTo = (int)UserType.Staff,
+                    UserIdTo = 3,
+
+                };
+
+                _notificationService.SendNotification(notification, user.Id, (int)UserType.Founder);
+            }
             return res;
 
         }

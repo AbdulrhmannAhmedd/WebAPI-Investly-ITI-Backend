@@ -24,6 +24,9 @@ namespace Investly.PL
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Configuration
+    .AddJsonFile("appsettings.json")
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
             // Add services to the container.
 
@@ -94,22 +97,18 @@ namespace Investly.PL
 
             #region Unit of work  registeration
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IBusinessRepo, BusinessRepo>();
-            builder.Services.AddScoped<IFeedbackRepo, FeedbackRepo>();
-            builder.Services.AddScoped<IAnalysisRepo, AnalysisRepo>();
-            builder.Services.AddScoped<ICategoryRepo,CategroyRepo>();
-            builder.Services.AddScoped<IPasswordResetTokenRepo, PasswordResetTokenRepo>();
+
+
             #endregion
 
             #region Business services registeration
             builder.Services.AddScoped<IInvestorService, InvestorService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IBusinessService, BusinessService>();
-            builder.Services.AddScoped<IGovernementService,GovernmentService>();
+            builder.Services.AddScoped<IGovernementService, GovernmentService>();
             builder.Services.AddScoped<IFounderService, FounderService>();
-
-            builder.Services.AddScoped<IGovernementService,GovernmentService>();
-            builder.Services.AddScoped<INotficationService,NotificationService>();
+            builder.Services.AddScoped<IGovernementService, GovernmentService>();
+            builder.Services.AddScoped<INotficationService, NotificationService>();
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IStandardService, StandardService>();
@@ -129,30 +128,30 @@ namespace Investly.PL
             #region DataSeeding
             using (var scope = app.Services.CreateScope())
             {
-                var services= scope.ServiceProvider;
+                var services = scope.ServiceProvider;
                 var dbContext = services.GetRequiredService<AppDbContext>();
-             
-                    // Ensure the database is created and apply migrations
-                   // dbContext.Database.Migrate();
-                    var seeder = new DataSeeding(dbContext);
-                    // Seed the database with initial data
-                   //seeder.SuperAdminSeed();
-                  // seeder.GovernmentCitiesSeed();
-                
+
+                // Ensure the database is created and apply migrations
+                // dbContext.Database.Migrate();
+                var seeder = new DataSeeding(dbContext);
+                // Seed the database with initial data
+               // seeder.SuperAdminSeed();
+               // seeder.GovernmentCitiesSeed();
+
             }
             #endregion
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-                {
-                    app.UseSwagger();
-                    app.UseSwaggerUI();
-                }
+            //if (app.Environment.IsDevelopment())
+            //{
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            //}
 
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads")),
+                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads")),
                 RequestPath = "/uploads",
                 OnPrepareResponse = ctx =>
                 {

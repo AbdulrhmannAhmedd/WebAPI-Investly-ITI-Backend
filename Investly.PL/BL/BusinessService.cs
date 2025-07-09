@@ -2,13 +2,14 @@
 using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
-using Investly.PL.IBL;
 using Investly.PL.General;
+using Investly.PL.General.Services.IServices;
+using Investly.PL.IBL;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using Microsoft.AspNetCore.Mvc;
-using Investly.PL.General.Services.IServices;
-using System.Diagnostics.Metrics;
 
 namespace Investly.PL.BL
 {
@@ -17,14 +18,14 @@ namespace Investly.PL.BL
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHelper _helper;
-        private readonly INotficationService _notficationService;
+        private readonly INotficationService _notificationService;
 
-        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper, IHelper helper,INotficationService notficationService)
+        public BusinessService(IUnitOfWork unitOfWork, IMapper mapper, IHelper helper,INotficationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _helper = helper;
-            _notficationService = notficationService;
+            _notificationService = notificationService;
         }
 
         public BusinessListDto GetAllBusinesses(BusinessSearchDto searchDto)
@@ -99,12 +100,250 @@ namespace Investly.PL.BL
                 };
             }
         }
-        public int SoftDeleteBusiness(int businessId, int? loggedUserId)
+
+        public async Task<BusinessListDtoForExplore> GetAllBusinessesForExploreAsync(BusinessSeachForExploreDto searchDto , int? loggedInUser)
         {
-            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId);
+            try
+            {
+                var SearchInputToLower = searchDto.SearchInput?.ToLower() ?? string.Empty;
+
+                // To check if the user logged in and he is an investor
+                int? investorId = null;
+                bool isLoggedInInvestor = false;
+                Investor? investorDetails = null;
+
+                if (loggedInUser.HasValue)
+                {
+                    investorDetails = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser.Value);
+                    if (investorDetails != null)
+                    {
+                        investorId = investorDetails.Id;
+                        isLoggedInInvestor = true;
+                    }
+                }
+
+                var savedSearchDto = ApplyInvestorPreferences(searchDto, investorDetails);
+
+                var businessQuery = _unitOfWork.BusinessRepo.FindAll(
+                    item => (
+                        (
+                            String.IsNullOrEmpty(SearchInputToLower) ||
+                            (item.Title.ToLower().Contains(SearchInputToLower)) ||
+                            (item.Founder.User.FirstName.ToLower().Contains(SearchInputToLower)) ||
+                            (item.Founder.User.LastName.ToLower().Contains(SearchInputToLower)) ||
+                            ((item.Founder.User.FirstName + " " + item.Founder.User.LastName).ToLower().Contains(SearchInputToLower))
+                        ) &&
+                        (!savedSearchDto.CategoryId.HasValue || savedSearchDto.CategoryId.Value == 0 || item.CategoryId == savedSearchDto.CategoryId.Value) &&
+                        (!savedSearchDto.GovernmentId.HasValue || savedSearchDto.GovernmentId.Value == 0 || item.GovernmentId == savedSearchDto.GovernmentId.Value) &&
+                        (!savedSearchDto.MinCapital.HasValue || item.Capital >= savedSearchDto.MinCapital.Value) &&
+                        (!savedSearchDto.MaxCapital.HasValue || item.Capital <= savedSearchDto.MaxCapital.Value) &&
+                        (!savedSearchDto.MinAiRate.HasValue || item.Airate >= savedSearchDto.MinAiRate.Value) &&
+                        (!savedSearchDto.DesiredInvestmentType.HasValue || savedSearchDto.DesiredInvestmentType.Value == 0 || item.DesiredInvestmentType == savedSearchDto.DesiredInvestmentType.Value) &&
+                        (item.Status == (int)BusinessIdeaStatus.Active)
+                    )
+                    , properties: "Founder.User,Category,Government,InvestorContactRequests"
+                ).OrderByDescending(b => b.CreatedAt);
+
+                var businesses = await businessQuery.ToListAsync(); // I added this await here for getting the data first then apply stage filter in memory..
+
+                var filteredBusinesses = businesses.Where(item => ApplyStageFilter(savedSearchDto, item, investorDetails)).ToList();
+
+                int skip = (searchDto.PageSize * (searchDto.PageNumber > 0 ? searchDto.PageNumber -1 : 1));
+
+                var paginatedBusinesses = filteredBusinesses
+                                            .Skip(skip)
+                                            .Take(searchDto.PageSize)
+                                            .ToList();
+
+                var businessDtos = _mapper.Map<List<DisplayBusinessToExploreSectionDto>>(paginatedBusinesses);
+
+                foreach(var businessDto in businessDtos)
+                {
+
+                    if (isLoggedInInvestor && investorId.HasValue)
+                    {
+                        // Checking if the investor has already requested contact with this business
+
+                        var business = paginatedBusinesses.FirstOrDefault(b => b.Id == businessDto.Id);
+                        var existingContactRequest = business?.InvestorContactRequests.FirstOrDefault(icr => icr.InvestorId == investorId.Value && icr.Status != (int)ContactRequestStatus.Deleted);
+
+                        if(existingContactRequest != null)
+                        {
+                            businessDto.ContactRequestStatus = (ContactRequestStatus)existingContactRequest.Status; // Sending the status of the existing contact request between investor & this business
+                            businessDto.CanRequestContact = false; // Contact request already exists so investor cannot request again
+                        }
+                        else
+                        {
+                            businessDto.ContactRequestStatus = null;
+                            businessDto.CanRequestContact = true; // Investor can request contact with this business
+                        }
+
+                    }
+                    else
+                    {
+                        // in case of user not logged in or user type is not onvestor
+                        businessDto.ContactRequestStatus = null;
+                        businessDto.CanRequestContact = false;
+                    }
+                }
+
+                InvestorPreferencesDto? investorPreferences = null;
+
+                if(investorDetails != null)
+                {
+                    investorPreferences = new InvestorPreferencesDto
+                    {
+                        MinFunding = investorDetails.MinFunding,
+                        MaxFunding = investorDetails.MaxFunding,
+                        InvestingType = investorDetails.InvestingType,
+                        InterestedBusinessStages = investorDetails.InterestedBusinessStages
+                    };
+                }
+
+                return new BusinessListDtoForExplore
+                {
+                    Businesses = businessDtos,
+                    TotalCount = filteredBusinesses.Count(),
+                    InvestorPreferences = investorPreferences,
+                    CurrentPage = searchDto.PageNumber,
+                    PageSize = searchDto.PageSize
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
-        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId, string? rejectedReason = null)
+        public BusinessSeachForExploreDto ApplyInvestorPreferences(BusinessSeachForExploreDto searchDto, Investor? investorDetails)
+        {
+            if (investorDetails == null)
+                return searchDto;
+
+            var savedSearchDto = new BusinessSeachForExploreDto
+            {
+                PageSize = searchDto.PageSize,
+                PageNumber = searchDto.PageNumber,
+                SearchInput = searchDto.SearchInput,
+                CategoryId = searchDto.CategoryId,
+                GovernmentId = searchDto.GovernmentId,
+                MinAiRate = searchDto.MinAiRate,
+                UseDefaultPreferences = searchDto.UseDefaultPreferences,
+
+
+                // investor preferences only if not overridden by investor's search input
+                Stage = searchDto.Stage, // i will handle it in applyfilterstages i memory later
+
+                // i will apply investor preferences if UseDefaultPreferences is true
+                MinCapital = searchDto.UseDefaultPreferences ?
+                    (searchDto.MinCapital ?? (investorDetails.MinFunding > 0 ? investorDetails.MinFunding : null)) :
+                    searchDto.MinCapital,
+                MaxCapital = searchDto.UseDefaultPreferences ?
+                    (searchDto.MaxCapital ?? (investorDetails.MaxFunding > 0 ? investorDetails.MaxFunding : null)) :
+                    searchDto.MaxCapital,
+                DesiredInvestmentType = searchDto.UseDefaultPreferences ?
+                    (searchDto.DesiredInvestmentType ?? (investorDetails.InvestingType > 0 ? investorDetails.InvestingType : null)) :
+                    searchDto.DesiredInvestmentType
+            };
+
+            return savedSearchDto;
+        }
+
+        public bool ApplyStageFilter(BusinessSeachForExploreDto searchDto, Business item, Investor? investorDetails)
+        {
+            // If user provided specific stage filter --> (takes precedence)
+            if (searchDto.Stage.HasValue && searchDto.Stage.Value > 0)
+            {
+                return item.Stage == searchDto.Stage.Value;
+            }
+
+            // If there's preferences --> check if business stage matches any preferred stage
+            if (searchDto.UseDefaultPreferences && investorDetails != null && !string.IsNullOrEmpty(investorDetails.InterestedBusinessStages))
+            {
+
+                if (!item.Stage.HasValue)
+                {
+                    return false;
+                }
+
+                string businessStage = item.Stage.Value.ToString();
+
+                return investorDetails.InterestedBusinessStages.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                       .Any(stage => stage.Trim() == businessStage);
+            }
+
+            // If UseDefaultPreferences is false or no stage preferences --> retrive all
+            return true;
+        }
+
+        public BusinessDetailsDto GetBusinessDetails(int businessId, int? loggedInUser)
+        {
+                var business = _unitOfWork.BusinessRepo.FirstOrDefault(
+                    b => b.Id == businessId && b.Status == (int)BusinessIdeaStatus.Active,
+                    includeProperties: "Founder.User,Category,City,Government,BusinessStandardAnswers.Standard,InvestorContactRequests"
+                );
+
+                if (business == null)
+                {
+                    throw new KeyNotFoundException($"Business with ID {businessId} not found or not active.");
+                }
+
+                int? investorId = null;
+                bool isLoggedInInvestor = false;
+
+                // I'm checking if the user is logged in and if he is an investor
+                if (loggedInUser.HasValue)
+                {
+                    var investor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser.Value);
+                    if(investor !=null)
+                    {
+                        investorId = investor.Id;
+                        isLoggedInInvestor = true;
+                    }
+                }
+
+                var businessDetails = _mapper.Map<BusinessDetailsDto>(business);
+
+                if (!isLoggedInInvestor)
+                {
+                    businessDetails.FilePath = null;
+                    businessDetails.BusinessStandardAnswers = new List<BusinessStandardAnswerDto>();
+                    businessDetails.isInvestor = false;
+                }
+
+            if (isLoggedInInvestor && investorId.HasValue)
+                {
+                    var existingContactRequest = business.InvestorContactRequests.FirstOrDefault(
+                        icr => icr.InvestorId == investorId.Value && icr.Status != (int)ContactRequestStatus.Deleted
+                    );
+
+                    if(existingContactRequest != null)
+                    {
+                        businessDetails.ContactRequestStatus = (ContactRequestStatus)existingContactRequest.Status;
+                        businessDetails.CanRequestContact = false;
+                    }
+                    else
+                    {
+                        businessDetails.ContactRequestStatus = null;
+                        businessDetails.CanRequestContact = true;
+                    }
+                }
+                else
+                {
+                    businessDetails.ContactRequestStatus = null;
+                    businessDetails.CanRequestContact = false;
+                }
+
+                return businessDetails;
+        }
+
+        public int SoftDeleteBusiness(int businessId, int? loggedUserId, string? loggedInEmail)
+        {
+            return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId, loggedInEmail);
+        }
+
+        public int UpdateBusinessStatus(int businessId, BusinessIdeaStatus newStatus, int? loggedUserId,string? loggedInEmail=null, string? rejectedReason = null )
         {
             try
             {
@@ -126,22 +365,26 @@ namespace Investly.PL.BL
                 {
                     business.RejectedReason = null;
                 }
-                NotificationDto notification = new NotificationDto
-                {
-                    Title = "Idea Status.",
-                    Body = $"Your Idea has been {(UserStatus)newStatus}.",
-                    UserTypeTo = (int)UserType.Founder,
-                    UserIdTo = business.Founder.UserId,
-
-                };
-                _notficationService.SendNotification(notification, loggedUserId, (int)UserType.Staff);
+               
                 business.Status = (int)newStatus;
                 business.UpdatedAt = DateTime.UtcNow;
                 business.UpdatedBy = loggedUserId;
 
                 _unitOfWork.BusinessRepo.Update(business);
-               
-                return _unitOfWork.Save();
+                var res = _unitOfWork.Save();
+                if(res>0&&loggedInEmail=="SuperAdmin@gmail.com")
+                {
+                    NotificationDto notification = new NotificationDto
+                    {
+                        Title = "Idea Status.",
+                        Body = $"Your Idea '{business.Title}' has been {(UserStatus)newStatus}.",
+                        UserTypeTo = (int)UserType.Founder,
+                        UserIdTo = business.Founder.UserId,
+
+                    };
+                    _notificationService.SendNotification(notification, loggedUserId, (int)UserType.Staff);
+                }
+                return res;
             }
             catch (Exception ex)
             {
@@ -180,6 +423,7 @@ namespace Investly.PL.BL
         {
            try
             {
+                Founder founder=null;
                 if (BusinessIdea == null)
                 {
                     return -2;
@@ -192,9 +436,10 @@ namespace Investly.PL.BL
                 newIdea.CreatedAt = DateTime.UtcNow;
                 newIdea.Category = null;
 
+
                 if (LoggedInUser != null)
                 {
-                    var founder = _unitOfWork.FounderRepo.FirstOrDefault(f=>f.UserId==LoggedInUser.Value);
+                     founder = _unitOfWork.FounderRepo.FirstOrDefault(f=>f.UserId==LoggedInUser.Value,"User");
                     if (founder != null)
                     {
                       
@@ -227,6 +472,19 @@ namespace Investly.PL.BL
                 var res = _unitOfWork.Save();
                 if (res>0)
                 {
+                    if (BusinessIdea.AiBusinessEvaluations?.TotalWeightedScore>50&&BusinessIdea.IsDrafted==false)
+                    {
+                        var superAdmin = _unitOfWork.UserRepo.FirstOrDefault(u=>u.Email=="SuperAdmin@gmail.com");
+                        NotificationDto notification = new NotificationDto
+                        {
+                            Title = "New Idea",
+                            Body = $"Founder {founder.User.FirstName} {founder.User.LastName}  Wants to Add Idea '{BusinessIdea.Title}'.",
+                            UserTypeTo = (int)UserType.Staff,
+                            UserIdTo =superAdmin.Id ,
+
+                        };
+                        _notificationService.SendNotification(notification, LoggedInUser, (int)UserType.Founder);
+                    }
                     return 1;
                 }else
                 {
@@ -329,7 +587,21 @@ namespace Investly.PL.BL
                 existingBusiness.CreatedAt = createdAt;
                 _unitOfWork.BusinessRepo.Update(existingBusiness);
                 var result = _unitOfWork.Save();
+              
+                if (result>0&&BusinessIdea.AiBusinessEvaluations?.TotalWeightedScore > 50 && BusinessIdea.IsDrafted == false)
+                {
+                    var founder = _unitOfWork.UserRepo.GetById(LoggedInUser.Value);
+                    var superAdmin= _unitOfWork.UserRepo.FirstOrDefault(u=>u.Email=="SuperAdmin@gmail.com");
+                    NotificationDto notification = new NotificationDto
+                    {
+                        Title = "Idea Update Request",
+                        Body = $"Founder {founder.FirstName} {founder.LastName}  Wants to Update Idea '{BusinessIdea.Title}'.",
+                        UserTypeTo = (int)UserType.Staff,
+                        UserIdTo = superAdmin.Id,
 
+                    };
+                    _notificationService.SendNotification(notification, LoggedInUser, (int)UserType.Founder);
+                }
                 return result; // Indicate success
             }
 
@@ -412,5 +684,6 @@ namespace Investly.PL.BL
                 businessDto.Images = string.Join(";", imagePaths);
             }
         }
+
     }
 }
