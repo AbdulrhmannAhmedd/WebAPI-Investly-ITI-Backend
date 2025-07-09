@@ -253,7 +253,7 @@ namespace Investly.PL.BL
                 icr => icr.InvestorId == investor.Id &&
                         icr.Status == (int)ContactRequestStatus.Pending).Count();
 
-            if (pendingRequestsCount >= 4)
+            if (pendingRequestsCount >= Constants.ContactRequestsLimit)
             {
                 throw new InvalidOperationException("You cannot have more than 4 pending contact requests.");
             }

@@ -9,6 +9,8 @@
 
         public const string Ascending = "ASC";
         public const string Descending = "DESC";
+
+        public const int ContactRequestsLimit = 4;
         
 
     }
