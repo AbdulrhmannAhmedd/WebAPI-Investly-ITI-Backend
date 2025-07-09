@@ -24,6 +24,9 @@ namespace Investly.PL
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Configuration
+    .AddJsonFile("appsettings.json")
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
             // Add services to the container.
 
@@ -88,7 +91,7 @@ namespace Investly.PL
             builder.Services.AddScoped<IHelper, Helper>();
             builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));
             builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
-            builder .Services.AddHttpClient<IAiService, AiService>();
+            builder.Services.AddHttpClient<IAiService, AiService>();
             #endregion
 
             #region Unit of work  registeration
@@ -101,10 +104,10 @@ namespace Investly.PL
             builder.Services.AddScoped<IInvestorService, InvestorService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IBusinessService, BusinessService>();
-            builder.Services.AddScoped<IGovernementService,GovernmentService>();
+            builder.Services.AddScoped<IGovernementService, GovernmentService>();
             builder.Services.AddScoped<IFounderService, FounderService>();
-            builder.Services.AddScoped<IGovernementService,GovernmentService>();
-            builder.Services.AddScoped<INotficationService,NotificationService>();
+            builder.Services.AddScoped<IGovernementService, GovernmentService>();
+            builder.Services.AddScoped<INotficationService, NotificationService>();
             builder.Services.AddScoped<IInvestorContactRequestService, InvestorContactRequestService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IStandardService, StandardService>();
@@ -124,25 +127,25 @@ namespace Investly.PL
             #region DataSeeding
             using (var scope = app.Services.CreateScope())
             {
-                var services= scope.ServiceProvider;
+                var services = scope.ServiceProvider;
                 var dbContext = services.GetRequiredService<AppDbContext>();
-             
-                    // Ensure the database is created and apply migrations
-                   // dbContext.Database.Migrate();
-                    var seeder = new DataSeeding(dbContext);
-                    // Seed the database with initial data
-                   //seeder.SuperAdminSeed();
-                  // seeder.GovernmentCitiesSeed();
-                
+
+                // Ensure the database is created and apply migrations
+                // dbContext.Database.Migrate();
+                var seeder = new DataSeeding(dbContext);
+                // Seed the database with initial data
+               // seeder.SuperAdminSeed();
+               // seeder.GovernmentCitiesSeed();
+
             }
             #endregion
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-                {
-                    app.UseSwagger();
-                    app.UseSwaggerUI();
-                }
+            //if (app.Environment.IsDevelopment())
+            //{
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            //}
 
             app.UseStaticFiles(new StaticFileOptions
             {
