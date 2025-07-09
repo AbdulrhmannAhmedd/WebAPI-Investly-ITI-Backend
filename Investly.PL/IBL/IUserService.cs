@@ -10,6 +10,7 @@ namespace Investly.PL.IBL
 
         public Task<List<DropdownDto>> GetAppropiateUserForFeedback(int userId);
         public Task<string> RequestToChangePasswordAsync(PasswordResetRequestDto model);
+        public Task ChangePasswordAsync(ResetPasswordDto model);
 
 
     }

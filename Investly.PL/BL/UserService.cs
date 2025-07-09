@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Bibliography;
 using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
@@ -7,6 +8,7 @@ using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Security;
 using System.Security.Cryptography;
 
 namespace Investly.PL.BL
@@ -159,6 +161,29 @@ namespace Investly.PL.BL
             return Convert.ToBase64String(tokenBytes);
         }
 
+
+
+        public async Task ChangePasswordAsync (ResetPasswordDto model)
+        {
+            var user = await _unitOfWork.UserRepo.FirstOrDefaultAsync(user => user.Email == model.Email);
+
+            if (user == null)
+                throw new ArgumentException("The provided credentials are invalid .");
+
+            var tokenRecord = await _unitOfWork.PasswordTokenRepo.FirstOrDefaultAsync(
+                t => t.UserId == user.Id &&
+                t.Token == model.Token &&
+                t.Expiration > DateTime.UtcNow);
+
+            if (tokenRecord == null)
+                throw new SecurityException("The reset request is no longer valid.");
+
+            user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+
+            _unitOfWork.PasswordTokenRepo.Remove(tokenRecord.Id);
+            await _unitOfWork.SaveAsync();
+
+        }
 
 
     }

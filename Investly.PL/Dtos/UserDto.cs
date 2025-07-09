@@ -65,5 +65,23 @@ namespace Investly.PL.Dtos
         [EmailAddress]
         public string Email { get; set; }
     }
+    public class ResetPasswordDto
+    {
+        [Required]
+        public string Email { get; set; }
+        [Required]
+        public string Token { get; set; }
+        [Required]
+        [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be between 8 and 100 characters")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?\""{}|<>]).*$",
+            ErrorMessage = "Password must contain at least: 1 uppercase, 1 lowercase, 1 number, and 1 special character (!@#$%^&*(),.?\"{}|<>)")]
+        public string NewPassword { get; set; }
+        [Required]
+        [DataType(DataType.Password)]
+        [Compare("NewPassword", ErrorMessage = "Passwords do not match")]
+        public string ConfirmNewPassword { get; set; }
+
+    }
 
 }
