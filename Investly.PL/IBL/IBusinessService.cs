@@ -21,5 +21,6 @@ namespace Investly.PL.IBL
         public Task<BusinessListDtoForExplore> GetAllBusinessesForExploreAsync(BusinessSeachForExploreDto searchDto, int? loggedInUser);
         public BusinessSeachForExploreDto ApplyInvestorPreferences(BusinessSeachForExploreDto searchDto, Investor? investorDetails);
         public bool ApplyStageFilter(BusinessSeachForExploreDto searchDto, Business item, Investor? investorDetails);
+        public BusinessDetailsDto GetBusinessDetails(int businessId, int? loggedInUser);
     }
 }

@@ -157,10 +157,28 @@ namespace Investly.PL.Dtos
         public int? MinFunding { get; set; }
         public int? MaxFunding { get; set; }
         public int InvestingType { get; set; }
-
     }
 
-
-
-
+    public class BusinessDetailsDto
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public int Stage { get; set; }
+        public string FounderName { get; set; } = null!;
+        public string CategoryName { get; set; } = null!;
+        public string GovernmentName { get; set; } = null!;
+        public string CityName { get; set; } = null!;
+        public string Location { get; set; } = null!;
+        public decimal Capital { get; set; }
+        public decimal Airate { get; set; }
+        public int DesiredInvestmentType { get; set; }
+        public List<string>? Images { get; set; } = new List<string>();
+        public string? FilePath { get; set; }
+        public List<BusinessStandardAnswerDto> BusinessStandardAnswers { get; set; } = new List<BusinessStandardAnswerDto>();
+        public ContactRequestStatus? ContactRequestStatus { get; set; }
+        public bool CanRequestContact { get; set; } = false;
+        public int TotalContactRequests { get; set; }
+        public bool isInvestor { get; set; } = true;
+    }
 }

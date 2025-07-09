@@ -56,5 +56,44 @@ namespace Investly.PL.Controllers
             }
         }
 
+
+        [HttpGet("{businessId}")]
+        public IActionResult GetBusinessDetails(int businessId)
+        {
+            try
+            {
+                var result = _businessService.GetBusinessDetails(businessId, User.GetUserId());
+
+                return Ok(new ResponseDto<BusinessDetailsDto>
+                {
+                    IsSuccess = true,
+                    Message = "Business details retrieved successfully.",
+                    Data = result,
+                    StatusCode = StatusCodes.Status200OK
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new ResponseDto<BusinessDetailsDto>
+                {
+                    IsSuccess = false,
+                    Message = ex.Message,
+                    Data = null,
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseDto<BusinessDetailsDto>
+                {
+                    IsSuccess = false,
+                    Message = "An unexpected error occurred while retrieving business details.",
+                    Data = null,
+                    StatusCode = StatusCodes.Status500InternalServerError
+                });
+            }
+        }
+
+
     }
 }
