@@ -55,7 +55,8 @@ namespace Investly.PL.Controllers.Investor
             var oldinvestor = _investorService.GetById(data.Id ?? 0);
 
             data.User.Status = (int)UserStatus.Pending;
-            var result = _investorService.Update(data, User.GetUserId());
+            var userEmailClam = User.FindFirst("email");
+            var result = _investorService.Update(data, User.GetUserId(), userEmailClam?.Value);
             ResponseDto<InvestorDto> response;
             if (result > 0)
             {

@@ -129,9 +129,9 @@ namespace Investly.PL.Controllers.Admin
                 var backIdPath = _helper.UploadFile(data.User.BackIdPicFile, "investor", "nationalIdPic");
                 data.User.BackIdPicPath = backIdPath;
             }
-            
-            
-            var result = _investorService.Update(data,User.GetUserId());
+
+            var userEmailClam = User.FindFirst("email");
+            var result = _investorService.Update(data,User.GetUserId(), userEmailClam?.Value);
             ResponseDto<InvestorDto> response;
             if (result > 0)
             {

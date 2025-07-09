@@ -116,7 +116,7 @@ namespace Investly.PL.BL
 
         }
 
-        public int Update(InvestorDto investorDto, int? loggedInUser)
+        public int Update(InvestorDto investorDto, int? loggedInUser, string? loggedInEmail = null)
         {
             int res = 0;
             try
@@ -155,14 +155,15 @@ namespace Investly.PL.BL
         
                 _unitOfWork.InvestorRepo.Update(existingInvestor);
                 res = _unitOfWork.Save();
-                if (res>0&&loggedInUser != 3)
+                if (res>0&& loggedInEmail != "SuperAdmin@gmail.com")
                 {
+                    var superAdmin = _unitOfWork.UserRepo.FirstOrDefault(u => u.Email == "SuperAdmin@gmail.com");
                     NotificationDto notification = new NotificationDto
                     {
                         Title = "Investor Update Request",
                         Body = $"Investor {investorDto.User.FirstName} {investorDto.User.LastName} Wants to Update Profile Data.",
                         UserTypeTo = (int)UserType.Staff,
-                        UserIdTo = 3,
+                        UserIdTo = superAdmin.Id,
 
                     };
                     _notificationService.SendNotification(notification, loggedInUser, (int)UserType.Investor);
@@ -312,12 +313,13 @@ namespace Investly.PL.BL
                 res = _unitOfWork.Save();
                 if (res > 0)
                 {
+                    var superAdmin = _unitOfWork.UserRepo.FirstOrDefault(u => u.Email == "SuperAdmin@gmail.com");
                     NotificationDto notification = new NotificationDto
                     {
                         Title = "Investor Update Request",
                         Body = $"Investor {existingInvestor.User.FirstName} {existingInvestor.User.LastName} Wants to Update Documents.",
                         UserTypeTo = (int)UserType.Staff,
-                        UserIdTo = 3,
+                        UserIdTo = superAdmin.Id,
 
                     };
                     _notificationService.SendNotification(notification, loggedInUser, (int)UserType.Investor);

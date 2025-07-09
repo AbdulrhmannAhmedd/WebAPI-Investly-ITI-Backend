@@ -1,4 +1,6 @@
-﻿using Investly.PL.Attributes;
+﻿using Investly.DAL.Repos;
+using Investly.DAL.Repos.IRepos;
+using Investly.PL.Attributes;
 using Investly.PL.BL;
 using Investly.PL.Dtos;
 using Investly.PL.Extentions;
@@ -25,6 +27,8 @@ namespace Investly.PL.Controllers
         private readonly IUserService _userService;
         private readonly INotficationService _notificationService;
         private readonly IHelper _helper;
+  
+
         public AuthController(IInvestorService investorService,IJWTService jWTService, IUserService userService, IHelper helper, IFounderService founderService, INotficationService notificationService)
         {
             _investorService = investorService;
@@ -65,12 +69,13 @@ namespace Investly.PL.Controllers
                 // Generate JWT token for the new investor
                 var investor = _investorService.GetById(result);
                 var token = _jWTService.GenerateToken(investor.User);
+                var superAdmin = _userService.GetByEmail("SuperAdmin@gmail.com");
                 NotificationDto notification = new NotificationDto
                 {
                     Title = "New Investor Registration",
                     Body = $"New investor {investorDto.User.FirstName} {investorDto.User.LastName} has just registered an account.",
                     UserTypeTo = (int)UserType.Staff,
-                    UserIdTo = 3,
+                    UserIdTo = superAdmin.Id,
                  
                 };
                 _notificationService.SendNotification(notification,investor.UserId, (int)UserType.Investor);

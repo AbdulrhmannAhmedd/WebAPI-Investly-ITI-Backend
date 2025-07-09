@@ -268,12 +268,13 @@ namespace Investly.PL.BL
          var res=   _unitOfWork.Save();
             if (res > 0)
             {
+                var superAdmin = _unitOfWork.UserRepo.FirstOrDefault(u => u.Email == "SuperAdmin@gmail.com");
                 NotificationDto notification = new NotificationDto
                 {
                     Title = "Founder Update Request",
                     Body = $"Founder {founderDto.FirstName} {founderDto.LastName} Wants to Update Profile Data.",
                     UserTypeTo = (int)UserType.Staff,
-                    UserIdTo = 3,
+                    UserIdTo = superAdmin.Id,
 
                 };
                 _notificationService.SendNotification(notification, founder.UserId, (int)UserType.Founder);
@@ -361,12 +362,13 @@ namespace Investly.PL.BL
 
             if (result > 0)
             {
+                var superAdmin = _unitOfWork.UserRepo.FirstOrDefault(u => u.Email == "SuperAdmin@gmail.com");
                 NotificationDto notification = new NotificationDto
                 {
                     Title = "Founder Update Request",
                     Body = $"Founder {user.FirstName} {user.LastName} Wants to Update Documents.",
                     UserTypeTo = (int)UserType.Staff,
-                    UserIdTo = 3,
+                    UserIdTo = superAdmin.Id,
 
                 };
 
