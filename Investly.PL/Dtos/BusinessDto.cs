@@ -179,5 +179,6 @@ namespace Investly.PL.Dtos
         public ContactRequestStatus? ContactRequestStatus { get; set; }
         public bool CanRequestContact { get; set; } = false;
         public int TotalContactRequests { get; set; }
+        public bool isInvestor { get; set; } = true;
     }
 }

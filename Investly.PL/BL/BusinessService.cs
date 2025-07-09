@@ -305,7 +305,14 @@ namespace Investly.PL.BL
 
                 var businessDetails = _mapper.Map<BusinessDetailsDto>(business);
 
-                if(isLoggedInInvestor && investorId.HasValue)
+                if (!isLoggedInInvestor)
+                {
+                    businessDetails.FilePath = null;
+                    businessDetails.BusinessStandardAnswers = new List<BusinessStandardAnswerDto>();
+                    businessDetails.isInvestor = false;
+                }
+
+            if (isLoggedInInvestor && investorId.HasValue)
                 {
                     var existingContactRequest = business.InvestorContactRequests.FirstOrDefault(
                         icr => icr.InvestorId == investorId.Value && icr.Status != (int)ContactRequestStatus.Deleted
