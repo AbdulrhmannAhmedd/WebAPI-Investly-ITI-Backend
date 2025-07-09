@@ -6,6 +6,7 @@ using Investly.PL.Extentions;
 using Investly.PL.General;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Investly.PL.Controllers.Investor
 {
@@ -93,7 +94,8 @@ namespace Investly.PL.Controllers.Investor
 
             try
             {
-                _contactRequestService.UpdateContactRequestStatus(model,User.GetUserId());
+                var userEmailClam = User.FindFirst(ClaimTypes.Email);
+                _contactRequestService.UpdateContactRequestStatus(model,User.GetUserId(), userEmailClam?.Value);
 
                 response.IsSuccess = true;
                 response.Message = "Contact request status updated successfully.";

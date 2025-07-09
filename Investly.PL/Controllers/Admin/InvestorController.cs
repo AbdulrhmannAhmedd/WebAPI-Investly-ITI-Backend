@@ -7,6 +7,7 @@ using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 
 namespace Investly.PL.Controllers.Admin
@@ -130,7 +131,7 @@ namespace Investly.PL.Controllers.Admin
                 data.User.BackIdPicPath = backIdPath;
             }
 
-            var userEmailClam = User.FindFirst("email");
+            var userEmailClam = User.FindFirst(ClaimTypes.Email);
             var result = _investorService.Update(data,User.GetUserId(), userEmailClam?.Value);
             ResponseDto<InvestorDto> response;
             if (result > 0)
