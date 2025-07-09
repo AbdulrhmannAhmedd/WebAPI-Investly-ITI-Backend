@@ -96,7 +96,7 @@ namespace Investly.PL.Controllers
                 {
                     Data = null,
                     IsSuccess = false,
-                    Message = "An error occurred while registering the investor.",
+                    Message = "Email or National Id already exist, try to login instead",
                     StatusCode = StatusCodes.Status500InternalServerError
                 });
             }
@@ -155,7 +155,7 @@ namespace Investly.PL.Controllers
                 {
                     Data = null,
                     IsSuccess = false,
-                    Message = "An error occurred while registering the founder.",
+                    Message = "Email or National Id already exist, try to login instead",
                     StatusCode = StatusCodes.Status500InternalServerError
                 });
             }
