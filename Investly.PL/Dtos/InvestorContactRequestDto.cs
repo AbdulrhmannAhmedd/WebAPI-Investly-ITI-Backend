@@ -38,4 +38,15 @@ namespace Investly.PL.Dtos
         
     }
 
+    public class CreateContactRequestDto
+    {
+        [Required]
+        public int BusinessId { get; set; }
+    }
+
+    public class ContactRequestResultDto
+    {
+        public int? ContactRequestId { get; set; }
+    }
+
 }

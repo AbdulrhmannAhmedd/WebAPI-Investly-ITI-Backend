@@ -23,6 +23,8 @@ namespace Investly.PL.IBL
         public List<InvestorContactRequestDto> GetContactRequestsByInvestor( int? LoggedInUser);
         public CountContactRequestDto GetContactRequestsCountByInvestor(int? LoggedInUser);
 
+        public int CreateContactRequest(int businessId, int? loggedInUser);
+
 
     }
 }
