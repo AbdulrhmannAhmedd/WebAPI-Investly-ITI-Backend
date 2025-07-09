@@ -43,6 +43,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<AiBusinessStandardsEvaluation> AiBusinessStandardsEvaluations { get; set; }
+    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -380,6 +381,13 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Users__UpdatedBy__5BE2A6F2");
         });
+
+        modelBuilder.Entity<PasswordResetToken>()
+            .HasOne(p => p.User)
+            .WithMany() 
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         OnModelCreatingPartial(modelBuilder);
     }

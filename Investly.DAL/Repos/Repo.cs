@@ -87,6 +87,27 @@ namespace Investly.DAL.Repos
             }
             return query.FirstOrDefault();
         }
+
+
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            if (includeProperties != null)
+            {
+                foreach (var prop in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(prop);
+                }
+            }
+            return await query.FirstOrDefaultAsync();
+        }
+
+
+
         public void Update(T entity)
         {
             dbSet.Update(entity);

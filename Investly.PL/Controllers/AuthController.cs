@@ -335,6 +335,55 @@ namespace Investly.PL.Controllers
             }
         }
 
+        [HttpPost("request-password-reset")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequestDto model)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.Email))
+                {
+                    return BadRequest(new ResponseDto<string>
+                    {
+                        IsSuccess = false,
+                        StatusCode = 400,
+                        Message = "Email is required",
+                        Data = "Email is required"
+                    });
+                }
+
+                var resultMessage = await _userService.RequestToChangePasswordAsync(model);
+
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "Password reset request processed",
+                    Data = resultMessage
+                });
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "Database error occurred",
+                    Data = "Database error occurred"
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred",
+                    Data = "An unexpected error occurred"
+                });
+            }
+        }
+
 
 
 

@@ -89,6 +89,7 @@ namespace Investly.PL
             builder.Services.AddScoped(typeof(IQueryService<>), typeof(QueryService<>));
             builder.Services.AddScoped(typeof(IRepo<>), typeof(Repo<>));
             builder .Services.AddHttpClient<IAiService, AiService>();
+            builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
             #endregion
 
             #region Unit of work  registeration
@@ -97,7 +98,7 @@ namespace Investly.PL
             builder.Services.AddScoped<IFeedbackRepo, FeedbackRepo>();
             builder.Services.AddScoped<IAnalysisRepo, AnalysisRepo>();
             builder.Services.AddScoped<ICategoryRepo,CategroyRepo>();
-
+            builder.Services.AddScoped<IPasswordResetTokenRepo, PasswordResetTokenRepo>();
             #endregion
 
             #region Business services registeration

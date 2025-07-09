@@ -59,4 +59,11 @@ namespace Investly.PL.Dtos
         public string Name { get; set; }
     }
 
+    public class PasswordResetRequestDto
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+    }
+
 }

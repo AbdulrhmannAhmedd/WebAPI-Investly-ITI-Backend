@@ -3,9 +3,11 @@ using Investly.DAL.Entities;
 using Investly.DAL.Repos.IRepos;
 using Investly.PL.Dtos;
 using Investly.PL.General;
+using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 
 namespace Investly.PL.BL
 {
@@ -13,11 +15,15 @@ namespace Investly.PL.BL
     {
          private readonly IUnitOfWork _unitOfWork;
          private readonly IMapper _mapper;
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _config;
+
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper, IEmailSender emailSender, IConfiguration config)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-
+            _emailSender = emailSender;
+            _config = config;
         }
 
         public UserDto? GetByEmail(string Email)
@@ -113,6 +119,44 @@ namespace Investly.PL.BL
             }
 
             return new List<DropdownDto>();
+        }
+
+        public async Task<string> RequestToChangePasswordAsync(PasswordResetRequestDto model)
+        {
+            var user = await _unitOfWork.UserRepo.FirstOrDefaultAsync(user => user.Email == model.Email);
+            if (user == null)
+                return "If your email exists in our system, you'll receive a password reset link";
+
+            var token = GenerateSecureToken();
+
+            var resetToken = new PasswordResetToken
+            {
+                UserId = user.Id,
+                Token = token,
+                Expiration = DateTime.UtcNow.AddHours(1)
+            };
+
+            await _unitOfWork.PasswordTokenRepo.InsertAsync(resetToken);
+            await _unitOfWork.SaveAsync();
+
+            var resetLink = $"{_config["ClientApp:BaseUrl"]}/reset-password?email={Uri.EscapeDataString(model.Email)}&token={Uri.EscapeDataString(token)}";
+
+            await _emailSender.SendEmailAsync(
+                model.Email,
+                "Password Reset Request",
+                $"Hello {user.Email},<br><br>Please reset your password by <a href='{resetLink}'>clicking here</a>.<br><br>This link will expire in 1 hour.");
+
+            return "If your email exists in our system, you'll receive a password reset link";
+        }
+
+        private string GenerateSecureToken()
+        {
+            var tokenBytes = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(tokenBytes);
+            }
+            return Convert.ToBase64String(tokenBytes);
         }
 
 

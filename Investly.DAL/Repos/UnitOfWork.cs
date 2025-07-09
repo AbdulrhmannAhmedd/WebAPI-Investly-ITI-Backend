@@ -27,6 +27,7 @@ namespace Investly.DAL.Repos
         private IFeedbackRepo _FeedbackRepo;
         private IAiBusinessEvaluationRepo _AiBusinessEvaluationRepo;
         private ICategoryStandardRepo _CategoryStandardRepo;
+        private IPasswordResetTokenRepo _PasswordTokenRepo;
 
         private IAnalysisRepo _AnalysisRepo;
         public IInvestorRepo InvestorRepo => _InvestorRepo ??= new InvestorRepo(_db);
@@ -47,6 +48,8 @@ namespace Investly.DAL.Repos
         public ICategoryStandardRepo CategoryStandardRepo => _CategoryStandardRepo ??= new CategoryStandardRepo(_db);
 
         public IAnalysisRepo AnalysisRepo => _AnalysisRepo ??= new AnalysisRepo(_db);
+
+        public IPasswordResetTokenRepo PasswordTokenRepo => _PasswordTokenRepo ??= new PasswordResetTokenRepo(_db);
 
         public UnitOfWork(AppDbContext db)
         {

@@ -23,6 +23,7 @@ namespace Investly.DAL.Repos.IRepos
 
         public IQueryable<T> FindAll(Expression<Func<T, bool>>? filter = null, string? properties = null);
         public Task<T> GetByIdAsync(int id);
+        public Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter, string? includeProperties = null);
 
 
     }
