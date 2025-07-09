@@ -277,6 +277,60 @@ namespace Investly.PL.BL
             return true;
         }
 
+        public BusinessDetailsDto GetBusinessDetails(int businessId, int? loggedInUser)
+        {
+                var business = _unitOfWork.BusinessRepo.FirstOrDefault(
+                    b => b.Id == businessId && b.Status == (int)BusinessIdeaStatus.Active,
+                    includeProperties: "Founder.User,Category,City,Government,BusinessStandardAnswers.Standard,InvestorContactRequests"
+                );
+
+                if (business == null)
+                {
+                    throw new KeyNotFoundException($"Business with ID {businessId} not found or not active.");
+                }
+
+                int? investorId = null;
+                bool isLoggedInInvestor = false;
+
+                // I'm checking if the user is logged in and if he is an investor
+                if (loggedInUser.HasValue)
+                {
+                    var investor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.UserId == loggedInUser.Value);
+                    if(investor !=null)
+                    {
+                        investorId = investor.Id;
+                        isLoggedInInvestor = true;
+                    }
+                }
+
+                var businessDetails = _mapper.Map<BusinessDetailsDto>(business);
+
+                if(isLoggedInInvestor && investorId.HasValue)
+                {
+                    var existingContactRequest = business.InvestorContactRequests.FirstOrDefault(
+                        icr => icr.InvestorId == investorId.Value && icr.Status != (int)ContactRequestStatus.Deleted
+                    );
+
+                    if(existingContactRequest != null)
+                    {
+                        businessDetails.ContactRequestStatus = (ContactRequestStatus)existingContactRequest.Status;
+                        businessDetails.CanRequestContact = false;
+                    }
+                    else
+                    {
+                        businessDetails.ContactRequestStatus = null;
+                        businessDetails.CanRequestContact = true;
+                    }
+                }
+                else
+                {
+                    businessDetails.ContactRequestStatus = null;
+                    businessDetails.CanRequestContact = false;
+                }
+
+                return businessDetails;
+        }
+
         public int SoftDeleteBusiness(int businessId, int? loggedUserId, string? loggedInEmail)
         {
             return UpdateBusinessStatus(businessId, BusinessIdeaStatus.Deleted, loggedUserId, loggedInEmail);
