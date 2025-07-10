@@ -94,7 +94,7 @@ namespace Investly.PL.Mapper
             .ForMember(dest => dest.GovernmentName, opt => opt.MapFrom(src => src.Government != null ? src.Government.NameEn : string.Empty))
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src =>
                 !string.IsNullOrEmpty(src.Images)
-                ? src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
+                ?src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
             );
 
 
