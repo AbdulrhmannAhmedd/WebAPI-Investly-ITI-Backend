@@ -118,7 +118,7 @@ namespace Investly.PL.BL
             return _mapper.Map<InvestorContactRequestDto>(contact);
         }
 
-        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model,int? LoggedInUser)
+        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model,int? LoggedInUser, string? loggedInEmail = null)
         {
             var contact = _unitOfWork.InvestorContactRequestRepo.FirstOrDefault(c=>c.Id==model.ContactRequestId, "Investor.User,Business.Founder");
             if (contact == null)
@@ -152,7 +152,8 @@ namespace Investly.PL.BL
             contact.UpdatedAt = DateTime.UtcNow;
 
          var res=   _unitOfWork.Save();
-            if (res > 0&&LoggedInUser==3)
+
+            if (res > 0&&loggedInEmail== "SuperAdmin@gmail.com")
             {
                 var investorId = contact.Investor.UserId;
                 var founderId = contact.Business.Founder.UserId;

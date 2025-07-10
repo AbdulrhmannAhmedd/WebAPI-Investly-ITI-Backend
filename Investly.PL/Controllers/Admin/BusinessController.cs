@@ -52,7 +52,7 @@ namespace Investly.PL.Controllers.Admin
         {
             int? loggedUserId = null;
             var userIdClaim = User.FindFirst("id");
-            var userEmailClam = User.FindFirst("email");
+            var userEmailClam = User.FindFirst(ClaimTypes.Email);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
             {
                 loggedUserId = parsedUserId;

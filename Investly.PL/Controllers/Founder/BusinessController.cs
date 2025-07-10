@@ -61,8 +61,8 @@ namespace Investly.PL.Controllers.Founder
                 });
             }
 
-         //   var aiResponse = await _aiService.EvaluateIdea(businessDto.BusinessStandardAnswers, standards);
-            var aiResponse = @"
+          var aiResponse = await _aiService.EvaluateIdea(businessDto.BusinessStandardAnswers, standards);
+          /*  var aiResponse = @"
 {
   ""standards"": [
     {
@@ -108,7 +108,7 @@ namespace Investly.PL.Controllers.Founder
   ],
   ""totalWeightedScore"": 100,
   ""generalFeedback"": ""Your strengths lie in the appeal of your destination, but significant improvements are needed in the areas of customer experience, accommodation, transportation, and cultural engagement. Focus on providing detailed and specific information in your responses to enhance your overall evaluation.""
-}";
+}";*/
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
             var aiResultJson = JsonSerializer.Deserialize<AiBusinessEvaluationDto>(aiResponse, options);

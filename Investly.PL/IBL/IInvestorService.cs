@@ -8,7 +8,7 @@ namespace Investly.PL.IBL
         public InvestorDto? GetById(int id);
 
         public InvestorDtoWithPagination GetPaginatedData(InvestorSearchDto investorSearch);
-        public int Update(InvestorDto investor, int? loggedInUser);
+        public int Update(InvestorDto investor, int? loggedInUser, string? loggedInEmail = null);
         public InvestorTotalActiveIactiveDto GetTotalActiveInactiveInvestors();
         public int ChangeStatus(int id, int status,int? loggedUser);
         public Task<List<DropdownDto>> GetInvestorsForDropdownAsync();

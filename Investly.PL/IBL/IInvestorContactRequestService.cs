@@ -18,7 +18,7 @@ namespace Investly.PL.IBL
             string orderByDirection = Constants.Ascending,
             string searchTerm = null);
 
-        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model, int? LoggedInUser);
+        public void UpdateContactRequestStatus(UpdateContactRequestStatusDto model, int? LoggedInUser, string? loggedInEmail = null);
         public InvestorContactRequestDto GetContactRequestById(int contactId);
         public List<InvestorContactRequestDto> GetContactRequestsByInvestor( int? LoggedInUser);
         public CountContactRequestDto GetContactRequestsCountByInvestor(int? LoggedInUser);

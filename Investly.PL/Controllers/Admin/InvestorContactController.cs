@@ -10,6 +10,7 @@ using Investly.PL.IBL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Investly.PL.Controllers.Admin
 {
@@ -117,7 +118,8 @@ namespace Investly.PL.Controllers.Admin
 
             try
             {
-                _investorContactRequestService.UpdateContactRequestStatus(model,User.GetUserId());
+                var userEmailClam = User.FindFirst(ClaimTypes.Email);
+                _investorContactRequestService.UpdateContactRequestStatus(model,User.GetUserId(), userEmailClam?.Value);
                 response.IsSuccess = true;
                 response.Message = "Contact request status updated successfully.";
                 response.StatusCode = StatusCodes.Status200OK;
