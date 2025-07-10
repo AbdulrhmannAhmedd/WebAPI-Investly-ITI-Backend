@@ -94,7 +94,7 @@ namespace Investly.PL.Mapper
             .ForMember(dest => dest.GovernmentName, opt => opt.MapFrom(src => src.Government != null ? src.Government.NameEn : string.Empty))
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src =>
                 !string.IsNullOrEmpty(src.Images)
-                ? src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(imagePath => $"https://localhost:7111/{imagePath}").ToList() : new List<string>())
+                ? src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
             );
 
 
@@ -107,7 +107,7 @@ namespace Investly.PL.Mapper
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? string.Empty))
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.Location ?? string.Empty))
                 .ForMember(dest => dest.FilePath, opt => opt.MapFrom(src => 
-                    !string.IsNullOrEmpty(src.FilePath) ? $"https://localhost:7111/{src.FilePath}" : null))
+                    !string.IsNullOrEmpty(src.FilePath) ? src.FilePath : null))
                 .ForMember(dest => dest.FounderName, opt => opt.MapFrom(src =>
                     src.Founder != null && src.Founder.User != null
                     ? $"{src.Founder.User.FirstName} {src.Founder.User.LastName}"
@@ -119,7 +119,7 @@ namespace Investly.PL.Mapper
                     src.City != null ? (src.City.NameEn ?? src.City.NameAr ?? string.Empty) : string.Empty))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src =>
                     !string.IsNullOrEmpty(src.Images)
-                    ? src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).Select(imagePath => $"https://localhost:7111/{imagePath}").ToList() : new List<string>()))
+                    ? src.Images.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>()))
                 .ForMember(dest => dest.TotalContactRequests, opt => opt.MapFrom(src =>
                     src.InvestorContactRequests != null
                     ? src.InvestorContactRequests.Count(icr => icr.Status == (int)ContactRequestStatus.Accepted || icr.Status == (int)ContactRequestStatus.Pending) : 0)
