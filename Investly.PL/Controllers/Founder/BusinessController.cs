@@ -14,7 +14,7 @@ namespace Investly.PL.Controllers.Founder
 {
     [Route("api/founder/[controller]")]
     //[Authorize]
-   // [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
+   [TypeFilter(typeof(AuthorizeUserTypeAttribute), Arguments = new object[] { (int)UserType.Founder })]
 
     public class BusinessController : Controller
     {

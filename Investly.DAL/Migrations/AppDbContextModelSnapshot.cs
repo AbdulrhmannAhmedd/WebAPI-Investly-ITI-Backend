@@ -66,7 +66,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("CategoryStandardId");
 
-                    b.ToTable("AiBusinessStandardsEvaluations");
+                    b.ToTable("AiBusinessStandardsEvaluations", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Business", b =>
@@ -206,7 +206,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("BusinessStandardAnswers");
+                    b.ToTable("BusinessStandardAnswers", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Category", b =>
@@ -332,7 +332,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("CategoryStandardsKeyWords");
+                    b.ToTable("CategoryStandardsKeyWords", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.City", b =>
@@ -369,7 +369,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "NameEn" }, "UQ_Cities_Name_En")
                         .IsUnique();
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.ContactU", b =>
@@ -391,7 +391,7 @@ namespace Investly.DAL.Migrations
                     b.HasKey("Id")
                         .HasName("PK__ContactU__3214EC07B7F9C6CA");
 
-                    b.ToTable("ContactUs");
+                    b.ToTable("ContactUs", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Feedback", b =>
@@ -463,7 +463,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "UserId" }, "UQ__Founders__1788CC4D257E4087")
                         .IsUnique();
 
-                    b.ToTable("Founders");
+                    b.ToTable("Founders", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Government", b =>
@@ -495,7 +495,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "NameEn" }, "UQ_Governments_Name_En")
                         .IsUnique();
 
-                    b.ToTable("Governments");
+                    b.ToTable("Governments", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Investor", b =>
@@ -527,7 +527,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "UserId" }, "UQ__Investor__1788CC4D151790F5")
                         .IsUnique();
 
-                    b.ToTable("Investors");
+                    b.ToTable("Investors", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.InvestorContactRequest", b =>
@@ -573,7 +573,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("InvestorContactRequests");
+                    b.ToTable("InvestorContactRequests", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Notification", b =>
@@ -627,7 +627,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UserIdTo");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.PasswordResetToken", b =>
@@ -652,7 +652,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResetTokens");
+                    b.ToTable("PasswordResetTokens", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Standard", b =>
@@ -694,7 +694,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("Standards");
+                    b.ToTable("Standards", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.User", b =>
@@ -809,7 +809,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "NationalId" }, "UQ__Users__E9AA32FA413F176B")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.AiBusinessStandardsEvaluation", b =>
