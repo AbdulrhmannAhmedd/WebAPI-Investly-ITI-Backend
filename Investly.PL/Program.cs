@@ -24,6 +24,7 @@ namespace Investly.PL
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var _config = builder.Configuration;
             builder.Configuration
     .AddJsonFile("appsettings.json")
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
@@ -40,7 +41,7 @@ namespace Investly.PL
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
-                    builder => builder.WithOrigins("http://localhost:4200")
+                    builder => builder.WithOrigins(_config.GetValue<string>("ClientApp:BaseUrl") ?? "")
                                       .AllowAnyMethod()
                                       .AllowAnyHeader()
                                       .AllowCredentials()
