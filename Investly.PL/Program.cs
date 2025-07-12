@@ -156,7 +156,7 @@ namespace Investly.PL
                 RequestPath = "/uploads",
                 OnPrepareResponse = ctx =>
                 {
-                    ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "http://localhost:4200");
+                    ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", _config.GetValue<string>("ClientApp:BaseUrl") ?? "");
                 }
             });
             app.UseHttpsRedirection();
