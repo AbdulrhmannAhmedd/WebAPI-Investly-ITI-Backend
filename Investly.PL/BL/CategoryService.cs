@@ -21,7 +21,7 @@ namespace Investly.PL.BL
         {
             try
             {
-                var res = _unitOfWork.CategoryRepo.GetAll();
+                var res = _unitOfWork.CategoryRepo.GetAll(c=>c.Status!=(int)CategoryStatus.deleted);
                 var categories=_mapper.Map<List<CategoryForListDto>>(res);
                 return categories;
             }
