@@ -106,3 +106,5 @@ public partial class User
 
     public virtual User? UpdatedByNavigation { get; set; }
 }
+
+

@@ -4,6 +4,7 @@ using Investly.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Investly.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709184030_RemoveIsUsedColumnFromPasswordResetTokenTable")]
+    partial class RemoveIsUsedColumnFromPasswordResetTokenTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,7 +69,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("CategoryStandardId");
 
-                    b.ToTable("AiBusinessStandardsEvaluations", (string)null);
+                    b.ToTable("AiBusinessStandardsEvaluations");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Business", b =>
@@ -206,7 +209,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("BusinessStandardAnswers", (string)null);
+                    b.ToTable("BusinessStandardAnswers");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Category", b =>
@@ -332,7 +335,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("CategoryStandardsKeyWords", (string)null);
+                    b.ToTable("CategoryStandardsKeyWords");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.City", b =>
@@ -369,7 +372,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "NameEn" }, "UQ_Cities_Name_En")
                         .IsUnique();
 
-                    b.ToTable("Cities", (string)null);
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.ContactU", b =>
@@ -391,7 +394,7 @@ namespace Investly.DAL.Migrations
                     b.HasKey("Id")
                         .HasName("PK__ContactU__3214EC07B7F9C6CA");
 
-                    b.ToTable("ContactUs", (string)null);
+                    b.ToTable("ContactUs");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Feedback", b =>
@@ -463,7 +466,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "UserId" }, "UQ__Founders__1788CC4D257E4087")
                         .IsUnique();
 
-                    b.ToTable("Founders", (string)null);
+                    b.ToTable("Founders");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Government", b =>
@@ -495,7 +498,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "NameEn" }, "UQ_Governments_Name_En")
                         .IsUnique();
 
-                    b.ToTable("Governments", (string)null);
+                    b.ToTable("Governments");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Investor", b =>
@@ -527,7 +530,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "UserId" }, "UQ__Investor__1788CC4D151790F5")
                         .IsUnique();
 
-                    b.ToTable("Investors", (string)null);
+                    b.ToTable("Investors");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.InvestorContactRequest", b =>
@@ -573,7 +576,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("InvestorContactRequests", (string)null);
+                    b.ToTable("InvestorContactRequests");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Notification", b =>
@@ -627,7 +630,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UserIdTo");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.PasswordResetToken", b =>
@@ -652,7 +655,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResetTokens", (string)null);
+                    b.ToTable("PasswordResetTokens");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.Standard", b =>
@@ -694,7 +697,7 @@ namespace Investly.DAL.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("Standards", (string)null);
+                    b.ToTable("Standards");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.User", b =>
@@ -809,7 +812,7 @@ namespace Investly.DAL.Migrations
                     b.HasIndex(new[] { "NationalId" }, "UQ__Users__E9AA32FA413F176B")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Investly.DAL.Entities.AiBusinessStandardsEvaluation", b =>

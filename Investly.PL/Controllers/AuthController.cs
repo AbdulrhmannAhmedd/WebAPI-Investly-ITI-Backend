@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Investly.PL.Controllers
@@ -340,6 +341,134 @@ namespace Investly.PL.Controllers
                 });
             }
         }
+
+        [HttpPost("request-password-reset")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequestDto model)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.Email))
+                {
+                    return BadRequest(new ResponseDto<string>
+                    {
+                        IsSuccess = false,
+                        StatusCode = 400,
+                        Message = "Email is required",
+                        Data = "Email is required"
+                    });
+                }
+
+                var resultMessage = await _userService.RequestToChangePasswordAsync(model);
+
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "Password reset request processed",
+                    Data = resultMessage
+                });
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "Database error occurred",
+                    Data = "Database error occurred"
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred",
+                    Data = "An unexpected error occurred"
+                });
+            }
+        }
+
+
+        [HttpPost("change-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChangePassword([FromBody] ResetPasswordDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                var response = new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = string.Join("; ", errors),
+                    Data = null
+                };
+
+                return BadRequest(response);
+            }
+            try
+            {
+
+                await _userService.ChangePasswordAsync(model);
+
+                return Ok(new ResponseDto<string>
+                {
+                    IsSuccess = true,
+                    StatusCode = 200,
+                    Message = "Password changed successfully",
+                    Data = null
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest( new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+            catch (SecurityException ex)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 400,
+                    Message =ex.Message,
+                    Data = null
+                });
+            }
+
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "Database error occurred",
+                    Data = "Database error occurred"
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new ResponseDto<string>
+                {
+                    IsSuccess = false,
+                    StatusCode = 500,
+                    Message = "An unexpected error occurred",
+                    Data = "An unexpected error occurred"
+                });
+            }
+        }
+
 
 
 

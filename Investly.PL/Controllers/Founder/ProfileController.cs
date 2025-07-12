@@ -275,7 +275,8 @@ namespace Investly.PL.Controllers.Founder
                     IsSuccess = true,
                     StatusCode = 200,
                     Message = message,
-                    Data = result
+                    Data = result,
+                    RefreshTokenRequired= true
                 });
             }
             catch (KeyNotFoundException ex)
