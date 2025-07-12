@@ -162,20 +162,34 @@ namespace Investly.PL.BL
 
                     if (isLoggedInInvestor && investorId.HasValue)
                     {
-                        // Checking if the investor has already requested contact with this business
 
-                        var business = paginatedBusinesses.FirstOrDefault(b => b.Id == businessDto.Id);
-                        var existingContactRequest = business?.InvestorContactRequests.FirstOrDefault(icr => icr.InvestorId == investorId.Value && icr.Status != (int)ContactRequestStatus.Deleted);
+                        // Check if the investor's status is active
+                        bool isInvestorActive = investorDetails?.User?.Status == (int)UserStatus.Active;
 
-                        if(existingContactRequest != null)
+                        if (!isInvestorActive)
                         {
-                            businessDto.ContactRequestStatus = (ContactRequestStatus)existingContactRequest.Status; // Sending the status of the existing contact request between investor & this business
-                            businessDto.CanRequestContact = false; // Contact request already exists so investor cannot request again
+                            // If investor is not active, they cannot request contact
+                            businessDto.ContactRequestStatus = null;
+                            businessDto.CanRequestContact = false;
                         }
                         else
                         {
-                            businessDto.ContactRequestStatus = null;
-                            businessDto.CanRequestContact = true; // Investor can request contact with this business
+
+                            // Checking if the investor has already requested contact with this business
+
+                            var business = paginatedBusinesses.FirstOrDefault(b => b.Id == businessDto.Id);
+                            var existingContactRequest = business?.InvestorContactRequests.FirstOrDefault(icr => icr.InvestorId == investorId.Value && icr.Status != (int)ContactRequestStatus.Deleted);
+
+                            if (existingContactRequest != null)
+                            {
+                                businessDto.ContactRequestStatus = (ContactRequestStatus)existingContactRequest.Status; // Sending the status of the existing contact request between investor & this business
+                                businessDto.CanRequestContact = false; // Contact request already exists so investor cannot request again
+                            }
+                            else
+                            {
+                                businessDto.ContactRequestStatus = null;
+                                businessDto.CanRequestContact = true; // Investor can request contact with this business
+                            }
                         }
 
                     }
@@ -313,12 +327,25 @@ namespace Investly.PL.BL
                 }
 
             if (isLoggedInInvestor && investorId.HasValue)
+            {
+
+                var investor = _unitOfWork.InvestorRepo.FirstOrDefault(i => i.Id == investorId.Value, "User");
+                bool isInvestorActive = investor?.User?.Status == (int)UserStatus.Active;
+
+                if (!isInvestorActive)
                 {
+                    // investor is not active then he cannot request contact
+                    businessDetails.ContactRequestStatus = null;
+                    businessDetails.CanRequestContact = false;
+                }
+                else
+                {
+
                     var existingContactRequest = business.InvestorContactRequests.FirstOrDefault(
                         icr => icr.InvestorId == investorId.Value && icr.Status != (int)ContactRequestStatus.Deleted
                     );
 
-                    if(existingContactRequest != null)
+                    if (existingContactRequest != null)
                     {
                         businessDetails.ContactRequestStatus = (ContactRequestStatus)existingContactRequest.Status;
                         businessDetails.CanRequestContact = false;
@@ -329,13 +356,14 @@ namespace Investly.PL.BL
                         businessDetails.CanRequestContact = true;
                     }
                 }
-                else
-                {
-                    businessDetails.ContactRequestStatus = null;
-                    businessDetails.CanRequestContact = false;
-                }
+            }
+            else
+            {
+                businessDetails.ContactRequestStatus = null;
+                businessDetails.CanRequestContact = false;
+            }
 
-                return businessDetails;
+            return businessDetails;
         }
 
         public int SoftDeleteBusiness(int businessId, int? loggedUserId, string? loggedInEmail)
