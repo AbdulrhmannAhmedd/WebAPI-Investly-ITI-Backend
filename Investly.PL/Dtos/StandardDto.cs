@@ -35,6 +35,13 @@ namespace Investly.PL.Dtos
         public int StandardCategoryWeight { get; set; }
 
     }
+    public class StandardItemAiDto
+    {
+        public string Standard { get; set; }
+        public int Weight { get; set; }
+        public string Question { get; set; }
+    }
+
 
 
 }

@@ -17,6 +17,84 @@ namespace Investly.PL.General.Services
 
         }
 
+        private bool IsValidStandardsJson(string json)
+        {
+            try
+            {
+                var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                {
+                    return false;
+                }
+                var array = doc.RootElement.EnumerateArray();
+                return array.Count() == 10;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public string BuildPromptToGenerateStandards(string category)
+            {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("You are an expert in business evaluation frameworks.");
+            sb.AppendLine("Based on the given business category, generate a list of 10 evaluation standards.");
+            sb.AppendLine();
+            sb.AppendLine("For each standard, include the following fields:");
+            sb.AppendLine("- \"Standard\": A short title describing the evaluation focus.");
+            sb.AppendLine("- \"Weight\": An integer percentage value (no decimals). The total of all 10 weights must equal exactly 100.");
+            sb.AppendLine("- \"Question\": A clear, professional, open-ended evaluation question for the founder.");
+            sb.AppendLine();
+            sb.AppendLine("Return only a valid JSON array containing 10 objects in the following format:");
+            sb.AppendLine(@"
+[
+  {
+    ""Standard"": ""Standard Title"",
+    ""Weight"": 10,
+    ""Question"": ""Open-ended question here.""
+  },
+  ...
+]
+");
+            sb.AppendLine("Rules:");
+            sb.AppendLine("- Do not include any text outside the JSON array.");
+            sb.AppendLine("- Make sure the total weight of all 10 standards is exactly 100.");
+            sb.AppendLine("- Do not include extra fields.");
+            sb.AppendLine();
+            sb.AppendLine($"Now generate the standards for this category:{category}");
+            return sb.ToString();
+
+        }
+        public async Task<ResponseDto<List<StandardItemAiDto>>>GenerateStandardsForCategory(string category)
+        {
+            string prompt = BuildPromptToGenerateStandards(category.Trim());
+            var result= await CallOpenAiAsync(prompt);
+            if (!IsValidStandardsJson(result))
+            {
+                return new ResponseDto<List<StandardItemAiDto>>
+                {
+                    Data = null,
+                    IsSuccess = false,
+                    Message = "The provided category is invalid or not recognized. Please enter a valid business category.",
+                    StatusCode = 400
+                };
+            }
+
+            var standards = JsonSerializer.Deserialize<List<StandardItemAiDto>>(result, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return new ResponseDto<List<StandardItemAiDto>>
+            {
+                Data = standards,
+                IsSuccess = true,
+                Message = "Standards generated successfully.",
+                StatusCode = 200
+            };
+
+        }
         public async Task<string> EvaluateIdea(List<BusinessStandardAnswerDto> businessStandardAnswers, List<StandardCategoryDto> standards)
         {
             string prompt = BuildPrompt(businessStandardAnswers, standards);
@@ -72,7 +150,7 @@ namespace Investly.PL.General.Services
 
             return sb.ToString();
         }
-
+      
         private async Task<string> CallOpenAiAsync(string prompt)
         {
             string apiKey = _configuration["OpenAi:ApiKey"];

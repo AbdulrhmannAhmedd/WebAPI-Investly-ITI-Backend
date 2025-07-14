@@ -2,6 +2,7 @@
 using Investly.PL.Dtos;
 using Investly.PL.Extentions;
 using Investly.PL.General;
+using Investly.PL.General.Services.IServices;
 using Investly.PL.IBL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +16,11 @@ namespace Investly.PL.Controllers.Admin
     {
 
         private ICategoryService _categoryService;
-        public CategoryController(ICategoryService categoryService)
+        private IAiService _aiService;
+        public CategoryController(ICategoryService categoryService, IAiService aiService)
         {
             _categoryService = categoryService;
+            _aiService = aiService;
         }
 
         [HttpPost("Paginated")]
@@ -182,6 +185,12 @@ namespace Investly.PL.Controllers.Admin
                 Data = total,
                 StatusCode = StatusCodes.Status200OK
             };
+        }
+        [HttpGet("GenerateStandards")]
+        public async Task< IActionResult> GetStandardsForCategory(string category)
+        {
+            var res = await _aiService.GenerateStandardsForCategory(category);
+            return Ok(res);
         }
     }
 
